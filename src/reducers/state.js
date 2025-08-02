@@ -1,10 +1,12 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import sessionStorage from 'redux-persist/lib/storage/session';
+import { navbarSlice } from '../reducers/reducers'
 
 
 // 1. Reducer yang ingin dipersist
 const persistedReducers = combineReducers({
+  navbar: navbarSlice.reducer,
 })
 
 // 2. Konfigurasi persist
