@@ -1,12 +1,39 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import sessionStorage from 'redux-persist/lib/storage/session';
-import { navbarSlice } from '../reducers/reducers'
-
+import { 
+  navbarSlice,
+} from './reducers'
+import {
+  loginStatusSlice,
+  logoutSlice,
+  productServicesSlice,
+  paymentMethodsSlice,
+  storeSlice,
+  detailStoreSlice,
+} from './get'
+import { 
+  loginSlice,
+  forgotPasswordSlice,
+  registerAccountSlice,
+  postEmployeeSlice,
+} from './post'
+import {
+  registerVerificationSlice,
+  patchCredentialStoreSlice,
+  extendServiceStoreSlice,
+} from './patch'
 
 // 1. Reducer yang ingin dipersist
 const persistedReducers = combineReducers({
   navbar: navbarSlice.reducer,
+  loginStatus: loginStatusSlice.reducer,
+  productServices: productServicesSlice.reducer,
+  paymentMethods: paymentMethodsSlice.reducer,
+  registerVerification: registerVerificationSlice.reducer,
+  extendServiceStore: extendServiceStoreSlice.reducer,
+  store: storeSlice.reducer,
+  detailStore: detailStoreSlice.reducer,
 })
 
 // 2. Konfigurasi persist
@@ -17,6 +44,12 @@ const persistConfig = {
 
 // 3. Reducer yang tidak ingin dipersist
 const nonPersistedReducers = {
+  loginState: loginSlice.reducer,
+  logoutState: logoutSlice.reducer,
+  forgotPasswordState: forgotPasswordSlice.reducer, 
+  registerAccountState: registerAccountSlice.reducer,
+  postEmployeeState: postEmployeeSlice.reducer,
+  patchCredentialStoreState: patchCredentialStoreSlice.reducer,
 }
 
 const rootReducer = combineReducers({

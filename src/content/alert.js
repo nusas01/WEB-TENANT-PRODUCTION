@@ -1,4 +1,10 @@
 import { useRef, useEffect, useState } from "react";
+import {
+  CheckCircle,
+  XCircle,
+  X,
+} from 'lucide-react'
+import { createPortal } from "react-dom";
 
 export const Toast = ({ message, type, onClose, duration = 3000 }) => {
   const [isVisible, setIsVisible] = useState(false);

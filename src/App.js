@@ -6,9 +6,24 @@ import TenantRegistrationForm from './content/signup'
 import VerificationForm from './content/verification'
 import LoginForm from './content/login';
 import SettingsComponent from './content/setting';
+import ForgotPasswordComponent from './content/forgotPassword'
+import PaymentInvoice from './content/invoice'
 import { ScrollToTop } from './content/helper';
+import PrivateRoute from './reducers/privateRoute';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { fetchAuthStatusLogin } from './actions/get'; 
 
 function App() {
+  const dispatch = useDispatch()
+
+  const { loggedIn } = useSelector((state) => state.persisted.loginStatus)
+  useEffect(() => {
+    if (!loggedIn) {
+      dispatch(fetchAuthStatusLogin())
+    }
+  }, [loggedIn])
+
   return (
     <Router>
       <ScrollToTop/>
@@ -17,8 +32,13 @@ function App() {
         <Route path='/login' element={<LoginForm/>}/>
         <Route path='/signup' element={<TenantRegistrationForm/>}/>
         <Route path='/signup/verification' element={<VerificationForm/>}/>
-        <Route path='/store' element={<StoreManagementDashboard/>}/>
-        <Route path='/setting' element={<SettingsComponent/>}/>
+        <Route path='/forgot/password' element={<ForgotPasswordComponent/>}/>
+        <Route path='/invoice' element={<PaymentInvoice/>}/>
+
+        <Route element={<PrivateRoute/>}> 
+          <Route path='/store' element={<StoreManagementDashboard/>}/>
+          <Route path='/setting' element={<SettingsComponent/>}/>
+        </Route> 
       </Routes>
     </Router>
   );

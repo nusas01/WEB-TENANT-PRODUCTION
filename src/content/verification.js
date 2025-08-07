@@ -1,19 +1,53 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   Shield, 
   Mail, 
-  AlertCircle, 
-  CheckCircle, 
-  RefreshCw,
-  ArrowLeft
+  AlertCircle,
 } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  Toast,
+  ToastPortal,
+} from './alert'
+import {
+  registerVerificationSlice
+} from '../reducers/patch'
+import {
+  registerVerification
+} from '../actions/patch'
 
 export default function VerificationForm() {
+  const dispatch = useDispatch()
   const [code, setCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
-  const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState('');
-  const [resendMessage, setResendMessage] = useState('');
+  const [toast, setToast] = useState(null)
+
+  const {resetRegisterVerification} = registerVerificationSlice.actions
+  const {
+    successRegisterVerification,
+    errorRegisterVerification, 
+    loadingRegisterVerification
+  } = useSelector((state) => state.persisted.registerVerification)
+
+  useEffect(() => {
+    if (successRegisterVerification) {
+      window.open('/invoice', '_blank');
+    }
+  }, [successRegisterVerification])
+ 
+  useEffect(() => {
+    setIsVerifying(loadingRegisterVerification)
+  }, [loadingRegisterVerification])
+
+  useEffect(() => {
+    if (errorRegisterVerification) {
+      setToast({
+        type: 'error',
+        message: 'Terjadi kesalahan saat verfikasi. Silahkan coba lagi nanti.'
+      })
+    }
+  }, [errorRegisterVerification])
 
   const handleCodeChange = (e) => {
     const value = e.target.value.replace(/\D/g, ''); // Only allow digits
@@ -23,7 +57,7 @@ export default function VerificationForm() {
     }
   };
 
-  const handleVerify = async () => {
+  const handleVerify = () => {
     if (!code) {
       setError('Please enter the verification code');
       return;
@@ -37,42 +71,27 @@ export default function VerificationForm() {
     setIsVerifying(true);
     setError('');
 
-    // Simulate API call
-    setTimeout(() => {
-      // Simulate success/failure
-      if (code === '12345689') {
-        alert('Account verified successfully! You can now access your dashboard.');
-      } else {
-        setError('Invalid verification code. Please try again.');
-      }
-      setIsVerifying(false);
-    }, 2000);
-  };
-
-  const handleResendCode = async () => {
-    setIsResending(true);
-    setResendMessage('');
-    setError('');
-
-    // Simulate API call
-    setTimeout(() => {
-      setResendMessage('Verification code has been resent to your email');
-      setIsResending(false);
-      
-      // Clear message after 5 seconds
-      setTimeout(() => {
-        setResendMessage('');
-      }, 5000);
-    }, 1500);
-  };
-
-  const handleBackToLogin = () => {
-    // Navigate back to login/registration
-    alert('Navigating back to login page...');
+    dispatch(registerVerification({code: code}))
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      {toast && (
+            <ToastPortal> 
+                <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-100'>
+                <Toast 
+                message={toast.message} 
+                type={toast.type} 
+                onClose={() => { 
+                  setToast(null)
+                  dispatch(resetRegisterVerification())
+                }} 
+                duration={3000}
+                />
+                </div>
+            </ToastPortal>
+        )}
+
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -124,18 +143,11 @@ export default function VerificationForm() {
                   <span>{error}</span>
                 </div>
               )}
-
-              {resendMessage && (
-                <div className="mt-2 flex items-center space-x-1 text-green-600 text-sm">
-                  <CheckCircle className="h-4 w-4" />
-                  <span>{resendMessage}</span>
-                </div>
-              )}
             </div>
 
             {/* Verify Button */}
             <button
-              onClick={handleVerify}
+              onClick={() => handleVerify()}
               disabled={isVerifying || code.length !== 8}
               className="w-full flex justify-center items-center px-6 py-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -151,43 +163,6 @@ export default function VerificationForm() {
                 </>
               )}
             </button>
-
-            {/* Resend Code */}
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
-                <Mail className="h-4 w-4" />
-                <span>Didn't receive the code?</span>
-              </div>
-              
-              <button
-                onClick={handleResendCode}
-                disabled={isResending}
-                className="flex items-center justify-center space-x-2 text-green-600 hover:text-green-500 font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isResending ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                    <span>Resending...</span>
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="h-4 w-4" />
-                    <span>Resend Verification Code</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Back to Login */}
-            <div className="pt-4 border-t border-gray-200">
-              <button
-                onClick={handleBackToLogin}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors text-sm font-medium"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to Login</span>
-              </button>
-            </div>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   Mail, 
   Lock, 
@@ -8,32 +8,81 @@ import {
   ArrowRight,
   Store
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { loginSlice } from '../reducers/post';
+import { login } from '../actions/post';
+import { 
+  Toast,
+  ToastPortal,
+} from './alert'
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function LoginForm() {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [toast, setToast] =  useState(null)
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  
-  const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // handle sumbit login
+  const { resetLogin } = loginSlice.actions
+  const {
+    successLogin, 
+    errorLogin, 
+    loadingLogin, 
+    errorPassLogin, 
+    errorEmailLogin
+  } = useSelector((state) => state.loginState)
+  console.log("apakah ini cuccess: ", successLogin)
+  console.log("error apa ini tee:", errorPassLogin, errorEmailLogin )
+
+  useEffect(() => {
+    if (successLogin) {
+      navigate('/store')
+      setFormData({
+        email: '',
+        password: '',
+      })
+      setErrors({})
+      dispatch(resetLogin())
+    }
+  }, [successLogin])
+
+  console.log("apap ini error", errorLogin)
+
+  useEffect(() => { 
+    if (errorLogin) {
+      setToast({
+        type: 'error',
+        message: 'Terjadi kesalahan saat mendaftarkan akun. Silahkan coba lagi nanti.'
+      })
+
+      const timer = setTimeout(() => {
+        dispatch(resetLogin())
+      }, 3000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [errorLogin])
 
   const validateField = (name, value) => {
-    const newErrors = { ...errors };
+    const newErrors = {};
 
     switch (name) {
       case 'email':
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!value) newErrors.email = 'Email is required';
-        else if (!emailRegex.test(value)) newErrors.email = 'Please enter a valid email';
-        else delete newErrors.email;
+        if (!value) {
+          newErrors.email = 'Email is required';
+        }
         break;
 
       case 'password':
-        if (!value) newErrors.password = 'Password is required';
-        else if (value.length < 6) newErrors.password = 'Password must be at least 6 characters';
-        else delete newErrors.password;
+        if (!value) {
+          newErrors.password = 'Password is required';
+        }
         break;
 
       default:
@@ -43,15 +92,15 @@ export default function LoginForm() {
     return newErrors;
   };
 
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
-    const newErrors = validateField(name, value);
-    setErrors(newErrors);
   };
 
-  const handleLogin = async () => {
+  
+  // handle login
+  const handleLogin = () => {
     // Validate all fields
     let allErrors = {};
     Object.keys(formData).forEach(key => {
@@ -59,71 +108,39 @@ export default function LoginForm() {
       allErrors = { ...allErrors, ...fieldErrors };
     });
 
-    setErrors(allErrors);
-
-    if (Object.keys(allErrors).length === 0) {
-      setIsLoading(true);
-      
-      // Simulate API call
-      setTimeout(() => {
-        if (formData.email === 'admin@nusas.id' && formData.password === 'admin123') {
-          alert('Login successful! Redirecting to dashboard...');
-        } else {
-          setErrors({ general: 'Invalid email or password. Please try again.' });
-        }
-        setIsLoading(false);
-      }, 2000);
+    // Cek apakah ada error
+    if (Object.keys(allErrors).length > 0) {
+      setErrors(allErrors);
+      return;
     }
+
+    setErrors({})
+    dispatch(login(formData));
   };
 
-  const handleForgotPassword = () => {
-    alert('Forgot password functionality - redirect to reset password page');
-  };
 
   const handleSignup = () => {
-    alert('Redirect to signup page');
+    navigate('/signup')
   };
-
-  const InputField = ({ name, label, type = 'text', icon: Icon, placeholder }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
-        {label}
-      </label>
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Icon className="h-5 w-5 text-gray-400" />
-        </div>
-        <input
-          type={type}
-          name={name}
-          value={formData[name]}
-          onChange={handleInputChange}
-          placeholder={placeholder}
-          className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-            errors[name] ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
-          }`}
-        />
-        {name === 'password' && (
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center"
-          >
-            {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
-          </button>
-        )}
-      </div>
-      {errors[name] && (
-        <div className="flex items-center space-x-1 text-red-600 text-sm">
-          <AlertCircle className="h-4 w-4" />
-          <span>{errors[name]}</span>
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      {toast && (
+          <ToastPortal> 
+              <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-100'>
+              <Toast 
+              message={toast.message} 
+              type={toast.type} 
+              onClose={() => { 
+                setToast(null)
+                dispatch(resetLogin())
+              }} 
+              duration={3000}
+              />
+              </div>
+          </ToastPortal>
+      )}
+
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -151,21 +168,64 @@ export default function LoginForm() {
           )}
 
           <div className="space-y-6">
-            <InputField
-              name="email"
-              label="Email Address"
-              type="email"
-              icon={Mail}
-              placeholder="Enter your email"
-            />
+            {/* Email Input */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Email Address</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="Enter your email"
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    (errors.email || errorEmailLogin) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+              </div>
+              {(errors.email || errorEmailLogin) && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.email || errorEmailLogin}</span>
+                </div>
+              )}
+            </div>
 
-            <InputField
-              name="password"
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              icon={Lock}
-              placeholder="Enter your password"
-            />
+            {/* Password Input */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Enter your password"
+                  className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    (errors.password || errorPassLogin) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
+                </button>
+              </div>
+              {(errors.password || errorPassLogin) && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.password || errorPassLogin}</span>
+                </div>
+              )}
+            </div>
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
@@ -177,7 +237,7 @@ export default function LoginForm() {
                 <span className="ml-2 text-sm text-gray-700">Remember me</span>
               </label>
               <button
-                onClick={handleForgotPassword}
+                onClick={() => navigate('/forgot/password')}
                 className="text-sm text-green-600 hover:text-green-500 font-medium transition-colors"
               >
                 Forgot password?
@@ -186,11 +246,11 @@ export default function LoginForm() {
 
             {/* Login Button */}
             <button
-              onClick={handleLogin}
-              disabled={isLoading}
+              onClick={() => handleLogin()}
+              disabled={loadingLogin}
               className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? (
+              {loadingLogin ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                   Signing in...

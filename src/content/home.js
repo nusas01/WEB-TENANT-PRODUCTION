@@ -22,86 +22,31 @@ import {
   TrendingUp,
   Target,
   Globe,
-  Headphones
+  Loader2,
+  AlertTriangle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  fetchProductServices, 
+} from '../actions/get'
+import {
+  productServicesSlice,
+} from '../reducers/get'
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  Toast, 
+  ToastPortal
+} from './alert'
+import { formatCurrency } from './helper';
+
 
 export default function QRestroLanding() {
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
-
-  const stats = [
-    { icon: TrendingUp, number: '500+', label: 'Restoran Partner' },
-    { icon: Users, number: '50K+', label: 'Transaksi Harian' },
-    { icon: Target, number: '99.9%', label: 'Uptime Guaranteed' },
-    { icon: Globe, number: '24/7', label: 'Support Premium' }
-  ];
-
-  const packages = [
-    {
-      name: 'Starter',
-      segment: 'Untuk UMKM & Warung',
-      price: 'Rp 299K',
-      originalPrice: 'Rp 450K',
-      badge: 'Hemat 33%',
-      gradient: 'from-green-500 to-green-600',
-      popular: false,
-      features: [
-        'QR Code Menu Digital + Customizable Design',
-        'Payment Gateway (QRIS, E-wallet, Bank)',
-        'Basic Analytics & Sales Report',
-        'WhatsApp Integration untuk Notifikasi',
-        'Cloud Storage 5GB untuk Menu & Assets',
-        'Multi-device Access (HP, Tablet, Laptop)',
-        'Setup & Training Online Included',
-        'Email Support dengan Response < 24 Jam'
-      ]
-    },
-    {
-      name: 'Professional',
-      segment: 'Untuk Restaurant & Cafe',
-      price: 'Rp 599K',
-      originalPrice: 'Rp 899K',
-      badge: 'Most Popular',
-      gradient: 'from-green-500 to-emerald-600',
-      popular: true,
-      features: [
-        'Semua fitur Starter Plan',
-        'Advanced Analytics dengan AI Insights',
-        'Staff Management + Face Recognition',
-        'Multi-location Support (hingga 3 cabang)',
-        'Inventory Management Terintegrasi',
-        'Custom Branding + White Label Option',
-        'API Integration untuk POS/ERP',
-        'Priority Support + Account Manager',
-        'Marketing Tools (Loyalty, Voucher, Campaign)',
-        'Advanced Reporting + Export Data'
-      ]
-    },
-    {
-      name: 'Enterprise',
-      segment: 'Untuk Chain & Franchise',
-      price: 'Rp 1.2JT',
-      originalPrice: 'Rp 1.8JT',
-      badge: 'Best Value',
-      gradient: 'from-green-600 to-green-700',
-      popular: false,
-      features: [
-        'Semua fitur Professional Plan',
-        'Unlimited Locations & Multi-brand',
-        'Advanced AI Analytics + Predictive Insights',
-        'Enterprise Security (SOC 2, ISO 27001)',
-        'Dedicated Server + 99.99% SLA',
-        'Custom Development & API Priority',
-        'Onsite Training + Implementation',
-        '24/7 Phone Support + Dedicated Success Manager',
-        'Advanced Integrations (SAP, Oracle, etc)',
-        'Custom Reporting + Business Intelligence'
-      ]
-    }
-  ];
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -111,6 +56,96 @@ export default function QRestroLanding() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const segments = ['Starter', 'Professional', 'Enterprise'];
+
+  const {resetErrorProductService} = productServicesSlice.actions
+  const {dataProductService: packages, errorProductService, loadingProductService} = useSelector((state) => state.persisted.productServices)
+  useEffect(() => {
+    if (packages.length === 0) {
+      dispatch(fetchProductServices())
+    }
+  }, [])
+
+  useEffect(() => {
+    if (errorProductService) {
+      setToast({
+        type: 'error',
+        message: 'Terjadi kesalahan pada server kami saat load data, silahkan coba lagi nanti.'
+      })
+    }
+  }, [errorProductService])
+
+  const stats = [
+    { icon: TrendingUp, number: '500+', label: 'Restoran Partner' },
+    { icon: Users, number: '50K+', label: 'Transaksi Harian' },
+    { icon: Target, number: '99.9%', label: 'Uptime Guaranteed' },
+    { icon: Globe, number: '24/7', label: 'Support Premium' }
+  ];
+
+  // const packages = [
+  //   {
+  //     name: 'Starter',
+  //     segment: 'Untuk UMKM & Warung',
+  //     price: 'Rp 299K',
+  //     originalPrice: 'Rp 450K',
+  //     badge: 'Hemat 33%',
+  //     gradient: 'from-green-500 to-green-600',
+  //     popular: false,
+  //     features: [
+  //       'QR Code Menu Digital + Customizable Design',
+  //       'Payment Gateway (QRIS, E-wallet, Bank)',
+  //       'Basic Analytics & Sales Report',
+  //       'WhatsApp Integration untuk Notifikasi',
+  //       'Cloud Storage 5GB untuk Menu & Assets',
+  //       'Multi-device Access (HP, Tablet, Laptop)',
+  //       'Setup & Training Online Included',
+  //       'Email Support dengan Response < 24 Jam'
+  //     ]
+  //   },
+  //   {
+  //     name: 'Professional',
+  //     segment: 'Untuk Restaurant & Cafe',
+  //     price: 'Rp 599K',
+  //     originalPrice: 'Rp 899K',
+  //     badge: 'Most Popular',
+  //     gradient: 'from-green-500 to-emerald-600',
+  //     popular: true,
+  //     features: [
+  //       'Semua fitur Starter Plan',
+  //       'Advanced Analytics dengan AI Insights',
+  //       'Staff Management + Face Recognition',
+  //       'Multi-location Support (hingga 3 cabang)',
+  //       'Inventory Management Terintegrasi',
+  //       'Custom Branding + White Label Option',
+  //       'API Integration untuk POS/ERP',
+  //       'Priority Support + Account Manager',
+  //       'Marketing Tools (Loyalty, Voucher, Campaign)',
+  //       'Advanced Reporting + Export Data'
+  //     ]
+  //   },
+  //   {
+  //     name: 'Enterprise',
+  //     segment: 'Untuk Chain & Franchise',
+  //     price: 'Rp 1.2JT',
+  //     originalPrice: 'Rp 1.8JT',
+  //     badge: 'Best Value',
+  //     gradient: 'from-green-600 to-green-700',
+  //     popular: false,
+  //     features: [
+  //       'Semua fitur Professional Plan',
+  //       'Unlimited Locations & Multi-brand',
+  //       'Advanced AI Analytics + Predictive Insights',
+  //       'Enterprise Security (SOC 2, ISO 27001)',
+  //       'Dedicated Server + 99.99% SLA',
+  //       'Custom Development & API Priority',
+  //       'Onsite Training + Implementation',
+  //       '24/7 Phone Support + Dedicated Success Manager',
+  //       'Advanced Integrations (SAP, Oracle, etc)',
+  //       'Custom Reporting + Business Intelligence'
+  //     ]
+  //   }
+  // ];
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -122,6 +157,22 @@ export default function QRestroLanding() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
+      {toast && (
+          <ToastPortal> 
+              <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-100'>
+              <Toast 
+              message={toast.message} 
+              type={toast.type} 
+              onClose={() => { 
+                setToast(null)
+                dispatch(resetErrorProductService())
+              }} 
+              duration={3000}
+              />
+              </div>
+          </ToastPortal>
+      )}
+
       {/* Animated Background */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-green-50"></div>
@@ -408,83 +459,96 @@ export default function QRestroLanding() {
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {packages.map((pkg, index) => (
-              <div
-                key={index}
-                className={`group relative bg-white/90 rounded-3xl border transition-all duration-500 hover:transform hover:scale-105 backdrop-blur-sm shadow-lg shadow-black/5 ${
-                  pkg.popular 
-                    ? 'border-green-500/30 shadow-xl shadow-green-500/10' 
-                    : 'border-gray-200 hover:border-green-500/20 hover:shadow-xl hover:shadow-green-500/5'
-                }`}
-              >
-                {/* Glow Effect */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${pkg.gradient} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`}></div>
-                
-                {/* Popular Badge */}
-                {pkg.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-2">
-                      <Star className="h-4 w-4" />
-                      <span>{pkg.badge}</span>
-                    </div>
-                  </div>
-                )}
+             {segments.map((segment) => {
+                const currentPackage = packages.find(pkg => pkg.name === segment);
 
-                {/* Package Badge */}
-                {!pkg.popular && (
-                  <div className="absolute top-6 right-6">
-                    <div className="bg-green-500/10 border border-green-500/20 text-green-600 px-3 py-1 rounded-full text-xs font-medium">
-                      {pkg.badge}
-                    </div>
-                  </div>
-                )}
+                return (
+                  <div
+                    key={segment}
+                    className={`group relative bg-white/90 rounded-3xl border transition-all duration-500 hover:transform hover:scale-105 backdrop-blur-sm shadow-lg shadow-black/5 ${
+                      currentPackage?.popular
+                        ? 'border-green-500/30 shadow-xl shadow-green-500/10'
+                        : 'border-gray-200 hover:border-green-500/20 hover:shadow-xl hover:shadow-green-500/5'
+                    }`}
+                  >
+                    {/* Gradient Layer */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${currentPackage?.gradient ?? ''} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`}></div>
 
-                <div className="relative p-8 sm:p-10">
-                  {/* Header */}
-                  <div className="text-center mb-8">
-                    <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${pkg.gradient} rounded-2xl mb-6`}>
-                      <Award className="h-10 w-10 text-white" />
-                    </div>
-                    
-                    <h3 className="text-3xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                      {pkg.name}
-                    </h3>
-                    
-                    <p className="text-gray-600 mb-6">{pkg.segment}</p>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-center space-x-2">
-                        <span className="text-5xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
-                          {pkg.price}
-                        </span>
-                        <span className="text-gray-600">/bulan</span>
-                      </div>
-                      <div className="flex items-center justify-center space-x-2">
-                        <span className="text-gray-400 line-through">{pkg.originalPrice}</span>
-                        <span className="text-green-600 text-sm font-medium">Hemat 33%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Features */}
-                  <div className="space-y-4 mb-8">
-                    {pkg.features.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-start space-x-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mt-0.5">
-                          <CheckCircle className="h-4 w-4 text-white" />
+                    {/* Badge */}
+                    {currentPackage?.popular ? (
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-2">
+                          <Star className="h-4 w-4" />
+                          <span>{currentPackage.badge}</span>
                         </div>
-                        <span className="text-gray-700 leading-relaxed">{feature}</span>
                       </div>
-                    ))}
-                  </div>
+                    ) : (
+                      <div className="absolute top-6 right-6">
+                        <div className="bg-green-500/10 border border-green-500/20 text-green-600 px-3 py-1 rounded-full text-xs font-medium">
+                          {currentPackage?.badge ?? ''}
+                        </div>
+                      </div>
+                    )}
 
-                  {/* CTA Button */}
-                  <button className="w-full py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl font-semibold hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-105">
-                    {pkg.popular ? 'Pilih Paket Terpopuler' : 'Mulai Sekarang'}
-                  </button>
-                </div>
-              </div>
-            ))}
+                    {/* Konten Utama */}
+                    <div className="relative p-8 sm:p-10">
+                      {loadingProductService ? (
+                        <div className="flex flex-col items-center justify-center py-16 text-green-600">
+                          <Loader2 className="w-10 h-10 animate-spin mb-3" />
+                          <p className="text-base font-medium">Memuat paket {segment}...</p>
+                        </div>
+                      ) : errorProductService || !currentPackage ? (
+                        <div className="flex flex-col items-center justify-center py-16 text-red-600">
+                          <AlertTriangle className="w-10 h-10 mb-3" />
+                          <p className="text-base font-semibold">Paket {segment} tidak tersedia</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="text-center mb-8">
+                            <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${currentPackage.gradient} rounded-2xl mb-6`}>
+                              <Award className="h-10 w-10 text-white" />
+                            </div>
+
+                            <h3 className="text-3xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                              {currentPackage.name}
+                            </h3>
+
+                            <p className="text-gray-600 mb-6">{currentPackage.segment}</p>
+
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-center space-x-2">
+                                <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
+                                  {formatCurrency(currentPackage.price)}
+                                </span>
+                                <span className="text-gray-600">/bulan</span>
+                              </div>
+                              <div className="flex items-center justify-center space-x-2">
+                                <span className="text-gray-400 line-through">{formatCurrency(currentPackage.originalPrice)}</span>
+                                <span className="text-green-600 text-sm font-medium">{currentPackage.badge}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-4 mb-8">
+                            {currentPackage.features.map((feature, featureIndex) => (
+                              <div key={featureIndex} className="flex items-start space-x-3">
+                                <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mt-0.5">
+                                  <CheckCircle className="h-4 w-4 text-white" />
+                                </div>
+                                <span className="text-gray-700 leading-relaxed">{feature}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <button className="w-full py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl font-semibold hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-105">
+                            {currentPackage.popular ? 'Pilih Paket Terpopuler' : 'Mulai Sekarang'}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
           </div>
 
           {/* Bottom CTA */}

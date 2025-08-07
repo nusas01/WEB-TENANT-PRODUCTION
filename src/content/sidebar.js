@@ -1,6 +1,6 @@
 import { useState, useEffect, use } from "react"
 import { 
-  ShoppingBag, 
+  Store, 
   LogOut, 
   ChevronRight, 
   Menu, 
@@ -12,15 +12,22 @@ import { useNavigate } from "react-router-dom";
 import { useDeviceDetection } from "./helper";
 import { useSelector, useDispatch } from "react-redux";
 import { navbarSlice } from "../reducers/reducers";
+import { fetchLogout } from "../actions/get";
+import { logoutSlice } from "../reducers/get";
+import { 
+  Toast,
+  ToastPortal
+} from './alert'
 
 const menuItems = [
-  { Icon: ShoppingBag, title: "Store", path: '/store', key: 'Store' },
+  { Icon: Store, title: "Store", path: '/store', key: 'Store' },
   { Icon: Settings, title: "Setting", path: '/setting', key: 'Setting' },
 ];
 
 const Sidebar = ({activeMenu}) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [toast, setToast] = useState(null)
 
   useDeviceDetection();
   const { setIsOpen } = navbarSlice.actions
@@ -34,6 +41,31 @@ const Sidebar = ({activeMenu}) => {
     }
   }
 
+  // handle logout
+  const { resetLogout } = logoutSlice.actions
+  const { logoutSuccess, logoutError, loadingLogout } = useSelector((state) => state.logoutState)
+
+  useEffect(() => {
+    if (logoutSuccess) {
+      navigate('/')
+      dispatch(resetLogout())
+    }
+  }, [logoutSuccess])
+
+  useEffect(() => {
+    if (logoutError) {
+      setToast({
+        type: 'error',
+        message: 'Terjadi kesalahan saat mendaftarkan akun. Silahkan coba lagi nanti.'
+      })
+
+      const timer = setTimeout(() => {
+        dispatch(resetLogout())
+      }, 3000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [logoutError])
 
    // Render Desktop Sidebar
   const renderDesktopSidebar = () => (
@@ -41,8 +73,8 @@ const Sidebar = ({activeMenu}) => {
       {/* Desktop Header */}
       <div className="flex items-center px-4 py-2 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl flex items-center justify-center shadow-sm">
-            <Home className="w-5 h-5 text-white" />
+          <div className="w-12 h-12 bg-gradient-to-br from-gray-800 to-gray-900 rounded-md flex items-center justify-center shadow-sm">
+            <Home className="w-6 h-6 text-white" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900">Nusas</h1>
@@ -78,10 +110,21 @@ const Sidebar = ({activeMenu}) => {
       {/* Desktop Footer */}
       <div className="p-4 border-t border-gray-200">
         <button
-          className="w-full flex items-center space-x-3 py-2 px-4 rounded-xl bg-gray-900 hover:bg-gray-800 text-white transition-colors"
+          onClick={() => dispatch(fetchLogout())}
+          disabled={loadingLogout}
+          className={`w-full flex items-center space-x-3 py-2 px-4 rounded-xl transition-colors text-white 
+            ${loadingLogout ? 'bg-gray-600 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800'}
+          `}
         >
-          <LogOut className="w-5 h-5" />
-          <span className="font-medium">Logout</span>
+          {loadingLogout ? (
+            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l4-4-4-4v4a8 8 0 100 16v-4l-4 4 4 4v-4a8 8 0 01-8-8z" />
+            </svg>
+          ) : (
+            <LogOut className="w-5 h-5" />
+          )}
+          <span className="font-medium">{loadingLogout ? 'Logging out...' : 'Logout'}</span>
         </button>
       </div>
     </div>
@@ -168,10 +211,21 @@ const Sidebar = ({activeMenu}) => {
         {/* Mobile Footer */}
         <div className="p-6 border-t border-gray-200 bg-gray-50">
           <button
-            className="w-full flex items-center justify-center space-x-3 p-4 rounded-xl bg-gray-900 hover:bg-gray-800 text-white transition-colors shadow-sm"
+            onClick={() => dispatch(fetchLogout())}
+            disabled={loadingLogout}
+            className={`w-full flex items-center justify-center space-x-3 p-4 rounded-xl transition-colors shadow-sm text-white 
+              ${loadingLogout ? 'bg-gray-600 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800'}
+            `}
           >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium">Logout</span>
+            {loadingLogout ? (
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l4-4-4-4v4a8 8 0 100 16v-4l-4 4 4 4v-4a8 8 0 01-8-8z" />
+              </svg>
+            ) : (
+              <LogOut className="w-5 h-5" />
+            )}
+            <span className="font-medium">{loadingLogout ? 'Logging out...' : 'Logout'}</span>
           </button>
         </div>
       </div>
@@ -180,6 +234,22 @@ const Sidebar = ({activeMenu}) => {
 
   return (  
     <>
+      {toast && (
+          <ToastPortal> 
+              <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-100'>
+              <Toast 
+              message={toast.message} 
+              type={toast.type} 
+              onClose={() => { 
+                setToast(null)
+                dispatch(resetLogout())
+              }} 
+              duration={3000}
+              />
+              </div>
+          </ToastPortal>
+      )}
+
       {/* Conditional Rendering based on Device Type */}
       {!isMobileDeviceType && renderDesktopSidebar()}
       

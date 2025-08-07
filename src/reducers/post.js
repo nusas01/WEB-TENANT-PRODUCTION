@@ -1,0 +1,113 @@
+import { createSlice } from "@reduxjs/toolkit";
+
+const initialLoginState = {
+    successLogin: false, 
+    errorLogin: null, 
+    loadingLogin: false, 
+    errorPassLogin: null,
+    errorEmailLogin: null, 
+}
+export const loginSlice = createSlice({
+    name: 'login', 
+    initialState: initialLoginState, 
+    reducers: {
+        loginSuccess: (state, action) => {
+            state.successLogin = action.payload
+        },
+        loginError: (state, action) => {
+            state.errorLogin = action.payload.errorLogin 
+            state.errorPassLogin = action.payload.errorPassLogin
+            state.errorEmailLogin = action.payload.errorEmailLogin
+        },
+        setLoadingLogin: (state, action) => {
+            state.loadingLogin = action.payload
+        }, 
+        resetLogin: (state) => {
+            state.successLogin = false
+            state.errorLogin = null
+            state.errorPassLogin = null 
+            state.errorEmailLogin = null
+        }
+    }
+})
+
+const initialForgotPassword = {
+    succesForgotPassword: false,
+    errorForgotPassword: null, 
+    loadingForgotPassword: false,
+}
+export const forgotPasswordSlice = createSlice({
+    name: "forgotPassword",
+    initialState: initialForgotPassword,
+    reducers: {
+        setLoadingForgotPassword: (state, action) => {
+            state.loadingForgotPassword = action.payload
+        },
+        setSuccessForgotPassword: (state, action) => {
+            state.succesForgotPassword = action.payload
+        },
+        setErrorForgotPassword: (state, action) => {
+            state.errorForgotPassword = action.payload
+        },
+        resetForgotPassword: (state) => {
+            state.errorForgotPassword = null
+            state.succesForgotPassword = false
+        }
+    }
+})
+
+const initialRegisterAccount = {
+    successRegister: false,
+    errorFieldsRegister: null,
+    errorRegister: null,
+    loadingRegister: false,
+}
+export const registerAccountSlice = createSlice({
+    name: 'registerAccount',
+    initialState: initialRegisterAccount,
+    reducers: {
+        setSuccessRegisterAccount: (state, action) => {
+            state.successRegister = action.payload
+        },
+        setErrorRegisterAccount: (state, action) => {
+            state.errorFieldsRegister = action.payload.errorField
+            state.errorRegister = action.payload.error 
+        }, 
+        setLoadingRegisterAccount: (state, action) => {
+            state.loadingRegister = action.payload
+        },
+        resetRegisterAccount: (state) => {
+            state.errorFieldsRegister = null
+            state.errorRegister = null
+            state.successRegister = false
+        }
+    }
+})
+
+const initialPostEmployee = {
+    successPostEmployee: false,
+    errorFieldsPostEmployee: null,
+    errorPostEmployee: null,
+    loadingPostEmployee: false,
+}
+export const postEmployeeSlice = createSlice({
+    name: 'postEmployee',
+    initialState: initialPostEmployee,
+    reducers: {
+        setSuccessPostEmployee: (state, action) => {
+            state.successPostEmployee = action.payload
+        },
+        setErrorPostEmployee: (state, action) => {
+            state.errorFieldsPostEmployee = action.payload.errorField
+            state.errorPostEmployee = action.payload.error
+        },
+        setLoadingPostEmployee: (state, action) => {
+            state.loadingPostEmployee = action.payload
+        },
+        resetPostEmployee: (state) => {
+            state.errorFieldsPostEmployee = null
+            state.errorPostEmployee = null
+            state.successPostEmployee = false
+        }
+    }
+})

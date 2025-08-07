@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { 
   User, 
   Mail, 
@@ -9,19 +9,57 @@ import {
   CreditCard, 
   Store,
   AlertCircle,
+  Building2,
+  Wallet,
   CheckCircle,
   Eye,
   EyeOff,
-  Info
+  Info,
+  Star,
+  Loader2,
+  Award,
+  AlertTriangle,
+  Check,
+  ChevronDown,
+  Globe,
 } from 'lucide-react';
+import {registerAccountSlice} from '../reducers/post'
+import { registerAccount } from '../actions/post';
+import {
+  Toast, 
+  ToastPortal
+} from './alert'
+import { useNavigate } from 'react-router-dom';
+import {
+  fetchPaymentMethods,
+  fetchProductServices,
+} from '../actions/get'
+import {
+  productServicesSlice,
+  paymentMethodsSlice
+} from '../reducers/get'
+import { useDispatch, useSelector } from 'react-redux';
+import { useOutsideClick, formatCurrency } from './helper';
 
 export default function TenantRegistrationForm() {
-  // Simulate navigation data - set to null to show package selection, or set package to skip
-  const navigationData = null; // Change this to { selectedPackage: 'starter' } to simulate data from navigation
-  
-  const [selectedPackage, setSelectedPackage] = useState(navigationData?.selectedPackage || '');
-  const [showPackageSelection, setShowPackageSelection] = useState(!navigationData?.selectedPackage);
-  
+  const navigate = useNavigate()
+  const [showPackageSelection, setShowPackageSelection] = useState(true);
+  const [toast, setToast] = useState(null)
+  const dispatch = useDispatch()
+  const [isOpenPaymentMethod, setIsOpenPaymentMethod] = useState(false)
+  const dropdownRef = useRef(null)
+  const [packagePrice, setPackagePrice] = useState(0)
+  const [paymentFee, setPaymentfee] = useState(0)
+  const [taxTransaction, setTaxTransaction] = useState(0)
+
+  console.log(packagePrice + paymentFee)
+
+  useOutsideClick({
+    ref: dropdownRef,
+    callback: () => setIsOpenPaymentMethod(false),
+    isActive: isOpenPaymentMethod,    
+  })
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -33,112 +71,160 @@ export default function TenantRegistrationForm() {
     country: '',
     postal_code: '',
     phone_number_ewallet: '',
-    price: navigationData?.selectedPackage === 'starter' ? 500000 : 
-           navigationData?.selectedPackage === 'business' ? 600000 :
-           navigationData?.selectedPackage === 'enterprise' ? 750000 : '',
+    product_service_id: '',
+    price: 0,
     payment_method: '',
+    channel_code: '',
+    payment_method_id: '',
     name_store: '',
-    phone_number_store: ''
+    phone_number_store: '',
+    subdomain: '',
   });
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const packages = [
-    {
-      id: 'starter',
-      name: 'Starter',
-      description: 'Perfect untuk UMKM',
-      price: 500000,
-      originalPrice: 750000,
-      discount: 33,
-      features: [
-        'Web pemesanan dengan QR Code',
-        'QR Code untuk dine-in & take-away',
-        'Dashboard admin modern'
-      ],
-      buttonText: 'Mulai Sekarang',
-      color: 'from-green-400 to-green-600'
-    },
-    {
-      id: 'business',
-      name: 'Business Pro',
-      description: 'Untuk bisnis berkembang',
-      price: 600000,
-      originalPrice: 900000,
-      discount: 33,
-      features: [
-        'Semua fitur Starter Package',
-        'Advanced analytics & insights',
-        'Laporan keuangan otomatis'
-      ],
-      buttonText: 'Pilih Paket Terpopuler',
-      color: 'from-pink-400 to-pink-600',
-      popular: true
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise',
-      description: 'Solusi lengkap enterprise',
-      price: 750000,
-      originalPrice: 1125000,
-      discount: 33,
-      features: [
-        'Semua fitur Business Pro',
-        'HR Management terintegrasi',
-        'Payroll & absensi otomatis'
-      ],
-      buttonText: 'Mulai Sekarang',
-      color: 'from-purple-400 to-purple-600'
+  // handle package 
+  const {resetErrorProductService} = productServicesSlice.actions
+  const {dataProductService: packages, errorProductService, loadingProductService} = useSelector((state) => state.persisted.productServices)
+
+  const segments = ['Starter', 'Professional', 'Enterprise'];
+
+  console.log("data aapa ja iniii: ", packages)
+
+  useEffect(() => {
+    if (packages.length === 0) {
+      dispatch(fetchProductServices())
     }
-  ];
+  }, [])
+
+  useEffect(() => {
+    if (errorProductService) {
+      setToast({
+        type: "error",
+        message: "Terjadi kesalahan saat memuat data package, silahkan coba lagi nanti"
+      })
+    }
+  }, [errorProductService])
+
+  // handle payment methods
+  const {resetErrorPaymentMethods} = paymentMethodsSlice.actions
+  const {dataPaymentMethods, tax, errorPaymentMethods, loadingPaymentMethods} = useSelector((state) => state.persisted.paymentMethods)
+
+  useEffect(() => {
+    if (dataPaymentMethods.length === 0) {
+      dispatch(fetchPaymentMethods())
+    }
+  }, [])
+
+  useEffect(() => {
+    if (errorPaymentMethods) {
+      setToast({
+        type: "error",
+        message: "terjadi kesalahan saat memuat metode pembayaran, silahkan coba lagi nanti."
+      })
+    }
+  }, [errorPaymentMethods])
+
+  const groupedPaymentMethods = dataPaymentMethods.reduce((acc, method) => {
+    const type = method.type_payment_method;
+    if (!acc[type]) acc[type] = [];
+    acc[type].push(method);
+    return acc;
+  }, {});
 
   const handlePackageSelect = (packageId) => {
     const selected = packages.find(pkg => pkg.id === packageId);
-    setSelectedPackage(packageId);
-    setFormData(prev => ({ ...prev, price: selected.price }));
+    if (!selected) return;
+
+    const selectedPrice = Number(selected.price);
+    const selectedTax = selectedPrice * tax;
+
+    // ✅ Gunakan nama variabel berbeda agar tidak bentrok
+    let foundPaymentMethod = null;
+    for (const methodGroup of Object.values(groupedPaymentMethods)) {
+      const match = methodGroup.find(pm => pm.id === formData.payment_method_id);
+      if (match) {
+        foundPaymentMethod = match;
+        break;
+      }
+    }
+
+    let calculatedFee = 0;
+    console.log("apakah data nya ditemukan kawan :", foundPaymentMethod)
+    if (foundPaymentMethod) {
+      if (foundPaymentMethod.type_payment_method !== 'VA') {
+        calculatedFee = foundPaymentMethod.fee * (selectedPrice + selectedTax);
+      } else {
+        calculatedFee = foundPaymentMethod.fee; // diasumsikan flat
+      }
+    }
+
+    const totalPrice = selectedPrice + selectedTax + calculatedFee;
+
+    // ✅ Update state setelah semua dihitung
+    // setSelectedPackage(packageId);
+    setPackagePrice(selectedPrice);
+    setTaxTransaction(selectedTax);
+    setPaymentfee(calculatedFee);
     setShowPackageSelection(false);
+
+    setFormData((prev) => ({
+      ...prev,
+      price: totalPrice,
+      product_service_id: packageId,
+    }));
   };
 
-  const paymentMethods = [
-    { value: '', label: 'Select Payment Method' },
-    { value: 'credit_card', label: 'Credit Card' },
-    { value: 'bank_transfer', label: 'Bank Transfer' },
-    { value: 'ewallet', label: 'E-Wallet (OVO, GoPay, DANA)' },
-    { value: 'virtual_account', label: 'Virtual Account' }
-  ];
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case 'EWALLET':
+        return <Wallet className="h-4 w-4 text-blue-500" />;
+      case 'VA':
+        return <Building2 className="h-4 w-4 text-green-500" />;
+      default:
+        return <CreditCard className="h-4 w-4 text-gray-500" />;
+    }
+  };
 
-  const validateField = (name, value) => {
-    const newErrors = { ...errors };
+  const getTypeLabel = (type) => {
+    switch (type) {
+      case 'EWALLET':
+        return 'E-Wallet';
+      case 'VA':
+        return 'Virtual Account';
+      default:
+        return type;
+    }
+  };
+
+  const validateField = (name, value, paymentMethod) => {
+    const newErrors = {};
 
     switch (name) {
       case 'name':
         if (!value) newErrors.name = 'Name is required';
         else if (value.length < 6) newErrors.name = 'Name must be at least 6 characters';
         else if (value.length > 50) newErrors.name = 'Name must not exceed 50 characters';
-        else delete newErrors.name;
         break;
 
       case 'email':
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!value) newErrors.email = 'Email is required';
         else if (!emailRegex.test(value)) newErrors.email = 'Please enter a valid email';
-        else delete newErrors.email;
         break;
 
       case 'password':
         const hasUppercase = /[A-Z]/.test(value);
         const hasNumber = /\d/.test(value);
         const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-        
+
         if (!value) newErrors.password = 'Password is required';
         else if (value.length < 6) newErrors.password = 'Password must be at least 6 characters';
         else if (value.length > 50) newErrors.password = 'Password must not exceed 50 characters';
         else if (!hasUppercase) newErrors.password = 'Password must contain at least one uppercase letter';
         else if (!hasNumber) newErrors.password = 'Password must contain at least one number';
         else if (!hasSpecial) newErrors.password = 'Password must contain at least one special character';
-        else delete newErrors.password;
         break;
 
       case 'phone_number':
@@ -149,27 +235,50 @@ export default function TenantRegistrationForm() {
           newErrors[name] = 'Phone number is required';
         } else if (value && !phoneRegex.test(value)) {
           newErrors[name] = 'Please enter a valid Indonesian phone number';
-        } else {
-          delete newErrors[name];
+        } else if (name === 'phone_number_ewallet' && paymentMethod === 'EWALLET' && !value) {
+          newErrors[name] = 'Phone number ewallet is required';
         }
         break;
 
       case 'postal_code':
         if (!value) newErrors.postal_code = 'Postal code is required';
-        else if (value.length !== 5 || !/^\d{5}$/.test(value)) newErrors.postal_code = 'Postal code must be exactly 5 digits';
-        else delete newErrors.postal_code;
+        else if (value.length !== 5 || !/^\d{5}$/.test(value)) {
+          newErrors.postal_code = 'Postal code must be exactly 5 digits';
+        }
         break;
 
       case 'payment_method':
         if (!value) newErrors.payment_method = 'Payment method is required';
-        else delete newErrors.payment_method;
+        break;
+
+      case 'subdomain':
+        if (!value) newErrors.subdomain = 'Subdomain wajib diisi';
+        else if (value.length > 10) newErrors.subdomain = 'Subdomain maksimal 10 karakter';
         break;
 
       default:
         const requiredFields = ['address', 'city', 'state', 'country', 'name_store'];
+        const fieldMaxLengths = {
+          address: 100,
+          city: 50,
+          state: 50,
+          country: 50,
+          name_store: 50
+        };
+        const fieldLabels = {
+          address: 'Alamat',
+          city: 'Kota',
+          state: 'Provinsi',
+          country: 'Negara',
+          name_store: 'Nama toko'
+        };
+
         if (requiredFields.includes(name)) {
-          if (!value) newErrors[name] = `${name.replace('_', ' ')} is required`;
-          else delete newErrors[name];
+          if (!value) {
+            newErrors[name] = `${fieldLabels[name]} wajib diisi`;
+          } else if (value.length > fieldMaxLengths[name]) {
+            newErrors[name] = `${fieldLabels[name]} maksimal ${fieldMaxLengths[name]} karakter`;
+          }
         }
         break;
     }
@@ -177,97 +286,165 @@ export default function TenantRegistrationForm() {
     return newErrors;
   };
 
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
-    const newErrors = validateField(name, value);
-    setErrors(newErrors);
-
-    // Clear e-wallet phone when payment method changes
-    if (name === 'payment_method' && value !== 'ewallet') {
-      setFormData(prev => ({ ...prev, phone_number_ewallet: '' }));
-      delete newErrors.phone_number_ewallet;
-    }
   };
+
+  console.log("data payment method: ", formData)
+  console.log("paymet method errr: ", groupedPaymentMethods)
+
+  const handlePaymentMethodClick = ({id, channelCode, paymentMethod, price}) => {
+    if (packagePrice === 0) {
+      let allErrors = {}
+      allErrors.package = 'Silakan pilih paket terlebih dahulu.';
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      setErrors(allErrors);
+      return
+    }
+
+    setFormData(prev => ({ 
+      ...prev, 
+      payment_method_id: id,
+      payment_method: paymentMethod,
+      channel_code: channelCode
+    }));
+
+    if (paymentMethod !== 'VA') {
+      setPaymentfee(((price * packagePrice) + (packagePrice * tax)))
+    } else {
+      setPaymentfee(price)
+    }
+    setIsOpenPaymentMethod(false)
+  };
+
+  useEffect(() => {
+    // Cari payment method berdasarkan ID
+    let foundPaymentMethod = null;
+    for (const methodGroup of Object.values(groupedPaymentMethods)) {
+      const match = methodGroup.find(pm => pm.id === formData.payment_method_id);
+      if (match) {
+        foundPaymentMethod = match;
+        break;
+      }
+    }
+
+    if (!foundPaymentMethod) return; // Jangan lanjut kalau tidak ditemukan
+
+    const taxValue = packagePrice * tax;
+    let calculatedFee = 0;
+    console.log("apakah di temukan kawan ku: ", foundPaymentMethod)
+    // Hitung fee tergantung tipe
+    if (foundPaymentMethod.type_payment_method !== 'VA') {
+      calculatedFee = foundPaymentMethod.fee * (packagePrice + taxValue);
+    } else {
+      calculatedFee = foundPaymentMethod.fee; // diasumsikan fee VA adalah flat
+    }
+
+    setPaymentfee(calculatedFee); // ini tetap disimpan kalau kamu butuh secara global
+    setTaxTransaction(taxValue);
+
+    const totalPrice = packagePrice + calculatedFee + taxValue;
+    setFormData((prev) => ({
+      ...prev,
+      price: totalPrice,
+    }));
+  }, [formData.payment_method_id, formData.product_service_id]);
+
+  // handle submit register
+  const {resetRegisterAccount} = registerAccountSlice.actions
+  const {successRegister, errorFieldsRegister, errorRegister, loadingRegister} = useSelector((state) => state.registerAccountState)
+
+  useEffect(() => {
+    if (successRegister) {
+      navigate('/signup/verification')
+      dispatch(resetRegisterAccount())
+    } 
+  }, [successRegister])
+
+  useEffect(() => {
+    if (errorFieldsRegister) {
+      const mappedErrors = errorFieldsRegister.reduce((acc, curr) => {
+        const [field, message] = Object.entries(curr)[0]; 
+        acc[field] = message;
+        return acc;
+      }, {});
+  
+      setErrors(prev => ({ ...prev, ...mappedErrors }));
+  
+      dispatch(resetRegisterAccount())
+    }
+  }, [errorFieldsRegister])
+
+  useEffect(() => {
+    if (errorRegister) {
+      setToast({
+        type: 'error',
+        message: 'Terjadi kesalahan saat register account di server kami. silahkan coba lagi nanti.'
+      })
+    }
+  }, [errorRegister])
 
   const handleSubmit = async () => {
-    setIsSubmitting(true);
-
-    // Validate all fields
     let allErrors = {};
-    Object.keys(formData).forEach(key => {
-      if (key === 'phone_number_ewallet' && formData.payment_method !== 'ewallet') return;
-      if (key === 'price') return; // Skip price validation as it's auto-calculated
-      
-      const fieldErrors = validateField(key, formData[key]);
-      allErrors = { ...allErrors, ...fieldErrors };
+
+    // Cek paket
+    if (formData.product_service_id === '') {
+      allErrors.package = 'Silakan pilih paket terlebih dahulu.';
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    // Validasi tiap field
+    Object.keys(formData).forEach((key) => {
+      if (key === 'price') return;
+      if (key === 'phone_number_ewallet' && formData.payment_method !== 'EWALLET') return;
+
+      const fieldError = validateField(key, formData[key], formData.payment_method);
+      allErrors = { ...allErrors, ...fieldError };
     });
 
+    // Set hasil error ke state
     setErrors(allErrors);
 
+    // Jika tidak ada error, kirim data
     if (Object.keys(allErrors).length === 0) {
-      // Simulate API call
-      setTimeout(() => {
-        alert('Registration successful! Please check your email for verification.');
-        setIsSubmitting(false);
-      }, 2000);
-    } else {
-      setIsSubmitting(false);
+      dispatch(registerAccount(formData));
     }
   };
 
-  const InputField = ({ name, label, type = 'text', icon: Icon, placeholder, maxLength }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
-        {label} <span className="text-red-500">*</span>
-      </label>
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Icon className="h-5 w-5 text-gray-400" />
-        </div>
-        <input
-          type={type}
-          name={name}
-          value={formData[name]}
-          onChange={handleInputChange}
-          placeholder={placeholder}
-          maxLength={maxLength}
-          className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-            errors[name] ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
-          }`}
-        />
-        {name === 'password' && (
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center"
-          >
-            {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
-          </button>
-        )}
-      </div>
-      {errors[name] && (
-        <div className="flex items-center space-x-1 text-red-600 text-sm">
-          <AlertCircle className="h-4 w-4" />
-          <span>{errors[name]}</span>
-        </div>
-      )}
-    </div>
-  );
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+
+      {toast && (
+          <ToastPortal> 
+              <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-100'>
+              <Toast 
+              message={toast.message} 
+              type={toast.type} 
+              onClose={() => { 
+                setToast(null)
+                dispatch(resetErrorProductService())
+                dispatch(resetErrorPaymentMethods())
+                dispatch(resetRegisterAccount())
+              }} 
+              duration={3000}
+              />
+              </div>
+          </ToastPortal>
+      )}
+
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="p-3 bg-green-500 rounded-full">
-              <Store className="h-8 w-8 text-white" />
-            </div>
-          <div/>
-
-          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Tenant Account</h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Join our platform and start managing your business with our comprehensive tenant management system.
@@ -277,96 +454,136 @@ export default function TenantRegistrationForm() {
         {/* Package Selection - Only show if no navigation data */}
         {showPackageSelection && (
           <div className="mb-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Choose Your Package</h2>
-              <p className="text-gray-600">Select the perfect plan for your business needs</p>
-            </div>
-            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {packages.map((pkg) => (
-                <div
-                  key={pkg.id}
-                  className={`relative bg-white rounded-xl shadow-lg border-2 transition-all duration-300 hover:shadow-xl ${
-                    selectedPackage === pkg.id ? 'border-green-500 ring-2 ring-green-200' : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  {pkg.popular && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium">
-                        Most Popular
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="p-6">
-                    {/* Package Icon */}
-                    <div className="flex justify-between items-start mb-4">
-                      <div className={`p-3 rounded-lg bg-gradient-to-r ${pkg.color}`}>
-                        <Store className="h-6 w-6 text-white" />
+              {segments.map((segment) => {
+                const currentPackage = packages.find(pkg => pkg.name === segment);
+                const isSelected = formData.product_service_id === currentPackage?.id;
+
+                return (
+                  <div
+                    key={segment}
+                    className={`group relative bg-white/90 rounded-3xl border transition-all duration-500 hover:transform hover:scale-100 backdrop-blur-sm shadow-lg shadow-black/5 cursor-pointer ${
+                      isSelected
+                        ? 'border-green-500 shadow-2xl shadow-green-500/20 scale-100'
+                        : currentPackage?.popular
+                        ? 'border-green-500/30 shadow-xl shadow-green-500/10'
+                        : 'border-gray-200 hover:border-green-500/20 hover:shadow-xl hover:shadow-green-500/5'
+                    }`}
+                    onClick={() => currentPackage && handlePackageSelect(currentPackage.id)}
+                  >
+                    {/* Selection Indicator */}
+                    {isSelected && (
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                        <CheckCircle className="h-4 w-4 text-white" />
                       </div>
-                      {pkg.discount && (
-                        <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                          Hemat {pkg.discount}%
-                        </span>
+                    )}
+
+                    {/* Gradient Overlay */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${currentPackage?.gradient ?? ''} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`} />
+
+                    {/* Badge */}
+                    {currentPackage?.popular ? (
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-2">
+                          <Star className="h-4 w-4" />
+                          <span>{currentPackage.badge}</span>
+                        </div>
+                      </div>
+                    ) : currentPackage?.badge ? (
+                      <div className="absolute top-6 right-6">
+                        <div className="bg-green-500/10 border border-green-500/20 text-green-600 px-3 py-1 rounded-full text-xs font-medium">
+                          {currentPackage.badge}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <div className="relative p-6 sm:p-8 lg:p-10">
+                      {loadingProductService ? (
+                        <div className="flex flex-col items-center justify-center py-16 text-green-600">
+                          <Loader2 className="w-10 h-10 animate-spin mb-3" />
+                          <p className="text-base font-medium">Memuat paket {segment}...</p>
+                        </div>
+                      ) : errorProductService || !currentPackage ? (
+                        <div className="flex flex-col items-center justify-center py-16 text-red-600">
+                          <AlertTriangle className="w-10 h-10 mb-3" />
+                          <p className="text-base font-semibold">Paket {segment} tidak tersedia</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="text-center mb-6 lg:mb-8">
+                            <div className={`inline-flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br ${currentPackage.gradient} rounded-2xl mb-4 lg:mb-6`}>
+                              <Award className="h-8 w-8 lg:h-10 lg:w-10 text-white" />
+                            </div>
+
+                            <h3 className="text-2xl lg:text-3xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                              {currentPackage.name}
+                            </h3>
+
+                            <p className="text-gray-600 mb-4 lg:mb-6 text-sm lg:text-base">{currentPackage.segment}</p>
+
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-center space-x-2">
+                                <span className="text-3xl lg:text-5xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
+                                  {formatCurrency(currentPackage.price)}
+                                </span>
+                                <span className="text-gray-600 text-sm lg:text-base">/bulan</span>
+                              </div>
+                                <div className="flex items-center justify-center space-x-2">
+                                  <span className="text-gray-400 line-through">{formatCurrency(currentPackage.originalPrice)}</span>
+                                  <span className="text-green-600 text-sm font-medium">{currentPackage.badge}</span>
+                                </div>
+                            </div>
+                          </div>
+
+                          <div className={`space-y-3 lg:space-y-4 mb-6 lg:mb-8 ${errors?.package ? 'border border-red-500 rounded-xl p-4 bg-red-50' : ''}`}>
+                            {currentPackage.features.map((feature, featureIndex) => (
+                              <div key={featureIndex} className="flex items-start space-x-3">
+                                <div className="flex-shrink-0 w-5 h-5 lg:w-6 lg:h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mt-0.5">
+                                  <CheckCircle className="h-3 w-3 lg:h-4 lg:w-4 text-white" />
+                                </div>
+                                <span className="text-gray-700 leading-relaxed text-sm lg:text-base">{feature}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="relative">
+                            <button 
+                              className={`w-full py-3 lg:py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-100 text-sm lg:text-base ${
+                                isSelected
+                                  ? 'bg-green-600 text-white shadow-2xl shadow-green-500/25'
+                                  : 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-2xl hover:shadow-green-500/25'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePackageSelect(currentPackage.id);
+                              }}
+                            >
+                              {isSelected 
+                                ? 'Paket Terpilih' 
+                                : currentPackage.popular 
+                                ? 'Pilih Paket Terpopuler' 
+                                : 'Mulai Sekarang'
+                              }
+                            </button>
+
+                            {errors?.package && (
+                              <div className="mt-2 text-sm text-red-600 text-center animate-fade-in">
+                                {errors.package}
+                              </div>
+                            )}
+                          </div>
+                        </>
                       )}
                     </div>
-
-                    {/* Package Info */}
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">{pkg.name}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{pkg.description}</p>
-
-                    {/* Pricing */}
-                    <div className="mb-6">
-                      <div className="flex items-baseline space-x-2">
-                        <span className="text-3xl font-bold text-green-600">
-                          {pkg.price.toLocaleString('id-ID')}K
-                        </span>
-                        <span className="text-gray-500 text-sm">/bulan</span>
-                      </div>
-                      {pkg.originalPrice && (
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-gray-400 line-through text-sm">
-                            {pkg.originalPrice.toLocaleString('id-ID')}K
-                          </span>
-                          <span className="text-green-600 text-sm font-medium">
-                            Hemat {pkg.discount}%
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Features */}
-                    <div className="space-y-3 mb-6">
-                      {pkg.features.map((feature, index) => (
-                        <div key={index} className="flex items-start space-x-3">
-                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-gray-700 text-sm">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Select Button */}
-                    <button
-                      onClick={() => handlePackageSelect(pkg.id)}
-                      className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
-                        pkg.popular
-                          ? 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white'
-                          : selectedPackage === pkg.id
-                          ? 'bg-green-500 hover:bg-green-600 text-white'
-                          : 'bg-green-500 hover:bg-green-600 text-white'
-                      }`}
-                    >
-                      {selectedPackage === pkg.id ? 'Selected' : pkg.buttonText}
-                    </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
 
         {/* Selected Package Summary - Show if package is selected */}
-        {selectedPackage && !showPackageSelection && (
+        {formData.product_service_id && !showPackageSelection && (
           <div className="mb-8 bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -375,10 +592,10 @@ export default function TenantRegistrationForm() {
                 </div>
                 <div>
                   <h3 className="font-medium text-green-800">
-                    {packages.find(pkg => pkg.id === selectedPackage)?.name} Package Selected
+                    {packages.find(pkg => pkg.id === formData.product_service_id)?.name} Package Selected
                   </h3>
                   <p className="text-sm text-green-600">
-                    Rp {formData.price?.toLocaleString('id-ID')}/month
+                    {formatCurrency(packagePrice)} /month
                   </p>
                 </div>
               </div>
@@ -410,7 +627,7 @@ export default function TenantRegistrationForm() {
           </div>
         </div>
 
-        <div className="bg-white shadow-lg rounded-xl p-6 sm:p-8">
+         <form className="bg-white shadow-lg rounded-xl p-6 sm:p-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Personal Information */}
             <div className="md:col-span-2">
@@ -420,37 +637,126 @@ export default function TenantRegistrationForm() {
               </h2>
             </div>
 
-            <InputField
-              name="name"
-              label="Full Name"
-              icon={User}
-              placeholder="Enter your full name"
-              maxLength={50}
-            />
+            {/* Full Name */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Full Name <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter your full name"
+                  maxLength={50}
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.name ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+              </div>
+              {errors.name && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.name}</span>
+                </div>
+              )}
+            </div>
 
-            <InputField
-              name="email"
-              label="Email Address"
-              type="email"
-              icon={Mail}
-              placeholder="Enter your email"
-            />
+            {/* Email Address */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Email Address <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="Enter your email"
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+              </div>
+              {errors.email && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.email}</span>
+                </div>
+              )}
+            </div>
 
-            <InputField
-              name="password"
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              icon={Lock}
-              placeholder="Create a strong password"
-              maxLength={50}
-            />
+            {/* Password */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Password <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Create a strong password"
+                  maxLength={50}
+                  className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
+                </button>
+              </div>
+              {errors.password && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.password}</span>
+                </div>
+              )}
+            </div>
 
-            <InputField
-              name="phone_number"
-              label="Phone Number"
-              icon={Phone}
-              placeholder="e.g., +6281234567890"
-            />
+            {/* Phone Number */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Phone className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="phone_number"
+                  value={formData.phone_number}
+                  onChange={handleInputChange}
+                  placeholder="e.g., +6281234567890"
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.phone_number ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+              </div>
+              {errors.phone_number && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.phone_number}</span>
+                </div>
+              )}
+            </div>
 
             {/* Address Information */}
             <div className="md:col-span-2 mt-6">
@@ -460,47 +766,150 @@ export default function TenantRegistrationForm() {
               </h2>
             </div>
 
-            <div className="md:col-span-2">
-              <InputField
-                name="address"
-                label="Street Address"
-                icon={MapPin}
-                placeholder="Enter your complete address"
-                maxLength={100}
-              />
+            {/* Street Address */}
+            <div className="md:col-span-2 space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Street Address <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <MapPin className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  placeholder="Enter your complete address"
+                  maxLength={100}
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.address ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+              </div>
+              {errors.address && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.address}</span>
+                </div>
+              )}
             </div>
 
-            <InputField
-              name="city"
-              label="City"
-              icon={Building}
-              placeholder="Enter your city"
-              maxLength={50}
-            />
+            {/* City */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                City <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Building className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  placeholder="Enter your city"
+                  maxLength={50}
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.city ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+              </div>
+              {errors.city && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.city}</span>
+                </div>
+              )}
+            </div>
 
-            <InputField
-              name="state"
-              label="State/Province"
-              icon={Building}
-              placeholder="Enter your state/province"
-              maxLength={50}
-            />
+            {/* State/Province */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                State/Province <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Building className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleInputChange}
+                  placeholder="Enter your state/province"
+                  maxLength={50}
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.state ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+              </div>
+              {errors.state && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.state}</span>
+                </div>
+              )}
+            </div>
 
-            <InputField
-              name="country"
-              label="Country"
-              icon={Building}
-              placeholder="Enter your country"
-              maxLength={50}
-            />
+            {/* Country */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Country <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Building className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="country"
+                  value={formData.country}
+                  onChange={handleInputChange}
+                  placeholder="Enter your country"
+                  maxLength={50}
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.country ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+              </div>
+              {errors.country && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.country}</span>
+                </div>
+              )}
+            </div>
 
-            <InputField
-              name="postal_code"
-              label="Postal Code"
-              icon={MapPin}
-              placeholder="e.g., 12345"
-              maxLength={5}
-            />
+            {/* Postal Code */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Postal Code <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <MapPin className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="postal_code"
+                  value={formData.postal_code}
+                  onChange={handleInputChange}
+                  placeholder="e.g., 12345"
+                  maxLength={5}
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.postal_code ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+              </div>
+              {errors.postal_code && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.postal_code}</span>
+                </div>
+              )}
+            </div>
 
             {/* Store Information */}
             <div className="md:col-span-2 mt-6">
@@ -510,20 +919,101 @@ export default function TenantRegistrationForm() {
               </h2>
             </div>
 
-            <InputField
-              name="name_store"
-              label="Store Name"
-              icon={Store}
-              placeholder="Enter your store name"
-              maxLength={50}
-            />
+            {/* Store Name */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Store Name <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Store className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="name_store"
+                  value={formData.name_store}
+                  onChange={handleInputChange}
+                  placeholder="Enter your store name"
+                  maxLength={50}
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.name_store ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+              </div>
+              {errors.name_store && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.name_store}</span>
+                </div>
+              )}
+            </div>
 
-            <InputField
-              name="phone_number_store"
-              label="Store Phone Number (Optional)"
-              icon={Phone}
-              placeholder="e.g., +6281234567890"
-            />
+            {/* Store Phone Number */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Store Phone Number (Optional)
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Phone className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="phone_number_store"
+                  value={formData.phone_number_store}
+                  onChange={handleInputChange}
+                  placeholder="e.g., +6281234567890"
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                    errors.phone_number_store ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                />
+              </div>
+              {errors.phone_number_store && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.phone_number_store}</span>
+                </div>
+              )}
+
+            </div>
+
+            {/* sub domain */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Store Subdomain <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Globe className="h-5 w-5 text-gray-400" />
+                </div>
+                <div className="flex">
+                  <input
+                    type="text"
+                    name="subdomain"
+                    value={formData.subdomain}
+                    onChange={handleInputChange}
+                    placeholder="example: mystorename"
+                    maxLength={10}
+                    className={`block w-full pl-10 pr-0 py-3 border border-r-0 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                      errors.subdomain ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                    style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+                  />
+                  <div className="inline-flex items-center px-3 py-3 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-r-lg">
+                    .malay.io
+                  </div>
+                </div>
+              </div>
+              {errors.subdomain && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.subdomain}</span>
+                </div>
+              )}
+              <p className="text-xs text-gray-500">
+                Your store will be accessible at: <span className="font-medium">{formData.subdomain || 'mystorename'}.malay.io</span>
+              </p>
+            </div>
 
             {/* Payment Information */}
             <div className="md:col-span-2 mt-6">
@@ -533,44 +1023,145 @@ export default function TenantRegistrationForm() {
               </h2>
             </div>
 
-            <div className="space-y-2">
+            {/* Payment Method Dropdown */}
+            <div className="md:col-span-2 space-y-2">
               <label className="block text-sm font-medium text-gray-700">
                 Payment Method <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <CreditCard className="h-5 w-5 text-gray-400" />
-                </div>
-                <select
-                  name="payment_method"
-                  value={formData.payment_method}
-                  onChange={handleInputChange}
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.payment_method ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+              
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsOpenPaymentMethod(!isOpenPaymentMethod)}
+                  className={`relative w-full bg-white border rounded-lg px-4 py-3 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${
+                    errors.payment_method 
+                      ? 'border-red-300 bg-red-50' 
+                      : isOpenPaymentMethod 
+                      ? 'border-green-500 shadow-lg' 
+                      : 'border-gray-300 hover:border-gray-400'
                   }`}
                 >
-                  {paymentMethods.map(method => (
-                    <option key={method.value} value={method.value}>
-                      {method.label}
-                    </option>
-                  ))}
-                </select>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      {formData.payment_method ? (
+                        <>
+                          <div>
+                            <span className="block text-sm font-medium text-gray-900">
+                              {formData.channel_code}
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="h-5 w-5 text-gray-400" />
+                          <span className="text-gray-500">Select Payment Method</span>
+                        </>
+                      )}
+                    </div>
+                    <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpenPaymentMethod ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+
+                {isOpenPaymentMethod && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-80 overflow-y-auto">
+                    <div className="px-4 py-3 bg-blue-500 text-white rounded-t-lg">
+                      <span className="text-sm font-medium">Select Payment Method</span>
+                    </div>
+                    
+                    <div className="py-2">
+                      {Object.entries(groupedPaymentMethods).map(([type, methods]) => (
+                        <div key={type}>
+                          <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50 border-t border-gray-100">
+                            <div className="flex items-center space-x-2">
+                              {getTypeIcon(type)}
+                              <span>{getTypeLabel(type)}</span>
+                            </div>
+                          </div>
+                          
+                          {methods.map((method) => (
+                            <button
+                              key={method.id}
+                              type="button"
+                              name="payment_method"
+                              onClick={() => handlePaymentMethodClick({ 
+                                id: method.id,
+                                channelCode: method.channel_code,
+                                paymentMethod: method.type_payment_method,
+                                price: method.fee
+                              })}
+                              className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors duration-150"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <div>
+                                    <div className="text-sm font-medium text-gray-900">
+                                      {method.channel_code}
+                                    </div>
+                                  </div>
+                                </div>
+                                {formData.payment_method === method.type_payment_method && formData.channel_code === method.channel_code && (
+                                  <Check className="h-4 w-4 text-green-500" />
+                                )}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
+
               {errors.payment_method && (
-                <div className="flex items-center space-x-1 text-red-600 text-sm">
+                <div className="flex items-center space-x-1 text-red-600 text-sm mt-1">
                   <AlertCircle className="h-4 w-4" />
                   <span>{errors.payment_method}</span>
                 </div>
               )}
+
+              {formData.payment_method && (
+                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <div className="flex items-center space-x-2 text-green-800">
+                      <Check className="w-4 h-4" />
+                      <span className="font-medium">Selected:</span>
+                    </div>
+                    <span className="text-green-700">
+                      {formData.channel_code} ({getTypeLabel(formData.type_payment_method)})
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {formData.payment_method === 'ewallet' && (
-              <InputField
-                name="phone_number_ewallet"
-                label="E-Wallet Phone Number"
-                icon={Phone}
-                placeholder="Phone number linked to your e-wallet"
-              />
+            {/* E-Wallet Phone Number (conditional) */}
+            {formData.payment_method === 'EWALLET' && (
+              <div className="md:col-span-2 space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  E-Wallet Phone Number <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Phone className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    name="phone_number_ewallet"
+                    value={formData.phone_number_ewallet}
+                    onChange={handleInputChange}
+                    placeholder="Phone number linked to your e-wallet"
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                      errors.phone_number_ewallet ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  />
+                </div>
+                {errors.phone_number_ewallet && (
+                  <div className="flex items-center space-x-1 text-red-600 text-sm">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{errors.phone_number_ewallet}</span>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
@@ -578,11 +1169,11 @@ export default function TenantRegistrationForm() {
           <div className="mt-8 pt-6 border-t border-gray-200">
             <button
               type="button"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
+              onClick={() => handleSubmit()}
+              disabled={loadingRegister}
               className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? (
+              {loadingRegister ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                   Creating Account...
@@ -609,6 +1200,69 @@ export default function TenantRegistrationForm() {
               </a>
             </p>
           </div>
+        </form>
+
+        {/* card price Information */}
+        <div class="bg-white rounded-2xl overflow-hidden receipt-shadow shadow-xl mt-6">
+            <div class="px-6 py-4">
+                <div class="space-y-2">
+                    <div class="flex justify-between items-star divider">
+                        <div class="flex items-start">
+                            <div>
+                                <h3 class="font-medium text-gray-800">Subtotal</h3>
+                                <p class="text-gray-500 text-sm">Harga layanan package Service</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium text-gray-800">{formatCurrency(packagePrice)}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-start divider">
+                        <div class="flex items-start">
+                            <div>
+                                <h3 class="font-medium text-gray-800">Pajak</h3>
+                                <p class="text-gray-500 text-sm">Pajak pemerintah</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium text-gray-800">{formatCurrency(taxTransaction)}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-start">
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <h3 class="font-medium text-gray-800">Biaya Pembayaran</h3>
+                                </div>
+                                <p class="text-gray-500 text-sm">Biaya pemrosesan transaksi</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium text-gray-800">{formatCurrency(paymentFee)}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 py-4 px-6 border-t border-gray-100">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-dark">Total Pembayaran</h3>
+                            <p class="text-gray-600 text-sm">Termasuk semua biaya</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-bold text-primary">{formatCurrency((tax * packagePrice) + paymentFee + packagePrice)}</p>
+                        <div class="flex items-center justify-end space-x-1 mt-1">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <span class="text-xs text-green-600 font-medium">Jumlah akhir</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
       </div>
     </div>

@@ -95,5 +95,102 @@ export const ScrollToTop = () => {
   return null;
 };
 
+const formatPrice = (price) => {
+  if (price >= 1000000) return `Rp ${(price / 1000000).toFixed(1)}JT`;
+  return `Rp ${Math.round(price / 1000)}K`;
+};
+
+export const MappingPackage = (dataProductService) => {
+  const featuresMap = {
+    Starter: [
+      'Payment Gateway (QRIS, E-wallet, Bank)',
+      'Multi-device Access (HP, Tablet, Laptop)',
+      'QR Code untuk dine-in & take-away',
+      'Dashboard admin modern'
+    ],
+    Professional: [
+      'Semua fitur Starter Plan',
+      'Advanced Analytics dengan AI Insights',
+      'Laporan keuangan otomatis',
+      'Advanced Reporting + Export Data'
+    ],
+    Enterprise: [
+      'Semua fitur Professional Plan',
+      'HR Management terintegrasi',
+      'Payroll & absensi otomatis'
+    ]
+  };
+
+  const packageMetadata = {
+    Starter: {
+      segment: 'Untuk UMKM & Warung',
+      badge: 'Hemat 33%',
+      gradient: 'from-green-500 to-green-600',
+      popular: false
+    },
+    Professional: {
+      segment: 'Untuk Restaurant & Cafe',
+      badge: 'Most Popular',
+      gradient: 'from-green-500 to-emerald-600',
+      popular: true
+    },
+    Enterprise: {
+      segment: 'Untuk Chain & Franchise',
+      badge: 'Best Value',
+      gradient: 'from-green-600 to-green-700',
+      popular: false
+    }
+  };
+
+  const packages = dataProductService.map((item) => {
+    const meta = packageMetadata[item.product] || {};
+    console.log("data meta data: ", item)
+    return {
+      id: item.id,
+      name: item.product,
+      price: item.price,
+      originalPrice: item.original_price,
+      features: featuresMap[item.product] || [],
+      ...meta
+    };
+  });
 
 
+  return packages
+}
+
+export const PaymentMethodImage = (key, widthimg, heightimg) => {
+    const paymentImages = {
+        BCA: <img src="./image/BCA.png" style={{height: '50px', width: '55px'}}/>,
+        BNI: <img src="./image/BNI.png" style={{height: '50px', width: '50px'}}/>,
+        BRI: <img src="./image/BRI.png" style={{height: '25px', width: '55px', margin: '10px 0'}}/>,
+        BJB: <img src="./image/BJB.png" style={{height: '50px', width: '50px'}}/>,
+        CIMB:<img src="./image/CIMB.png" style={{height: '50px', width: '50px'}}/>,
+        MANDIRI: <img src="./image/MANDIRI.png" style={{height: '45px', width: '60px', margin: '5px 0'}}/>,
+        PERMATA:  <img src="./image/PERMATA.png" style={{height: '30px', width: '60px', margin: '10px 0'}}/>,
+        DANA:  <img src="./image/DANA.png" style={{height: '27.5px', width: '60px', margin: '10px 0'}}/>,
+        LINKAJA:  <img src="./image/LINKAJA.png" style={{height: '40px', width: '60px', margin: '5px 0'}}/>,
+        OVO:  <img src="./image/OVO.jpg" style={{height: '40px', width: '60px'}}/>,
+        SHOPEEPAY :  <img src="./image/SHOOPEPAY.png" style={{height: '50px', width: '75px'}}/>,
+        QRIS:  <img src="./image/QRIS.png" style={{height: heightimg, width: widthimg}}/>,
+    }
+    return paymentImages[key]
+}
+
+export const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0
+  }).format(amount);
+};
+
+export const formatDateTime = (dateString) => {
+  return new Date(dateString).toLocaleString('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
