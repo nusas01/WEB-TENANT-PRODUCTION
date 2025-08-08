@@ -61,13 +61,14 @@ export const extendServiceStore = (data) => async (dispatch) => {
     }
     dispatch(setLoadingExtendServiceStore(true))
     try {
-        const response = await axios.post(`${process.env.REACT_APP_EXTEND_SERVICE_STORE}`, data, config)
+        const response = await axios.patch(`${process.env.REACT_APP_EXTEND_SERVICE_STORE}`, data, config)
         dispatch(setSuccessExtendServiceStore(response?.data?.success))
         dispatch(setDataExtendServiceStore(response?.data?.data))
     } catch (error) {
         dispatch(setErrorExtendServiceStore({ 
             error: error?.response?.data?.error,
             errorField: error?.response?.data?.errorField,
+            errorSubdomain: error?.response?.data?.errorField?.subdomain,
         }))
     } finally {
         dispatch(setLoadingExtendServiceStore(false))

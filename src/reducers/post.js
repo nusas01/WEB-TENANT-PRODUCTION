@@ -60,6 +60,7 @@ const initialRegisterAccount = {
     successRegister: false,
     errorFieldsRegister: null,
     errorRegister: null,
+    errorDomain: null,
     loadingRegister: false,
 }
 export const registerAccountSlice = createSlice({
@@ -71,6 +72,7 @@ export const registerAccountSlice = createSlice({
         },
         setErrorRegisterAccount: (state, action) => {
             state.errorFieldsRegister = action.payload.errorField
+            state.errorDomain = action.payload.errorDomain
             state.errorRegister = action.payload.error 
         }, 
         setLoadingRegisterAccount: (state, action) => {

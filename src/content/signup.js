@@ -84,7 +84,7 @@ export default function TenantRegistrationForm() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
-  // handle package 
+  // handle package or peroduct service
   const {resetErrorProductService} = productServicesSlice.actions
   const {dataProductService: packages, errorProductService, loadingProductService} = useSelector((state) => state.persisted.productServices)
 
@@ -357,7 +357,13 @@ export default function TenantRegistrationForm() {
 
   // handle submit register
   const {resetRegisterAccount} = registerAccountSlice.actions
-  const {successRegister, errorFieldsRegister, errorRegister, loadingRegister} = useSelector((state) => state.registerAccountState)
+  const {
+    successRegister, 
+    errorDomain, 
+    errorFieldsRegister, 
+    errorRegister, 
+    loadingRegister
+  } = useSelector((state) => state.registerAccountState)
 
   useEffect(() => {
     if (successRegister) {
@@ -367,18 +373,29 @@ export default function TenantRegistrationForm() {
   }, [successRegister])
 
   useEffect(() => {
-    if (errorFieldsRegister) {
+    if (Array.isArray(errorFieldsRegister)) {
       const mappedErrors = errorFieldsRegister.reduce((acc, curr) => {
         const [field, message] = Object.entries(curr)[0]; 
         acc[field] = message;
         return acc;
       }, {});
-  
+
       setErrors(prev => ({ ...prev, ...mappedErrors }));
-  
+      dispatch(resetRegisterAccount());
+    }
+  }, [errorFieldsRegister]);
+
+
+  useEffect(() => {
+    if (errorDomain) {
+      setErrors(prev => ({
+        ...prev,
+        subdomain: errorDomain,
+      }))
+      
       dispatch(resetRegisterAccount())
     }
-  }, [errorFieldsRegister])
+  }, [errorDomain])
 
   useEffect(() => {
     if (errorRegister) {
@@ -419,7 +436,8 @@ export default function TenantRegistrationForm() {
     }
   };
 
-
+  console.log("error fields: ", errorFieldsRegister)
+  console.log("data personal information: ", errors)
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -458,31 +476,43 @@ export default function TenantRegistrationForm() {
               {segments.map((segment) => {
                 const currentPackage = packages.find(pkg => pkg.name === segment);
                 const isSelected = formData.product_service_id === currentPackage?.id;
+                const isInDevelopment = currentPackage?.status === "Pengembangan";
 
                 return (
                   <div
                     key={segment}
-                    className={`group relative bg-white/90 rounded-3xl border transition-all duration-500 hover:transform hover:scale-100 backdrop-blur-sm shadow-lg shadow-black/5 cursor-pointer ${
-                      isSelected
-                        ? 'border-green-500 shadow-2xl shadow-green-500/20 scale-100'
+                    className={`group relative bg-white/90 rounded-3xl border transition-all duration-500 backdrop-blur-sm shadow-lg shadow-black/5 flex flex-col ${
+                      isInDevelopment
+                        ? 'border-gray-200 opacity-60 cursor-not-allowed'
+                        : isSelected
+                        ? 'border-green-500 shadow-2xl shadow-green-500/20 scale-100 cursor-pointer'
                         : currentPackage?.popular
-                        ? 'border-green-500/30 shadow-xl shadow-green-500/10'
-                        : 'border-gray-200 hover:border-green-500/20 hover:shadow-xl hover:shadow-green-500/5'
+                        ? 'border-green-500/30 shadow-xl shadow-green-500/10 cursor-pointer hover:transform hover:scale-100'
+                        : 'border-gray-200 hover:border-green-500/20 hover:shadow-xl hover:shadow-green-500/5 cursor-pointer hover:transform hover:scale-100'
                     }`}
-                    onClick={() => currentPackage && handlePackageSelect(currentPackage.id)}
+                    onClick={() => !isInDevelopment && currentPackage && handlePackageSelect(currentPackage.id)}
                   >
                     {/* Selection Indicator */}
-                    {isSelected && (
+                    {isSelected && !isInDevelopment && (
                       <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                         <CheckCircle className="h-4 w-4 text-white" />
                       </div>
                     )}
 
                     {/* Gradient Overlay */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${currentPackage?.gradient ?? ''} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`} />
+                    <div className={`absolute inset-0 bg-gradient-to-br ${currentPackage?.gradient ?? ''} ${
+                      isInDevelopment ? 'opacity-0' : 'opacity-0 group-hover:opacity-10'
+                    } rounded-3xl transition-opacity duration-500`} />
 
                     {/* Badge */}
-                    {currentPackage?.popular ? (
+                    {isInDevelopment ? (
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-2">
+                          <AlertTriangle className="h-4 w-4" />
+                          <span>Dalam Pengembangan</span>
+                        </div>
+                      </div>
+                    ) : currentPackage?.popular ? (
                       <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                         <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-2">
                           <Star className="h-4 w-4" />
@@ -497,7 +527,7 @@ export default function TenantRegistrationForm() {
                       </div>
                     ) : null}
 
-                    <div className="relative p-6 sm:p-8 lg:p-10">
+                    <div className="relative p-6 sm:p-8 lg:p-10 flex flex-col flex-grow">
                       {loadingProductService ? (
                         <div className="flex flex-col items-center justify-center py-16 text-green-600">
                           <Loader2 className="w-10 h-10 animate-spin mb-3" />
@@ -511,54 +541,93 @@ export default function TenantRegistrationForm() {
                       ) : (
                         <>
                           <div className="text-center mb-6 lg:mb-8">
-                            <div className={`inline-flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br ${currentPackage.gradient} rounded-2xl mb-4 lg:mb-6`}>
+                            <div className={`inline-flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br ${
+                              isInDevelopment ? 'from-gray-400 to-gray-500' : currentPackage.gradient
+                            } rounded-2xl mb-4 lg:mb-6`}>
                               <Award className="h-8 w-8 lg:h-10 lg:w-10 text-white" />
                             </div>
 
-                            <h3 className="text-2xl lg:text-3xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                            <h3 className={`text-2xl lg:text-3xl font-bold mb-2 bg-gradient-to-r ${
+                              isInDevelopment 
+                                ? 'from-gray-400 to-gray-500' 
+                                : 'from-gray-900 to-gray-700'
+                            } bg-clip-text text-transparent`}>
                               {currentPackage.name}
                             </h3>
 
-                            <p className="text-gray-600 mb-4 lg:mb-6 text-sm lg:text-base">{currentPackage.segment}</p>
+                            <p className={`mb-4 lg:mb-6 text-sm lg:text-base ${
+                              isInDevelopment ? 'text-gray-400' : 'text-gray-600'
+                            }`}>
+                              {currentPackage.segment}
+                            </p>
 
                             <div className="space-y-2">
                               <div className="flex items-center justify-center space-x-2">
-                                <span className="text-3xl lg:text-5xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
+                                <span className={`text-3xl lg:text-5xl font-bold bg-gradient-to-r ${
+                                  isInDevelopment 
+                                    ? 'from-gray-400 to-gray-500' 
+                                    : 'from-green-600 to-green-700'
+                                } bg-clip-text text-transparent`}>
                                   {formatCurrency(currentPackage.price)}
                                 </span>
-                                <span className="text-gray-600 text-sm lg:text-base">/bulan</span>
+                                <span className={`text-sm lg:text-base ${
+                                  isInDevelopment ? 'text-gray-400' : 'text-gray-600'
+                                }`}>
+                                  /bulan
+                                </span>
                               </div>
                                 <div className="flex items-center justify-center space-x-2">
-                                  <span className="text-gray-400 line-through">{formatCurrency(currentPackage.originalPrice)}</span>
-                                  <span className="text-green-600 text-sm font-medium">{currentPackage.badge}</span>
+                                  <span className={`line-through ${
+                                    isInDevelopment ? 'text-gray-300' : 'text-gray-400'
+                                  }`}>
+                                    {formatCurrency(currentPackage.originalPrice)}
+                                  </span>
+                                  {!isInDevelopment && (
+                                    <span className="text-green-600 text-sm font-medium">{currentPackage.badge}</span>
+                                  )}
                                 </div>
                             </div>
                           </div>
 
-                          <div className={`space-y-3 lg:space-y-4 mb-6 lg:mb-8 ${errors?.package ? 'border border-red-500 rounded-xl p-4 bg-red-50' : ''}`}>
+                          <div className={`space-y-3 lg:space-y-4 mb-6 lg:mb-8 flex-grow ${errors?.package ? 'border border-red-500 rounded-xl p-4 bg-red-50' : ''}`}>
                             {currentPackage.features.map((feature, featureIndex) => (
                               <div key={featureIndex} className="flex items-start space-x-3">
-                                <div className="flex-shrink-0 w-5 h-5 lg:w-6 lg:h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mt-0.5">
+                                <div className={`flex-shrink-0 w-5 h-5 lg:w-6 lg:h-6 bg-gradient-to-br ${
+                                  isInDevelopment 
+                                    ? 'from-gray-400 to-gray-500' 
+                                    : 'from-green-500 to-green-600'
+                                } rounded-full flex items-center justify-center mt-0.5`}>
                                   <CheckCircle className="h-3 w-3 lg:h-4 lg:w-4 text-white" />
                                 </div>
-                                <span className="text-gray-700 leading-relaxed text-sm lg:text-base">{feature}</span>
+                                <span className={`leading-relaxed text-sm lg:text-base ${
+                                  isInDevelopment ? 'text-gray-400' : 'text-gray-700'
+                                }`}>
+                                  {feature}
+                                </span>
                               </div>
                             ))}
                           </div>
 
-                          <div className="relative">
+                          <div className="relative mt-auto">
                             <button 
                               className={`w-full py-3 lg:py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-100 text-sm lg:text-base ${
-                                isSelected
+                                isInDevelopment
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                  : isSelected
                                   ? 'bg-green-600 text-white shadow-2xl shadow-green-500/25'
                                   : 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-2xl hover:shadow-green-500/25'
                               }`}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handlePackageSelect(currentPackage.id);
+                                if (!isInDevelopment) {
+                                  handlePackageSelect(currentPackage.id);
+                                }
                               }}
+                              disabled={isInDevelopment}
                             >
-                              {isSelected 
+                              {isInDevelopment 
+                                ? 'Segera Hadir'
+                                : isSelected 
                                 ? 'Paket Terpilih' 
                                 : currentPackage.popular 
                                 ? 'Pilih Paket Terpopuler' 
@@ -566,7 +635,7 @@ export default function TenantRegistrationForm() {
                               }
                             </button>
 
-                            {errors?.package && (
+                            {errors?.package && !isInDevelopment && (
                               <div className="mt-2 text-sm text-red-600 text-center animate-fade-in">
                                 {errors.package}
                               </div>
@@ -682,14 +751,14 @@ export default function TenantRegistrationForm() {
                   onChange={handleInputChange}
                   placeholder="Enter your email"
                   className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    errors.email || errors.Email ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
               </div>
-              {errors.email && (
+              {(errors.email || errors.Email) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.email}</span>
+                  <span>{errors.Email || errors.email}</span>
                 </div>
               )}
             </div>

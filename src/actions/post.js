@@ -76,7 +76,8 @@ export const registerAccount = (data) => async (dispatch) => {
     } catch (error) {
         dispatch(setErrorRegisterAccount({ 
             error: error?.response?.data?.error,
-            errorField: error?.response?.data?.errorField,
+            errorField: error?.response?.data?.ErrorField,
+            errorDomain: error?.response?.data?.ErrorField?.subdomain,
         }))
     } finally {
         dispatch(setLoadingRegisterAccount(false))

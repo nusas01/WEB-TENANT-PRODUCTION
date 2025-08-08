@@ -13,6 +13,7 @@ import PrivateRoute from './reducers/privateRoute';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { fetchAuthStatusLogin } from './actions/get'; 
+import PaymentProcessing from './content/paymentProcessing'
 
 function App() {
   const dispatch = useDispatch()
@@ -37,6 +38,7 @@ function App() {
 
         <Route element={<PrivateRoute/>}> 
           <Route path='/store' element={<StoreManagementDashboard/>}/>
+          <Route path='/payment/processing' element={<PaymentProcessing/>}/>
           <Route path='/setting' element={<SettingsComponent/>}/>
         </Route> 
       </Routes>

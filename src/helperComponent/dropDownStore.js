@@ -318,7 +318,7 @@ const StoreDropdown = () => {
       )}
 
       {/* Selected Store Info */}
-      {selectedStore && !loadingDetailStore && (
+      {Object.keys(selectedStore || {}).length > 0 && !loadingDetailStore && (
         <div className="mt-4 p-6 bg-white rounded-lg shadow-lg focus:outline-none focus:border-transparent transition-all duration-200 border border-blue-100">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-semibold text-gray-900">Store Terpilih</h3>

@@ -65,6 +65,7 @@ export const patchCredentialStoreSlice = createSlice({
 const initialExtendServiceStore = {
     successExtendServiceStore: false,
     errorFieldsExtendServiceStore: null,
+    errorSubdomain: null,
     errorExtendServiceStore: null,
     loadingExtendServiceStore: false,
     dataExtendServiceStore: null,
@@ -79,12 +80,17 @@ export const extendServiceStoreSlice = createSlice({
         setErrorExtendServiceStore: (state, action) => {
             state.errorFieldsExtendServiceStore = action.payload.errorField
             state.errorExtendServiceStore = action.payload.error
+            state.errorSubdomain = action.payload.errorSubdomain
         },
         setLoadingExtendServiceStore: (state, action) => {
             state.loadingExtendServiceStore = action.payload
         },
         setDataExtendServiceStore: (state, action) => {
             state.dataExtendServiceStore = action.payload
+        },
+        resetErrorExtendServiceStore: (state) => {
+            state.errorExtendServiceStore = null
+            state.errorFieldsExtendServiceStore = null
         },
         resetExtendServiceStore: (state) => {
             state.errorFieldsExtendServiceStore = null

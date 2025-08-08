@@ -150,6 +150,7 @@ export const MappingPackage = (dataProductService) => {
       name: item.product,
       price: item.price,
       originalPrice: item.original_price,
+      status: item.status,
       features: featuresMap[item.product] || [],
       ...meta
     };

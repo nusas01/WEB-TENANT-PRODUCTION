@@ -303,7 +303,7 @@ export default function QRestroLanding() {
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
               <button
                 onClick={() => scrollToSection('packages')}
-                className="group px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full font-semibold hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-105 flex items-center space-x-3"
+                className="group px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full font-semibold hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-100 flex items-center space-x-3"
               >
                 <span>Mulai Gratis Hari Ini</span>
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -407,7 +407,7 @@ export default function QRestroLanding() {
             ].map((service, index) => (
               <div
                 key={index}
-                className="group relative p-8 bg-white/80 rounded-3xl border border-gray-200 hover:border-green-500/30 transition-all duration-500 hover:transform hover:scale-105 backdrop-blur-sm shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-green-500/10"
+                className="group relative p-8 bg-white/80 rounded-3xl border border-gray-200 hover:border-green-500/30 transition-all duration-500 hover:transform hover:scale-100 backdrop-blur-sm shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-green-500/10"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/3 to-green-600/3 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
@@ -461,21 +461,33 @@ export default function QRestroLanding() {
           <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
              {segments.map((segment) => {
                 const currentPackage = packages.find(pkg => pkg.name === segment);
+                const isInDevelopment = currentPackage?.status === "Pengembangan";
 
                 return (
                   <div
                     key={segment}
-                    className={`group relative bg-white/90 rounded-3xl border transition-all duration-500 hover:transform hover:scale-105 backdrop-blur-sm shadow-lg shadow-black/5 ${
-                      currentPackage?.popular
-                        ? 'border-green-500/30 shadow-xl shadow-green-500/10'
-                        : 'border-gray-200 hover:border-green-500/20 hover:shadow-xl hover:shadow-green-500/5'
+                    className={`group relative bg-white/90 rounded-3xl border transition-all duration-500 backdrop-blur-sm shadow-lg shadow-black/5 flex flex-col ${
+                      isInDevelopment 
+                        ? 'border-gray-200 opacity-60 cursor-not-allowed'
+                        : currentPackage?.popular
+                        ? 'border-green-500/30 shadow-xl shadow-green-500/10 hover:transform hover:scale-100'
+                        : 'border-gray-200 hover:border-green-500/20 hover:shadow-xl hover:shadow-green-500/5 hover:transform hover:scale-100'
                     }`}
                   >
                     {/* Gradient Layer */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${currentPackage?.gradient ?? ''} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`}></div>
+                    <div className={`absolute inset-0 bg-gradient-to-br ${currentPackage?.gradient ?? ''} ${
+                      isInDevelopment ? 'opacity-0' : 'opacity-0 group-hover:opacity-10'
+                    } rounded-3xl transition-opacity duration-500`}></div>
 
                     {/* Badge */}
-                    {currentPackage?.popular ? (
+                    {isInDevelopment ? (
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-2">
+                          <AlertTriangle className="h-4 w-4" />
+                          <span>Dalam Pengembangan</span>
+                        </div>
+                      </div>
+                    ) : currentPackage?.popular ? (
                       <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                         <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-2">
                           <Star className="h-4 w-4" />
@@ -491,7 +503,7 @@ export default function QRestroLanding() {
                     )}
 
                     {/* Konten Utama */}
-                    <div className="relative p-8 sm:p-10">
+                    <div className="relative p-8 sm:p-10 flex flex-col flex-grow">
                       {loadingProductService ? (
                         <div className="flex flex-col items-center justify-center py-16 text-green-600">
                           <Loader2 className="w-10 h-10 animate-spin mb-3" />
@@ -505,43 +517,79 @@ export default function QRestroLanding() {
                       ) : (
                         <>
                           <div className="text-center mb-8">
-                            <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${currentPackage.gradient} rounded-2xl mb-6`}>
+                            <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${
+                              isInDevelopment ? 'from-gray-400 to-gray-500' : currentPackage.gradient
+                            } rounded-2xl mb-6`}>
                               <Award className="h-10 w-10 text-white" />
                             </div>
 
-                            <h3 className="text-3xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                            <h3 className={`text-3xl font-bold mb-2 bg-gradient-to-r ${
+                              isInDevelopment 
+                                ? 'from-gray-400 to-gray-500' 
+                                : 'from-gray-900 to-gray-700'
+                            } bg-clip-text text-transparent`}>
                               {currentPackage.name}
                             </h3>
 
-                            <p className="text-gray-600 mb-6">{currentPackage.segment}</p>
+                            <p className={`mb-6 ${isInDevelopment ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {currentPackage.segment}
+                            </p>
 
                             <div className="space-y-2">
                               <div className="flex items-center justify-center space-x-2">
-                                <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
+                                <span className={`text-2xl font-bold bg-gradient-to-r ${
+                                  isInDevelopment 
+                                    ? 'from-gray-400 to-gray-500' 
+                                    : 'from-green-600 to-green-700'
+                                } bg-clip-text text-transparent`}>
                                   {formatCurrency(currentPackage.price)}
                                 </span>
-                                <span className="text-gray-600">/bulan</span>
+                                <span className={isInDevelopment ? 'text-gray-400' : 'text-gray-600'}>/bulan</span>
                               </div>
                               <div className="flex items-center justify-center space-x-2">
-                                <span className="text-gray-400 line-through">{formatCurrency(currentPackage.originalPrice)}</span>
-                                <span className="text-green-600 text-sm font-medium">{currentPackage.badge}</span>
+                                <span className={`line-through ${isInDevelopment ? 'text-gray-300' : 'text-gray-400'}`}>
+                                  {formatCurrency(currentPackage.originalPrice)}
+                                </span>
+                                {!isInDevelopment && (
+                                  <span className="text-green-600 text-sm font-medium">{currentPackage.badge}</span>
+                                )}
                               </div>
                             </div>
                           </div>
 
-                          <div className="space-y-4 mb-8">
+                          <div className="space-y-4 mb-8 flex-grow">
                             {currentPackage.features.map((feature, featureIndex) => (
                               <div key={featureIndex} className="flex items-start space-x-3">
-                                <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mt-0.5">
+                                <div className={`flex-shrink-0 w-6 h-6 bg-gradient-to-br ${
+                                  isInDevelopment 
+                                    ? 'from-gray-400 to-gray-500' 
+                                    : 'from-green-500 to-green-600'
+                                } rounded-full flex items-center justify-center mt-0.5`}>
                                   <CheckCircle className="h-4 w-4 text-white" />
                                 </div>
-                                <span className="text-gray-700 leading-relaxed">{feature}</span>
+                                <span className={`leading-relaxed ${
+                                  isInDevelopment ? 'text-gray-400' : 'text-gray-700'
+                                }`}>
+                                  {feature}
+                                </span>
                               </div>
                             ))}
                           </div>
 
-                          <button className="w-full py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl font-semibold hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-105">
-                            {currentPackage.popular ? 'Pilih Paket Terpopuler' : 'Mulai Sekarang'}
+                          <button 
+                            className={`w-full py-4 rounded-2xl font-semibold transition-all duration-300 mt-auto ${
+                              isInDevelopment
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-2xl hover:shadow-green-500/25 transform hover:scale-100'
+                            }`}
+                            disabled={isInDevelopment}
+                          >
+                            {isInDevelopment 
+                              ? 'Segera Hadir' 
+                              : currentPackage.popular 
+                              ? 'Pilih Paket Terpopuler' 
+                              : 'Mulai Sekarang'
+                            }
                           </button>
                         </>
                       )}
@@ -717,7 +765,7 @@ export default function QRestroLanding() {
                       gradient: "from-emerald-500 to-green-600"
                     }
                   ].map((contact, index) => (
-                    <div key={index} className="flex items-center space-x-4 group hover:transform hover:scale-105 transition-all duration-300">
+                    <div key={index} className="flex items-center space-x-4 group hover:transform hover:scale-100 transition-all duration-300">
                       <div className={`w-14 h-14 bg-gradient-to-br ${contact.gradient} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                         <contact.icon className="h-7 w-7 text-white" />
                       </div>
@@ -778,7 +826,7 @@ export default function QRestroLanding() {
               </div>
 
               <div className="space-y-4">
-                <button className="w-full py-4 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl font-semibold text-white hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-105">
+                <button className="w-full py-4 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl font-semibold text-white hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-100">
                   Jadwalkan Demo Sekarang
                 </button>
               </div>

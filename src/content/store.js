@@ -33,7 +33,7 @@ import { useElementHeight } from './helper';
 import { useDispatch, useSelector } from 'react-redux';
 import { navbarSlice } from '../reducers/reducers';
 import StoreDropdown from '../helperComponent/dropDownStore'
-import { useNavigate } from 'react-router-dom';
+import { data, useNavigate } from 'react-router-dom';
 import {
   Toast, 
   ToastPortal
@@ -80,6 +80,8 @@ const StoreManagementDashboard = () => {
     }
   }, [errorStore])
 
+
+
   // response error get detail store data
   const {resetDetailStoreError} = detailStoreSlice.actions
   const {
@@ -98,6 +100,12 @@ const StoreManagementDashboard = () => {
     }
   }, [errorDetailStore])
 
+
+  // extend service navigate to payment processing
+  const handleNavigatePaymentProcessing = (data) => {
+    navigate('/payment/processing', { state: { currentService: data } });
+  }
+  
   const [employees, setEmployees] = useState([
     { 
       id: 1, 
@@ -208,54 +216,6 @@ const StoreManagementDashboard = () => {
     if (sortOption === 'salary') return b.salary - a.salary;
     return 0;
   });
-
-
-
-  // extended service
-  const {resetExtendServiceStore} = extendServiceStoreSlice.actions
-  const {
-    successExtendServiceStore, 
-    errorFieldsExtendServiceStore, 
-    errorExtendServiceStore, 
-    loadingExtendServiceStore
-  } = useSelector((state) => state.persisted.extendServiceStore)
-
-  useEffect(() => {
-    if (successExtendServiceStore) {
-      navigate("/invoice")
-    }
-  }, successExtendServiceStore)
-
-  useEffect(() => {
-    if (errorExtendServiceStore) {
-      setToast({
-        type: "error",
-        message: "Terjadi kesalahan saat membuat transaksi perpanjangan layanan, silahkan coba lagi nanti"
-      })
-    }
-  }, [errorExtendServiceStore])
-
-
-
-  // handle package
-  const segments = ['Starter', 'Professional', 'Enterprise'];
-  const {resetErrorProductService} = productServicesSlice.actions
-  const {dataProductService: packages, errorProductService, loadingProductService} = useSelector((state) => state.persisted.productServices)
-  
-  useEffect(() => {
-      if (packages.length === 0) {
-        dispatch(fetchProductServices())
-      }
-    }, [])
-  
-    useEffect(() => {
-      if (errorProductService) {
-        setToast({
-          type: "error",
-          message: "Terjadi kesalahan saat memuat data package, silahkan coba lagi nanti"
-        })
-      }
-    }, [errorProductService])
   
 
   return (
@@ -268,8 +228,6 @@ const StoreManagementDashboard = () => {
         </div>
       )}
 
-    
-
       <div className='flex-1'>
         <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
           <div className="max-w-7xl">
@@ -281,10 +239,8 @@ const StoreManagementDashboard = () => {
                     type={toast.type} 
                     onClose={() => { 
                       setToast(null)
-                      dispatch(resetExtendServiceStore())
                       dispatch(resetDetailStoreError())
                       dispatch(resetStoreError())
-                      dispatch(resetErrorProductService())
                     }} 
                     duration={5000}
                     />
@@ -333,7 +289,11 @@ const StoreManagementDashboard = () => {
           <div className='mx-auto space-y-8' style={{marginTop: headerHeight}}>
             <StoreDropdown/>
             <FinanceRequiredCard/> 
-            <ServiceStatusCards/>
+            
+            {Object.keys(storeInfo).length > 0 &&
+              new Date(storeInfo.expiration_access) < new Date() && (
+                <ServiceStatusCards />
+            )}
             
             {Object.keys(storeInfo).length === 0 ? (
               <NoStoreSelectedContainer/>
@@ -422,7 +382,7 @@ const StoreManagementDashboard = () => {
 
                       <div>
                         <label className="text-sm text-gray-500 mb-2 block">PPN (%)</label>
-                          <p className="text-gray-900">{storeInfo.ppn}%</p>
+                          <p className="text-gray-900">{storeInfo.ppn/1000}%</p>
                       </div>
 
                     </div>
@@ -634,104 +594,15 @@ const StoreManagementDashboard = () => {
                     <CreditCard size={24} />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Extended Services</h2>
+                    <h2 className="text-xl font-bold text-gray-900">Extended Services</h2>
                     <p className="text-gray-600">Perpanjang layanan</p>
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  {segments.map((segment) => {
-                    const currentPackage = packages.find(pkg => pkg.name === segment);
-
-                    return (
-                      <div
-                        key={segment}
-                        className={`group relative bg-white/90 rounded-3xl border transition-all duration-500 hover:transform hover:scale-100 backdrop-blur-sm shadow-lg shadow-black/5 cursor-pointer ${
-                          currentPackage?.popular
-                          ? 'border-green-500/30 shadow-xl shadow-green-500/10'
-                          : 'border-gray-200 hover:border-green-500/20 hover:shadow-xl hover:shadow-green-500/5'
-                        }`}
-                        // onClick={() => currentPackage && handlePackageSelect(currentPackage.id)}
-                      >
-                        {/* Gradient Overlay */}
-                        <div className={`absolute inset-0 bg-gradient-to-br ${currentPackage?.gradient ?? ''} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`} />
-
-                        {/* Badge */}
-                        {currentPackage?.popular ? (
-                          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center space-x-2">
-                              <Star className="h-4 w-4" />
-                              <span>{currentPackage.badge}</span>
-                            </div>
-                          </div>
-                        ) : currentPackage?.badge ? (
-                          <div className="absolute top-6 right-6">
-                            <div className="bg-green-500/10 border border-green-500/20 text-green-600 px-3 py-1 rounded-full text-xs font-medium">
-                              {currentPackage.badge}
-                            </div>
-                          </div>
-                        ) : null}
-
-                        <div className="relative p-6 sm:p-8 lg:p-10">
-                          {loadingProductService ? (
-                            <div className="flex flex-col items-center justify-center py-16 text-green-600">
-                              <Loader2 className="w-10 h-10 animate-spin mb-3" />
-                              <p className="text-base font-medium">Memuat paket {segment}...</p>
-                            </div>
-                          ) : errorProductService || !currentPackage ? (
-                            <div className="flex flex-col items-center justify-center py-16 text-red-600">
-                              <AlertTriangle className="w-10 h-10 mb-3" />
-                              <p className="text-base font-semibold">Paket {segment} tidak tersedia</p>
-                            </div>
-                          ) : (
-                            <>
-                              <div className="text-center mb-6 lg:mb-8">
-                                <div className={`inline-flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br ${currentPackage.gradient} rounded-2xl mb-4 lg:mb-6`}>
-                                  <Award className="h-8 w-8 lg:h-10 lg:w-10 text-white" />
-                                </div>
-
-                                <h3 className="text-2xl lg:text-3xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                                  {currentPackage.name}
-                                </h3>
-
-                                <p className="text-gray-600 mb-4 lg:mb-6 text-sm lg:text-base">{currentPackage.segment}</p>
-
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-center space-x-2">
-                                    <span className="text-3xl lg:text-5xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
-                                      {formatCurrency(currentPackage.price)}
-                                    </span>
-                                    <span className="text-gray-600 text-sm lg:text-base">/bulan</span>
-                                  </div>
-                                    <div className="flex items-center justify-center space-x-2">
-                                      <span className="text-gray-400 line-through">{formatCurrency(currentPackage.originalPrice)}</span>
-                                      <span className="text-green-600 text-sm font-medium">{currentPackage.badge}</span>
-                                    </div>
-                                </div>
-                              </div>
-
-                              <div className={`space-y-3 lg:space-y-4 mb-6 lg:mb-8`}>
-                                {currentPackage.features.map((feature, featureIndex) => (
-                                  <div key={featureIndex} className="flex items-start space-x-3">
-                                    <div className="flex-shrink-0 w-5 h-5 lg:w-6 lg:h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mt-0.5">
-                                      <CheckCircle className="h-3 w-3 lg:h-4 lg:w-4 text-white" />
-                                    </div>
-                                    <span className="text-gray-700 leading-relaxed text-sm lg:text-base">{feature}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
                 </div>
 
                 <div className="mt-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
-                      <h4 className="font-semibold text-gray-900">Paket Saat Ini: Professional</h4>
+                      <h4 className="font-semibold text-gray-900">Paket Saat Ini: {storeInfo.service_name}</h4>
                       <p className="text-sm text-gray-600">Berakhir pada: {formatDateTime(storeInfo.expiration_access)}</p>
                     </div>
                     <div className="flex gap-3">
@@ -739,18 +610,18 @@ const StoreManagementDashboard = () => {
                         Riwayat Pembayaran
                       </button>
                       <button
-                      disabled={loadingExtendServiceStore} 
+                      onClick={() => handleNavigatePaymentProcessing({
+                        "store_id": storeInfo.id,
+                        "id": storeInfo.service_id,
+                        "current_service": storeInfo.service_name, 
+                        "verified_at": storeInfo.verified_at,
+                        "full_domain": storeInfo.full_domain,
+                      })}
                       className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm transition-colors shadow-md"
                       >
-                        { loadingExtendServiceStore ? (
-                          <>
-                            Auto Renewal...
-                          </>
-                        ): (
-                          <>
-                            Auto Renewal
-                          </>
-                        )}
+                        <>
+                          Perpanjang Layanan
+                        </>
                       </button>
                     </div>
                   </div>
