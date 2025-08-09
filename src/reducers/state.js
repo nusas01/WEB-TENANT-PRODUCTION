@@ -41,7 +41,7 @@ const persistedReducers = combineReducers({
   paymentMethods: paymentMethodsSlice.reducer,
   registerVerification: registerVerificationSlice.reducer,
   extendServiceStore: extendServiceStoreSlice.reducer,
-  addStoreState: addStoreSlice.reducer,
+  addStore: addStoreSlice.reducer,
   store: storeSlice.reducer,
   detailStore: detailStoreSlice.reducer,
   getEmployee: getEmployeesSlice.reducer,

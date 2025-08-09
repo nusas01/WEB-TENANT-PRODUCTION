@@ -158,7 +158,7 @@ export const addStore = (data) => async (dispatch) => {
         )
         dispatch(setSuccessAddStore({
             success: response?.data?.success, 
-            data: response?.data?.
+            data: response?.data?.data,
         }))
     } catch (error) {
         dispatch(setErrorAddStore({
