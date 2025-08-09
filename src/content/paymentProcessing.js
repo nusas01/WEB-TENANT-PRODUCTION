@@ -75,7 +75,7 @@ const PaymentProcessing = () => {
 
    // handle package or products service
     const {resetErrorProductService} = productServicesSlice.actions
-    const {dataProductService: products, errorSubdomain, errorProductService, loadingProductService} = useSelector((state) => state.persisted.productServices)
+    const {dataProductService: products, errorProductService, loadingProductService} = useSelector((state) => state.persisted.productServices)
 
     useEffect(() => {
         if (products.length === 0) {
@@ -94,10 +94,11 @@ const PaymentProcessing = () => {
 
 
     // extended service
-    const {resetErrorExtendServiceStore} = extendServiceStoreSlice.actions
+    const {resetErrorExtendServiceStore, resetExtendServiceStore} = extendServiceStoreSlice.actions
     const {
         successExtendServiceStore, 
         errorFieldsExtendServiceStore, 
+        errorSubdomain,
         errorExtendServiceStore, 
         loadingExtendServiceStore
     } = useSelector((state) => state.persisted.extendServiceStore)
@@ -105,6 +106,7 @@ const PaymentProcessing = () => {
     useEffect(() => {
         if (successExtendServiceStore) {
             navigate("/invoice")
+            dispatch(resetExtendServiceStore())
         }
     }, successExtendServiceStore)
 
@@ -211,8 +213,6 @@ const PaymentProcessing = () => {
                 type={toast.type} 
                 onClose={() => { 
                     setToast(null)
-                    dispatch(resetErrorProductService())
-                    dispatch(resetErrorPaymentMethods())
                     dispatch(resetErrorExtendServiceStore())
                 }} 
                 duration={3000}

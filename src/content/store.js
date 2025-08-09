@@ -11,7 +11,6 @@ import {
   Menu,
   MapPin, 
   Phone, 
-  Loader2,
   Globe, 
   Building2,
   Shield,
@@ -25,7 +24,6 @@ import {
   Search,
   ChevronDown,
   Filter,
-  AlertTriangle,
 } from 'lucide-react';
 import { FinanceRequiredCard, ServiceStatusCards } from './model';
 import Sidebar from './sidebar';
@@ -33,7 +31,7 @@ import { useElementHeight } from './helper';
 import { useDispatch, useSelector } from 'react-redux';
 import { navbarSlice } from '../reducers/reducers';
 import StoreDropdown from '../helperComponent/dropDownStore'
-import { data, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Toast, 
   ToastPortal
@@ -45,14 +43,8 @@ import {
 import {
   detailStoreSlice,
   storeSlice,
-  productServicesSlice,
+  getEmployeesSlice,
 } from '../reducers/get'
-import {
-  fetchProductServices
-} from '../actions/get'
-import {
-  extendServiceStoreSlice
-} from '../reducers/patch'
 import NoStoreSelectedContainer from '../helperComponent/noStoreSelected';
 
 const StoreManagementDashboard = () => {
@@ -105,61 +97,74 @@ const StoreManagementDashboard = () => {
   const handleNavigatePaymentProcessing = (data) => {
     navigate('/payment/processing', { state: { currentService: data } });
   }
-  
-  const [employees, setEmployees] = useState([
-    { 
-      id: 1, 
-      name: 'Ahmad Rizki', 
-      email: 'ahmad.rizki@kasir.com', 
-      password: 'password123',
-      phoneNumber: '+62 812 3456 7890',
-      position: 'Manager', 
-      image: null,
-      gender: 'Laki-laki',
-      dateOfBirth: '1990-05-15',
-      salary: 8500000,
-      createdAt: '2023-01-15T10:30:00Z'
-    },
-    { 
-      id: 2, 
-      name: 'Siti Nurhaliza', 
-      email: 'siti.nur@kasir.com', 
-      password: 'password123',
-      phoneNumber: '+62 813 4567 8901',
-      position: 'Staff', 
-      image: null,
-      gender: 'Perempuan',
-      dateOfBirth: '1992-08-22',
-      salary: 5500000,
-      createdAt: '2023-03-20T09:15:00Z'
-    },
-    { 
-      id: 3, 
-      name: 'Budi Santoso', 
-      email: 'budi.santoso@kasir.com', 
-      password: 'password123',
-      phoneNumber: '+62 814 5678 9012',
-      position: 'Staff', 
-      image: null,
-      gender: 'Laki-laki',
-      dateOfBirth: '1988-12-10',
-      salary: 5200000,
-      createdAt: '2023-05-10T14:20:00Z'
-    },
-    { 
-      id: 4, 
-      name: 'Maya Putri', 
-      email: 'maya.putri@kasir.com', 
-      password: 'password123',
-      phoneNumber: '+62 815 6789 0123',
-      position: 'Manager', 
-      image: null,
-      gender: 'Perempuan',
-      dateOfBirth: '1985-03-28',
-      salary: 9000000,
-      createdAt: '2023-02-28T11:45:00Z'
+
+  // data employee store
+  const {resetErrorGetEmployees} = getEmployeesSlice.actions
+  const {employees, loadingGetEmployees, errorGetEmployees} = useSelector((state) => state.persisted.getEmployee)
+
+  useEffect(() => {
+    if (errorGetEmployees) {
+      setToast({
+        type: "error",
+        message: "Terjadi kesalahan saat memuat karyawan store, silahkan coba lagi nanti"
+      })
     }
-  ]);
+  }, [errorGetEmployees])
+
+  // const [employees, setEmployees] = useState([
+  //   { 
+  //     id: 1, 
+  //     name: 'Ahmad Rizki', 
+  //     email: 'ahmad.rizki@kasir.com', 
+  //     password: 'password123',
+  //     phone_number: '+62 812 3456 7890',
+  //     position: 'Manager', 
+  //     image: null,
+  //     gender: 'Laki-laki',
+  //     date_of_birth: '1990-05-15',
+  //     salary: 8500000,
+  //     createdt: '2023-01-15T10:30:00Z'
+  //   },
+  //   { 
+  //     id: 2, 
+  //     name: 'Siti Nurhaliza', 
+  //     email: 'siti.nur@kasir.com', 
+  //     password: 'password123',
+  //     phoneNumber: '+62 813 4567 8901',
+  //     position: 'Staff', 
+  //     image: null,
+  //     gender: 'Perempuan',
+  //     dateOfBirth: '1992-08-22',
+  //     salary: 5500000,
+  //     createdAt: '2023-03-20T09:15:00Z'
+  //   },
+  //   { 
+  //     id: 3, 
+  //     name: 'Budi Santoso', 
+  //     email: 'budi.santoso@kasir.com', 
+  //     password: 'password123',
+  //     phoneNumber: '+62 814 5678 9012',
+  //     position: 'Staff', 
+  //     image: null,
+  //     gender: 'Laki-laki',
+  //     dateOfBirth: '1988-12-10',
+  //     salary: 5200000,
+  //     createdAt: '2023-05-10T14:20:00Z'
+  //   },
+  //   { 
+  //     id: 4, 
+  //     name: 'Maya Putri', 
+  //     email: 'maya.putri@kasir.com', 
+  //     password: 'password123',
+  //     phoneNumber: '+62 815 6789 0123',
+  //     position: 'Manager', 
+  //     image: null,
+  //     gender: 'Perempuan',
+  //     dateOfBirth: '1985-03-28',
+  //     salary: 9000000,
+  //     createdAt: '2023-02-28T11:45:00Z'
+  //   }
+  // ]);
 
   // const [storeInfo, setStoreInfo] = useState({
   //   id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
@@ -217,6 +222,8 @@ const StoreManagementDashboard = () => {
     return 0;
   });
   
+  const managerCount = employees.filter(emp => emp.position === 'Manager').length;
+  const staffCount = employees.filter(emp => emp.position === 'Staff').length;
 
   return (
     <div className='flex'>
@@ -241,6 +248,7 @@ const StoreManagementDashboard = () => {
                       setToast(null)
                       dispatch(resetDetailStoreError())
                       dispatch(resetStoreError())
+                      dispatch(resetErrorGetEmployees())
                     }} 
                     duration={5000}
                     />
@@ -413,7 +421,9 @@ const StoreManagementDashboard = () => {
                             <p className="text-blue-100">Control permissions and roles</p>
                           </div>
                         </div>
-                        <button className="bg-white px-6 py-1.5 text-gray-900 rounded-lg flex items-center gap-2 transition-colors">
+                        <button 
+                        className="bg-white px-6 py-1.5 text-gray-900 rounded-lg flex items-center gap-2 transition-colors"
+                        onClick={() => navigate('/store/create/employee')}>
                           <Plus size={18} className="group-hover:rotate-90 transition-transform" />
                           <span>Add Employee</span>
                         </button>
@@ -429,7 +439,7 @@ const StoreManagementDashboard = () => {
                       </div>
                       <div>
                         <p className="text-gray-500 text-sm">Total Employees</p>
-                        <p className="text-2xl font-bold text-gray-800">42</p>
+                        <p className="text-2xl font-bold text-gray-800">{employees.length}</p>
                       </div>
                     </div>
                     
@@ -439,7 +449,7 @@ const StoreManagementDashboard = () => {
                       </div>
                       <div>
                         <p className="text-gray-500 text-sm">Managers</p>
-                        <p className="text-2xl font-bold text-gray-800">8</p>
+                        <p className="text-2xl font-bold text-gray-800">{managerCount}</p>
                       </div>
                     </div>
                     
@@ -448,8 +458,8 @@ const StoreManagementDashboard = () => {
                         <UserCheck size={24} className="text-purple-600" />
                       </div>
                       <div>
-                        <p className="text-gray-500 text-sm">Staf</p>
-                        <p className="text-2xl font-bold text-gray-800">36</p>
+                        <p className="text-gray-500 text-sm">Staff</p>
+                        <p className="text-2xl font-bold text-gray-800">{staffCount}</p>
                       </div>
                     </div>
                   </div>
@@ -537,29 +547,32 @@ const StoreManagementDashboard = () => {
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-600">
                                       <Phone size={14} className="text-gray-900" />
-                                      {employee.phoneNumber}
+                                      {employee.phone_number}
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-600">
                                       <User size={14} className="text-gray-900" />
-                                      {employee.gender}, {calculateAge(employee.dateOfBirth)} tahun
+                                      {employee.gender}, {calculateAge(employee.date_of_birth)} tahun
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-600">
                                       <DollarSign size={14} className="text-gray-900" />
-                                      {formatCurrency(employee.salary)}
+                                      {employee.salery.toLocaleString("id-ID")}
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-600">
                                       <Calendar size={14} className="text-gray-900" />
-                                      Lahir: {formatDateTime(employee.dateOfBirth)}
+                                      Lahir: {formatDateTime(employee.date_of_birth)}
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-600">
                                       <Clock size={14} className="text-gray-900" />
-                                      Bergabung: {formatDateTime(employee.createdAt)}
+                                      Bergabung: {formatDateTime(employee.created_at)}
                                     </div>
                                   </div>
                                 </div>
                               </div>
                               <div className="flex gap-2">
-                                <button className="bg-gray-900 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-md">
+                                <button 
+                                className="bg-gray-900 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-md"
+                                onClick={() => navigate('/store/create/employee', { state: { employeeState: employee } })}
+                                >
                                   <Edit3 size={16} />
                                   Edit
                                 </button>

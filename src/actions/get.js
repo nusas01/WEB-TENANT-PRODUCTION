@@ -6,6 +6,7 @@ import {
     paymentMethodsSlice,
     storeSlice,
     detailStoreSlice,
+    getEmployeesSlice,
 } from '../reducers/get'
 
 
@@ -123,3 +124,26 @@ export const fetchDetailStore = (id) => {
         }
     }
 }
+
+const {
+  setEmployees,
+  setLoadingGetEmployees,
+  setErrorGetEmployees,
+} = getEmployeesSlice.actions
+export const fetchAllEmployees = (storeId) => {
+  return async (dispatch) => {
+    dispatch(setLoadingGetEmployees(true))
+    try {
+      const response = await axios.get(process.env.REACT_APP_EMPLOYEE, {
+        params: { store_id: storeId },
+        withCredentials: true,
+      })
+      dispatch(setEmployees(response?.data || []))
+    } catch (error) {
+      dispatch(setErrorGetEmployees(error?.response?.data?.error || 'Gagal memuat daftar employee'))
+    } finally {
+      dispatch(setLoadingGetEmployees(false))
+    }
+  }
+}
+

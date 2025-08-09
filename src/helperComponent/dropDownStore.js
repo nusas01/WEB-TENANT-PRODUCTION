@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { 
-  Star,
   Plus,  
   Store,
   MapPin, 
   Building2,
-  Clock,
   Search,
   ChevronDown,
   Loader2
@@ -17,7 +15,10 @@ import {
 import {
   fetchAllStores, 
   fetchDetailStore,
+  fetchAllEmployees,
 } from '../actions/get'
+import { useNavigate } from 'react-router-dom';
+
 
 const LoadingSpinner = ({ size = 'md', className = '' }) => {
   const sizeClasses = {
@@ -56,11 +57,11 @@ const StoreListSkeleton = () => (
 );
 
 const StoreDropdown = () => {
+  const navigate = useNavigate()
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   // const [selectedStore, setSelectedStore] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddStore, setShowAddStore] = useState(false);
 
   // get all data store
   const {allStores:stores, loadingStore} = useSelector((state) => state.persisted.store) 
@@ -86,6 +87,7 @@ const StoreDropdown = () => {
 
   const handleStoreSelect = (store) => {
     dispatch(fetchDetailStore(store.id))
+    dispatch(fetchAllEmployees(store.id))
     dispatch(setSelectedStore(store));
     setIsOpen(false);
     setSearchTerm('');
@@ -157,12 +159,12 @@ const StoreDropdown = () => {
             <div className="p-3 flex items-center justify-between">
               <h2>Pilih Store</h2>
               <button
-                onClick={() => setShowAddStore(true)}
+                onClick={() => navigate("/store/add")}
                 disabled={loadingStore}
                 className="flex items-center space-x-1 px-6 py-1.5 bg-gray-900 text-white text-md rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="w-6 h-6" />
-                <span>Add</span>
+                <span>Add Store</span>
               </button>
             </div>
 
@@ -248,74 +250,6 @@ const StoreDropdown = () => {
           </div>
         )}
       </div>
-
-      {/* Add Store Modal */}
-      {showAddStore && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                  <Building2 className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-100">Add New Store</h3>
-              </div>
-              <button
-                onClick={() => setShowAddStore(false)}
-                className="text-gray-400 hover:text-gray-200 transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Store Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter store name"
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Location</label>
-                <input
-                  type="text"
-                  placeholder="Enter location"
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Store Type</label>
-                <select className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                  <option value="">Select type</option>
-                  <option value="Flagship">Flagship</option>
-                  <option value="Premium">Premium</option>
-                  <option value="Mall">Mall</option>
-                </select>
-              </div>
-              
-              <div className="flex space-x-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowAddStore(false)}
-                  className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-colors duration-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200"
-                >
-                  Add Store
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Selected Store Info */}
       {Object.keys(selectedStore || {}).length > 0 && !loadingDetailStore && (

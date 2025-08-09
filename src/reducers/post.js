@@ -58,6 +58,7 @@ export const forgotPasswordSlice = createSlice({
 
 const initialRegisterAccount = {
     successRegister: false,
+    dataSuccessRegister: null,
     errorFieldsRegister: null,
     errorRegister: null,
     errorDomain: null,
@@ -68,7 +69,8 @@ export const registerAccountSlice = createSlice({
     initialState: initialRegisterAccount,
     reducers: {
         setSuccessRegisterAccount: (state, action) => {
-            state.successRegister = action.payload
+            state.successRegister = action.payload.success
+            state.dataSuccessRegister = action.payload.data
         },
         setErrorRegisterAccount: (state, action) => {
             state.errorFieldsRegister = action.payload.errorField
@@ -110,6 +112,62 @@ export const postEmployeeSlice = createSlice({
             state.errorFieldsPostEmployee = null
             state.errorPostEmployee = null
             state.successPostEmployee = false
+        }
+    }
+})
+
+const initialCreateEmployeeState = {
+  successCreateEmployee: false,
+  errorCreateEmployee: null,
+  loadingCreateEmployee: false,
+}
+export const createEmployeeSlice = createSlice({
+  name: 'createEmployee',
+  initialState: initialCreateEmployeeState,
+  reducers: {
+    setSuccessCreateEmployee: (state, action) => {
+      state.successCreateEmployee = action.payload
+    },
+    setErrorCreateEmployee: (state, action) => {
+      state.errorCreateEmployee = action.payload || null
+    },
+    setLoadingCreateEmployee: (state, action) => {
+      state.loadingCreateEmployee = action.payload
+    },
+    resetCreateEmployee: (state) => {
+      state.successCreateEmployee = false
+      state.errorCreateEmployee = null
+    },
+  },
+})
+
+
+const initialAddStore = {
+    successAddStore: false,
+    dataSuccess: null,
+    errorFieldsAddStore: null,
+    errorAddStore: null,
+    loadingAddStore: false,
+}
+export const addStoreSlice = createSlice({
+    name: 'addStore',
+    initialState: initialAddStore,
+    reducers: {
+        setSuccessAddStore: (state, action) => {
+            state.successAddStore = action.payload.success 
+            state.dataSuccess = action.payload.data
+        },
+        setErrorAddStore: (state, action) => {
+            state.errorFieldsAddStore = action.payload.errorField
+            state.errorAddStore = action.payload.error
+        },
+        setLoadingAddStore: (state, action) => {
+            state.loadingAddStore = action.payload
+        },
+        resetAddStore: (state) => {
+            state.errorFieldsAddStore = null
+            state.errorAddStore = null
+            state.successAddStore = false
         }
     }
 })

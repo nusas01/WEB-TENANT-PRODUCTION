@@ -140,3 +140,27 @@ export const detailStoreSlice = createSlice({
     },
   },
 })
+
+const initialGetEmployeesState = {
+  employees: [],
+  loadingGetEmployees: false,
+  errorGetEmployees: null,
+}
+export const getEmployeesSlice = createSlice({
+  name: 'getEmployees',
+  initialState: initialGetEmployeesState,
+  reducers: {
+    setEmployees: (state, action) => {
+      state.employees = action.payload || []
+    },
+    setLoadingGetEmployees: (state, action) => {
+      state.loadingGetEmployees = action.payload
+    },
+    setErrorGetEmployees: (state, action) => {
+      state.errorGetEmployees = action.payload || null
+    },
+    resetErrorGetEmployees: (state) => {
+      state.errorGetEmployees = null
+    },
+  },
+})

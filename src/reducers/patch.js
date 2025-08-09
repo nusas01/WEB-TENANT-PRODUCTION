@@ -28,7 +28,6 @@ export const registerVerificationSlice = createSlice({
             state.errorFieldsRegisterVerification = null
             state.errorRegisterVerification = null
             state.successRegisterVerification = false
-            state.dataRegisterVerification = null
         }
     }
 })
@@ -96,7 +95,6 @@ export const extendServiceStoreSlice = createSlice({
             state.errorFieldsExtendServiceStore = null
             state.errorExtendServiceStore = null
             state.successExtendServiceStore = false
-            state.dataExtendServiceStore = null
         }
     }
 })

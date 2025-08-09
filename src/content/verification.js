@@ -15,8 +15,10 @@ import {
 import {
   registerVerification
 } from '../actions/patch'
+import { useNavigate } from 'react-router-dom';
 
 export default function VerificationForm() {
+  const navigate = useNavigate();
   const dispatch = useDispatch()
   const [code, setCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -32,7 +34,7 @@ export default function VerificationForm() {
 
   useEffect(() => {
     if (successRegisterVerification) {
-      window.open('/invoice', '_blank');
+      navigate('/invoice');
     }
   }, [successRegisterVerification])
  

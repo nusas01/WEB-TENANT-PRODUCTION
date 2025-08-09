@@ -4,6 +4,8 @@ import {
     forgotPasswordSlice,
     registerAccountSlice,
     postEmployeeSlice,
+    createEmployeeSlice,
+    addStoreSlice,
 } from "../reducers/post"
 import { data } from "react-router-dom";
 import {
@@ -72,7 +74,10 @@ export const registerAccount = (data) => async (dispatch) => {
     dispatch(setLoadingRegisterAccount(true))
     try {
         const response = await axios.post(`${process.env.REACT_APP_REGISTER}`, data, config)
-        dispatch(setSuccessRegisterAccount(response?.data?.success))
+        dispatch(setSuccessRegisterAccount({
+            success: response?.data?.success, 
+            data: response?.data?.data,
+        }))
     } catch (error) {
         dispatch(setErrorRegisterAccount({ 
             error: error?.response?.data?.error,
@@ -103,5 +108,64 @@ export const postEmployee = (data) => async (dispatch) => {
         }))
     } finally {
         dispatch(setLoadingPostEmployee(false))
+    }
+}
+
+const {
+  setSuccessCreateEmployee,
+  setErrorCreateEmployee,
+  setLoadingCreateEmployee,
+} = createEmployeeSlice.actions
+export const createEmployee = (formData) => {
+  return async (dispatch) => {
+    dispatch(setLoadingCreateEmployee(true))
+    try {
+      const response = await axios.post(process.env.REACT_APP_EMPLOYEE, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      })
+      dispatch(setSuccessCreateEmployee(true))
+      return response.data
+    } catch (error) {
+      dispatch(setErrorCreateEmployee(error?.response?.data?.error || 'Gagal membuat employee'))
+      throw error
+    } finally {
+      dispatch(setLoadingCreateEmployee(false))
+    }
+  }
+}
+
+const {
+    setSuccessAddStore,
+    setErrorAddStore,
+    setLoadingAddStore
+} = addStoreSlice.actions
+export const addStore = (data) => async (dispatch) => {
+    const config = {
+        headers: {
+            "Content-Type": "application/json",
+        },
+        withCredentials: true,
+    }
+    dispatch(setLoadingAddStore(true))
+    try {
+        const response = await axios.post(
+            `${process.env.REACT_APP_ADD_STORE}`,
+            data,
+            config
+        )
+        dispatch(setSuccessAddStore({
+            success: response?.data?.success, 
+            data: response?.data?.
+        }))
+    } catch (error) {
+        dispatch(setErrorAddStore({
+            error: error?.response?.data?.error,
+            errorField: error?.response?.data?.errorField,
+        }))
+    } finally {
+        dispatch(setLoadingAddStore(false))
     }
 }

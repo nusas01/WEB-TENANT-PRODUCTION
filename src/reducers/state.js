@@ -11,18 +11,27 @@ import {
   paymentMethodsSlice,
   storeSlice,
   detailStoreSlice,
+  getEmployeesSlice,
 } from './get'
 import { 
   loginSlice,
   forgotPasswordSlice,
   registerAccountSlice,
   postEmployeeSlice,
+  createEmployeeSlice,
+  addStoreSlice,
 } from './post'
 import {
   registerVerificationSlice,
   patchCredentialStoreSlice,
   extendServiceStoreSlice,
 } from './patch'
+import {
+  updateEmployeeSlice
+} from './put'
+import {
+  deleteEmployeeSlice
+} from './delete'
 
 // 1. Reducer yang ingin dipersist
 const persistedReducers = combineReducers({
@@ -32,8 +41,10 @@ const persistedReducers = combineReducers({
   paymentMethods: paymentMethodsSlice.reducer,
   registerVerification: registerVerificationSlice.reducer,
   extendServiceStore: extendServiceStoreSlice.reducer,
+  addStoreState: addStoreSlice.reducer,
   store: storeSlice.reducer,
   detailStore: detailStoreSlice.reducer,
+  getEmployee: getEmployeesSlice.reducer,
 })
 
 // 2. Konfigurasi persist
@@ -50,6 +61,9 @@ const nonPersistedReducers = {
   registerAccountState: registerAccountSlice.reducer,
   postEmployeeState: postEmployeeSlice.reducer,
   patchCredentialStoreState: patchCredentialStoreSlice.reducer,
+  createEmployeeState: createEmployeeSlice.reducer,
+  updateEmployeeState: updateEmployeeSlice.reducer,
+  deleteEmployeeState: deleteEmployeeSlice.reducer,
 }
 
 const rootReducer = combineReducers({
