@@ -7,6 +7,7 @@ import {
     storeSlice,
     detailStoreSlice,
     getEmployeesSlice,
+    getDataAccountSlice,
 } from '../reducers/get'
 
 
@@ -23,6 +24,23 @@ export const fetchAuthStatusLogin = () => {
         }
     }
 } 
+
+const {setDataAccount, setErrorDataAccount, setLoadingDataAccount} = getDataAccountSlice.actions
+export const fetchDataAccount = () => {
+    return async (dispatch) => {
+      dispatch(setLoadingDataAccount(true))
+      try{
+          const response = await axios.get(`${process.env.REACT_APP_ACCOUNT_TENANT_DATA}`, {
+              withCredentials: true
+          })
+          dispatch(setDataAccount(response?.data))
+      } catch(error) {
+          dispatch(setErrorDataAccount(error.response?.data?.error))
+      } finally {
+          dispatch(setLoadingDataAccount(false))
+      }
+    }
+}
 
 const {setSuccessLogout, setErrorLogout, setLoadingLogout} = logoutSlice.actions
 export const fetchLogout = () => {

@@ -7,8 +7,12 @@ import {
   Clock,
   Calendar,
   RefreshCw,
-  Lock
+  Lock,
+  AlertTriangle,
+  X,
+  Trash2,
 } from 'lucide-react';
+import { formatDateTime } from './helper';
 
 
 export const FinanceRequiredCard = () => {
@@ -86,7 +90,7 @@ export const FinanceRequiredCard = () => {
 };
 
 
-export const ServiceStatusCards = () => {
+export const ServiceStatusCards = ({expiration_access}) => {
   return (
     <div className="max-w-7xl">
         {/* Card 2: Service Renewal */}
@@ -107,7 +111,7 @@ export const ServiceStatusCards = () => {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Perpanjangan Layanan Diperlukan</h2>
                 <p className="text-gray-600 mb-4">
-                  Masa aktif layanan Anda telah berakhir pada 30 Juni 2023. 
+                  Masa aktif layanan Anda telah berakhir pada {formatDateTime(expiration_access)}. 
                   Segera lakukan perpanjangan untuk melanjutkan akses ke seluruh fitur platform.
                 </p>
 
@@ -142,12 +146,82 @@ export const ServiceStatusCards = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Clock size={18} className="text-red-100" />
-                <span>Layanan berakhir: 30 Juni 2023 (5 hari yang lalu)</span>
+                <span>Layanan berakhir: {formatDateTime(expiration_access)} (
+                  {Math.floor(
+                    (new Date() - new Date(expiration_access)) / (1000 * 60 * 60 * 24)
+                  )} hari yang lalu)
+                </span>
               </div>
               <span className="bg-red-700 px-3 py-1 rounded-full text-sm">Kadaluarsa</span>
             </div>
           </div>
         </div>
+    </div>
+  );
+};
+
+export const DeleteEmployeeConfirmation = ({ 
+  employeeId, 
+  onConfirm, 
+  onCancel 
+}) => {
+  return (
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+        {/* Header */}
+        <div className="flex justify-between items-center p-4 border-b border-gray-200">
+          <div className="flex items-center space-x-2">
+            <AlertTriangle className="w-5 h-5 text-yellow-500" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              Konfirmasi Penghapusan
+            </h3>
+          </div>
+          <button 
+            onClick={onCancel}
+            className="text-gray-400 hover:text-gray-500"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        {/* Body */}
+        <div className="p-6">
+          <div className="flex justify-center mb-4">
+            <div className="bg-red-100 p-3 rounded-full">
+              <Trash2 className="w-8 h-8 text-red-600" />
+            </div>
+          </div>
+          
+          <p className="text-gray-700 text-center mb-2">
+            Anda akan menghapus data karyawan dengan ID:
+          </p>
+          <div className="bg-gray-100 rounded-lg py-3 px-4 mb-4">
+            <p className="text-gray-900 font-mono text-center font-bold text-lg">
+              {employeeId}
+            </p>
+          </div>
+          <p className="text-red-600 text-center text-sm">
+            Tindakan ini tidak dapat dibatalkan!
+          </p>
+        </div>
+        
+        {/* Footer */}
+        <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end space-x-3">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          >
+            Batal
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex items-center"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Hapus Karyawan
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

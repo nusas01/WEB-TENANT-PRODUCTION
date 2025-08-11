@@ -104,7 +104,7 @@ export const postEmployee = (data) => async (dispatch) => {
     } catch (error) {
         dispatch(setErrorPostEmployee({ 
             error: error?.response?.data?.error,
-            errorField: error?.response?.data?.errorField,
+            errorField: error?.response?.data?.ErrorField,
         }))
     } finally {
         dispatch(setLoadingPostEmployee(false))
@@ -129,8 +129,11 @@ export const createEmployee = (formData) => {
       dispatch(setSuccessCreateEmployee(true))
       return response.data
     } catch (error) {
-      dispatch(setErrorCreateEmployee(error?.response?.data?.error || 'Gagal membuat employee'))
-      throw error
+        console.log("error oyy: ", error)
+        dispatch(setErrorCreateEmployee({
+            error: error?.response?.data?.error || 'Gagal membuat employee', 
+            errorField: error?.response?.data?.ErrorField[0],
+        }))
     } finally {
       dispatch(setLoadingCreateEmployee(false))
     }
@@ -163,7 +166,7 @@ export const addStore = (data) => async (dispatch) => {
     } catch (error) {
         dispatch(setErrorAddStore({
             error: error?.response?.data?.error,
-            errorField: error?.response?.data?.errorField,
+            errorField: error?.response?.data?.ErrorField,
         }))
     } finally {
         dispatch(setLoadingAddStore(false))

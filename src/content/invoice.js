@@ -17,29 +17,19 @@ import {
     formatCurrency,
     formatDateTime
 } from './helper'
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  QrCode, 
-  Wallet, 
-  Building2, 
-  CreditCard, 
-  Clock, 
-  Smartphone, 
-  AlertCircle, 
-  ExternalLink, 
-  CheckCircle, 
-  Copy, 
-  Receipt, 
-  Download 
-} from 'lucide-react';
-
 const PaymentInvoice = ({ paymentData, colorType }) => {
+  const navigate = useNavigate()
   const [downloading, setDownloading] = useState(false);
   const [copiedVA, setCopiedVA] = useState(false);
   const invoiceRef = useRef(null);
+
+  useEffect(() => {
+    if (!paymentData) {
+      navigate('/')
+    }
+  }, [paymentData])
 
   // Color theme configuration
   const themes = {
@@ -54,7 +44,7 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
       textAccent: 'text-emerald-800',
       iconColor: 'text-emerald-500',
       buttonBg: 'bg-emerald-500 hover:bg-emerald-600',
-      downloadBg: 'bg-red-400 hover:bg-red-500'
+      downloadBg: 'bg-emerald-800 hover:bg-emerald-900'
     },
     internal: {
       primary: 'gray',
@@ -199,6 +189,8 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
     }
   };
 
+  console.log("color type apakah ini: ", colorType)
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto">
@@ -227,7 +219,7 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
                   <p className={`${colorType === 'external' ? 'text-emerald-100' : 'text-gray-300'} text-sm`}>
                     Invoice ID
                   </p>
-                  <p className="text-white font-mono font-semibold">NUSAS-{Date.now().toString().slice(-6)}</p>
+                  <p className="text-white font-mono font-semibold">NUSAS-{paymentData?.id}</p>
                 </div>
               </div>
               
@@ -245,7 +237,7 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
                   <p className={`${colorType === 'external' ? 'text-emerald-100' : 'text-gray-300'} text-sm`}>
                     Total Amount
                   </p>
-                  <p className="text-3xl font-bold text-white">{formatCurrency(totalAmount)}</p>
+                  <p className="text-3xl font-bold text-white">{formatCurrency(paymentData.amount)}</p>
                 </div>
               </div>
             </div>
@@ -370,7 +362,7 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2">
                 <span className="text-gray-600">Subtotal Layanan</span>
-                <span className="font-semibold text-gray-900">{formatCurrency(paymentData.amount)}</span>
+                <span className="font-semibold text-gray-900">{formatCurrency(paymentData.amount - paymentData.tax - paymentData.fee)}</span>
               </div>
               
               <div className="flex justify-between items-center py-2">
@@ -390,7 +382,7 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
                   Total Pembayaran
                 </span>
                 <span className={`font-bold ${colorType === 'external' ? 'text-emerald-800' : 'text-gray-800'} text-xl`}>
-                  {formatCurrency(totalAmount)}
+                  {formatCurrency(paymentData.amount)}
                 </span>
               </div>
             </div>

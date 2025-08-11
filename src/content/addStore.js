@@ -9,6 +9,7 @@ import {
   AlertCircle,
   CheckCircle,
   Building,
+  Check,
 } from 'lucide-react';
 import {
     Toast, 
@@ -31,32 +32,31 @@ import {
 import {
     addStore
 } from '../actions/post'
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 const AddStoreForm = () => {
+    const dispatch = useDispatch()
     const navigate = useNavigate()
     const [toast, setToast] = useState(null)
     const [formData, setFormData] = useState({
         name: '',
-        phoneNumber: '',
+        phone_number: '',
         address: '',
         city: '',
         state: '',
         country: '',
-        postalCode: '',
+        postal_code: '',
         subdomain: '',
-        paymentMethodId: '',
-        productServiceId: '',
-        phoneNumberEwallet: '',
+        payment_method_id: '',
+        product_service_id: '',
+        phone_number_ewallet: '',
         price: 0
     });
 
     const [errors, setErrors] = useState({});
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [selectedPayment, setSelectedPayment] = useState(null);
-
-
   
     // handle package or products service
     const {resetErrorProductService} = productServicesSlice.actions
@@ -99,9 +99,115 @@ const AddStoreForm = () => {
     }, [errorPaymentMethods])
 
 
+    // validate form data
+    const validateAllFields = () => {
+        let isValid = true;
+        const newErrors = { ...errors };
+
+        Object.entries(formData).forEach(([key, value]) => {
+            // panggil validateField untuk setiap field
+            switch (key) {
+            case 'name':
+                if (!value) {
+                newErrors.name = 'Name is required';
+                isValid = false;
+                } else if (value.length < 6) {
+                newErrors.name = 'Name must be at least 6 characters';
+                isValid = false;
+                } else if (value.length > 50) {
+                newErrors.name = 'Name must not exceed 50 characters';
+                isValid = false;
+                } else {
+                delete newErrors.name;
+                }
+                break;
+
+            case 'phone_number':
+                if (!value) {
+                newErrors.phone_number = 'Phone number is required';
+                isValid = false;
+                } else if (!/^\d+$/.test(value)) {
+                newErrors.phone_number = 'Phone number must contain only numbers';
+                isValid = false;
+                } else {
+                delete newErrors.phone_number;
+                }
+                break;
+
+            case 'address':
+                if (!value) {
+                newErrors.address = 'Address is required';
+                isValid = false;
+                } else if (value.length > 100) {
+                newErrors.address = 'Address must not exceed 100 characters';
+                isValid = false;
+                } else {
+                delete newErrors.address;
+                }
+                break;
+
+            case 'city':
+            case 'state':
+            case 'country':
+                if (!value) {
+                newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} is required`;
+                isValid = false;
+                } else if (value.length > 50) {
+                newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} must not exceed 50 characters`;
+                isValid = false;
+                } else {
+                delete newErrors[key];
+                }
+                break;
+
+            case 'postal_code':
+                if (!value) {
+                newErrors.postal_code = 'Postal code is required';
+                isValid = false;
+                } else if (value.length !== 5) {
+                newErrors.postal_code = 'Postal code must be exactly 5 characters';
+                isValid = false;
+                } else {
+                delete newErrors.postal_code;
+                }
+                break;
+
+            case 'subdomain':
+                if (!value) {
+                newErrors.subdomain = 'Subdomain is required';
+                isValid = false;
+                } else if (value.length > 10) {
+                newErrors.subdomain = 'Subdomain must not exceed 10 characters';
+                isValid = false;
+                } else {
+                delete newErrors.subdomain;
+                }
+                break;
+
+            default:
+                break;
+            }
+        });
+
+        setErrors(newErrors);
+        return isValid;
+        };
+
+
+
     // handle add store 
     const {resetAddStore} = addStoreSlice.actions
-    const {successAddStore, errorFieldsAddStore, errorAddStore, loadingAddStore} = useSelector((state) => state.addStoreState)
+    const {successAddStore, errorFieldsAddStore, errorAddStore, loadingAddStore} = useSelector((state) => state.persisted.addStore)
+
+    const handleCreateStore = () => {
+        if (validateAllFields()) {
+            dispatch(addStore(formData));
+        }   
+    };
+
+    useEffect(() => {
+        validateAllFields()
+    }, [formData])
 
     useEffect(() => {
         if (successAddStore) {
@@ -119,86 +225,16 @@ const AddStoreForm = () => {
         }
     }, [errorAddStore])
 
-    const validateField = (name, value) => {
-        const newErrors = { ...errors };
-
-        switch (name) {
-        case 'name':
-            if (!value) {
-            newErrors.name = 'Name is required';
-            } else if (value.length < 6) {
-            newErrors.name = 'Name must be at least 6 characters';
-            } else if (value.length > 50) {
-            newErrors.name = 'Name must not exceed 50 characters';
-            } else {
-            delete newErrors.name;
-            }
-            break;
-        case 'phoneNumber':
-            if (!value) {
-            newErrors.phoneNumber = 'Phone number is required';
-            } else if (!/^\d+$/.test(value)) {
-            newErrors.phoneNumber = 'Phone number must contain only numbers';
-            } else {
-            delete newErrors.phoneNumber;
-            }
-            break;
-        case 'address':
-            if (!value) {
-            newErrors.address = 'Address is required';
-            } else if (value.length > 100) {
-            newErrors.address = 'Address must not exceed 100 characters';
-            } else {
-            delete newErrors.address;
-            }
-            break;
-        case 'city':
-        case 'state':
-        case 'country':
-            if (!value) {
-            newErrors[name] = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
-            } else if (value.length > 50) {
-            newErrors[name] = `${name.charAt(0).toUpperCase() + name.slice(1)} must not exceed 50 characters`;
-            } else {
-            delete newErrors[name];
-            }
-            break;
-        case 'postalCode':
-            if (!value) {
-            newErrors.postalCode = 'Postal code is required';
-            } else if (value.length !== 5) {
-            newErrors.postalCode = 'Postal code must be exactly 5 characters';
-            } else {
-            delete newErrors.postalCode;
-            }
-            break;
-        case 'subdomain':
-            if (!value) {
-            newErrors.subdomain = 'Subdomain is required';
-            } else if (value.length > 10) {
-            newErrors.subdomain = 'Subdomain must not exceed 10 characters';
-            } else {
-            delete newErrors.subdomain;
-            }
-            break;
-        default:
-            break;
-        }
-
-        setErrors(newErrors);
-    };
-
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-        validateField(name, value);
     };
 
     const handleProductSelect = (product) => {
         setSelectedProduct(product);
         setFormData(prev => ({ 
         ...prev, 
-        productServiceId: product.id,
+        product_service_id: product.id,
         price: product.price
         }));
     };
@@ -207,7 +243,7 @@ const AddStoreForm = () => {
         setSelectedPayment(payment);
         setFormData(prev => ({ 
         ...prev, 
-        paymentMethodId: payment.id 
+        payment_method_id: payment.id 
         }));
     };
 
@@ -239,6 +275,28 @@ const AddStoreForm = () => {
             return <CreditCard className="w-5 h-5" />;
         }
     };
+
+    // Group payment methods by type
+    const groupedPaymentMethods = paymentMethods.reduce((acc, method) => {
+        const type = method.type_payment_method;
+        if (!acc[type]) acc[type] = [];
+        acc[type].push(method);
+        return acc;
+    }, {});
+
+    const getTypeLabel = (type) => {
+        switch (type) {
+        case 'EWALLET':
+            return 'E-Wallet';
+        case 'VA':
+            return 'Virtual Account';
+        case 'QR':
+            return 'QR Code';
+        default:
+            return type;
+        }
+    };
+
 
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -307,18 +365,18 @@ const AddStoreForm = () => {
                     </label>
                     <input
                         type="text"
-                        name="phoneNumber"
-                        value={formData.phoneNumber}
+                        name="phone_number"
+                        value={formData.phone_number}
                         onChange={handleInputChange}
                         className={`w-full px-4 py-3 rounded-lg border ${
-                        errors.phoneNumber ? 'border-red-300' : 'border-gray-300'
+                        errors.phone_number ? 'border-red-300' : 'border-gray-300'
                         } focus:ring-2 focus:ring-gray-900 focus:border-transparent`}
                         placeholder="08123456789"
                     />
-                    {errors.phoneNumber && (
+                    {errors.phone_number && (
                         <div className="flex items-center mt-2 text-red-600 text-sm">
                         <AlertCircle className="w-4 h-4 mr-1" />
-                        {errors.phoneNumber}
+                        {errors.phone_number}
                         </div>
                     )}
                     </div>
@@ -459,19 +517,19 @@ const AddStoreForm = () => {
                     </label>
                     <input
                         type="text"
-                        name="postalCode"
-                        value={formData.postalCode}
+                        name="postal_code"
+                        value={formData.postal_code}
                         onChange={handleInputChange}
                         className={`w-full px-4 py-3 rounded-lg border ${
-                        errors.postalCode ? 'border-red-300' : 'border-gray-300'
+                        errors.postal_code ? 'border-red-300' : 'border-gray-300'
                         } focus:ring-2 focus:ring-gray-900 focus:border-transparent`}
                         placeholder="12345"
                         maxLength="5"
                     />
-                    {errors.postalCode && (
+                    {errors.postal_code && (
                         <div className="flex items-center mt-2 text-red-600 text-sm">
                         <AlertCircle className="w-4 h-4 mr-1" />
-                        {errors.postalCode}
+                        {errors.postal_code}
                         </div>
                     )}
                     </div>
@@ -490,14 +548,19 @@ const AddStoreForm = () => {
 
                 <div className="space-y-4">
                     {products.map((product) => (
-                    <div
+                   <div
                         key={product.id}
-                        onClick={() => handleProductSelect(product)}
-                        className={`relative cursor-pointer rounded-lg border-2 p-4 transition-all ${
-                        selectedProduct?.id === product.id
+                        onClick={(e) => {
+                            if (product.status !== 'Active') return;
+                            handleProductSelect(product);
+                        }}
+                        className={`relative rounded-lg border-2 p-4 transition-all ${
+                            selectedProduct?.id === product.id
                             ? 'border-gray-900 bg-gray-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        } ${product.status !== 'Active' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            : product.status !== 'Active'
+                                ? 'opacity-50 cursor-not-allowed'
+                                : 'border-gray-200 hover:border-gray-300 cursor-pointer'
+                        }`}
                     >
                         <div className="flex items-center justify-between">
                         <div className="flex-1">
@@ -540,43 +603,47 @@ const AddStoreForm = () => {
                     <h2 className="text-xl font-semibold text-gray-900">Payment Method</h2>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {paymentMethods.map((payment) => (
-                    <div
-                        key={payment.id}
-                        onClick={() => handlePaymentSelect(payment)}
-                        className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${
-                        selectedPayment?.id === payment.id
-                            ? 'border-gray-900 bg-gray-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                    >
-                        <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                            {getPaymentIcon(payment.type_payment_method)}
-                            <div>
-                            <h4 className="font-semibold text-gray-900">
-                                {payment.channel_code}
-                            </h4>
-                            <p className="text-xs text-gray-500">
-                                {payment.type_payment_method}
-                            </p>
+                <div>
+                    <div className="space-y-6">
+                        {Object.entries(groupedPaymentMethods).map(([type, methods]) => (
+                        <div key={type}>
+                            <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                            {getPaymentIcon(type)}
+                            {getTypeLabel(type)}
+                            </h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {methods.map((method) => (
+                                <div
+                                key={method.id}
+                                className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                                    formData.payment_method_id === method.id
+                                    ? 'border-gray-900 bg-gray-50 ring-2 ring-gray-900 ring-opacity-20'
+                                    : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                                onClick={() => handlePaymentSelect(method)}
+                                >
+                                <div className="flex items-center justify-between">
+                                    <span className="font-medium text-gray-900 text-sm">
+                                    {method.channel_code}
+                                    </span>
+                                    {formData.payment_method_id === method.id && (
+                                    <div className="p-1 bg-gray-900 rounded-full">
+                                        <Check className="w-3 h-3 text-white" />
+                                    </div>
+                                    )}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                    Fee: {method.type_payment_method === 'VA' 
+                                    ? formatCurrency(method.fee)
+                                    : `${(method.fee * 100).toFixed(1)}%`
+                                    }
+                                </div>
+                                </div>
+                            ))}
                             </div>
                         </div>
-                        <div className="text-right">
-                            <p className="text-sm font-medium text-gray-900">
-                            {payment.type_payment_method === 'EWALLET' || payment.type_payment_method === 'QR'
-                                ? `${(payment.fee * 100).toFixed(1)}%`
-                                : formatCurrency(payment.fee)
-                            }
-                            </p>
-                            {selectedPayment?.id === payment.id && (
-                            <CheckCircle className="w-4 h-4 text-gray-900 ml-auto mt-1" />
-                            )}
-                        </div>
-                        </div>
+                        ))}
                     </div>
-                    ))}
                 </div>
                 </div>
 
@@ -621,6 +688,7 @@ const AddStoreForm = () => {
                 <button
                 type="button"
                 disabled={!selectedProduct || !selectedPayment || Object.keys(errors).length > 0 || loadingAddStore}
+                onClick={() => handleCreateStore()}
                 className="w-full bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                 >
                     {loadingAddStore ? (

@@ -4,13 +4,13 @@ const NoStoreSelectedContainer = () => {
     return (
         <div className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
             {/* Header with gradient background */}
-            <div className="bg-gray-900 p-6 text-white">
+            <div className="bg-gray-900 px-6 py-4 text-white">
                 <div className="flex items-center gap-4">
                 <div className="bg-white/20 p-3 rounded-lg">
                     <Building2 size={24} />
                 </div>
                 <div>
-                    <h2 className="text-2xl font-bold">Store Information</h2>
+                    <h2 className="text-xl font-bold">Store Information</h2>
                     <p className="text-blue-100">Select a store to view details and settings</p>
                 </div>
                 </div>

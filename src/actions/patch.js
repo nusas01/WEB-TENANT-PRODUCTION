@@ -3,6 +3,7 @@ import {
     registerVerificationSlice,
     patchCredentialStoreSlice,
     extendServiceStoreSlice,
+    changePasswordEmployeeSlice,
 } from "../reducers/patch" 
 
 const {setSuccessRegisterVerification, setErrorRegisterVerification, setLoadingRegisterVerification, setDataRegisterVerification} = registerVerificationSlice.actions
@@ -21,7 +22,7 @@ export const registerVerification = (data) => async (dispatch) => {
     } catch (error) {
         dispatch(setErrorRegisterVerification({ 
             error: error?.response?.data?.error,
-            errorField: error?.response?.data?.errorField,
+            errorField: error?.response?.data?.ErrorField,
         }))
     } finally {
         dispatch(setLoadingRegisterVerification(false))
@@ -43,7 +44,7 @@ export const patchCredentialStore = (data) => async (dispatch) => {
     } catch (error) {
         dispatch(setErrorPatchCredentialStore({ 
             error: error?.response?.data?.error,
-            errorField: error?.response?.data?.errorField,
+            errorField: error?.response?.data?.ErrorField,
         }))
     } finally {
         dispatch(setLoadingPatchCredentialStore(false))
@@ -67,10 +68,34 @@ export const extendServiceStore = (data) => async (dispatch) => {
     } catch (error) {
         dispatch(setErrorExtendServiceStore({ 
             error: error?.response?.data?.error,
-            errorField: error?.response?.data?.errorField,
-            errorSubdomain: error?.response?.data?.errorField?.subdomain,
+            errorField: error?.response?.data?.ErrorField,
+            errorSubdomain: error?.response?.data?.ErrorField?.subdomain,
         }))
     } finally {
         dispatch(setLoadingExtendServiceStore(false))
     }
 }
+
+
+const {setSuccessChangePasswordEmployee, setErrorChangePasswordEmployee, setLoadingChangePasswordEmployee} = changePasswordEmployeeSlice.actions
+export const changePasswordEmployee = (data) => async (dispatch) => {
+    const config = {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+    }
+    dispatch(setLoadingChangePasswordEmployee(true))
+    try {
+        const response = await axios.patch(`${process.env.REACT_APP_CHANGE_PASSWORD_EMPLOYEE}`, data, config)
+        dispatch(setSuccessChangePasswordEmployee(response?.data?.success))
+    } catch (error) {
+        dispatch(setErrorChangePasswordEmployee({ 
+            error: error?.response?.data?.error,
+            errorField: error?.response?.data?.ErrorField,
+        }))
+    } finally {
+        dispatch(setLoadingChangePasswordEmployee(false))
+    }
+}
+

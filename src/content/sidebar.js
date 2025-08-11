@@ -7,6 +7,7 @@ import {
   X,
   Home,
   Settings,
+  Hourglass,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom";
 import { useDeviceDetection } from "./helper";
@@ -21,6 +22,7 @@ import {
 
 const menuItems = [
   { Icon: Store, title: "Store", path: '/store', key: 'Store' },
+  { Icon: Hourglass, title: "Payment Required", path: '/payment/required', key: 'Payment Required'},
   { Icon: Settings, title: "Setting", path: '/setting', key: 'Setting' },
 ];
 

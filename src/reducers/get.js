@@ -14,6 +14,30 @@ export const loginStatusSlice = createSlice({
     }
 })
 
+const initialDataAccountState = {
+  dataAccount: null,
+  loadingDataAccount: false,
+  errorDataAccount: null,
+}
+export const getDataAccountSlice = createSlice({
+  name: 'getDataAccount',
+  initialState: initialDataAccountState,
+  reducers: {
+    setDataAccount: (state, action) => {
+      state.dataAccount = action.payload || []
+    },
+    setLoadingDataAccount: (state, action) => {
+      state.loadingDataAccount = action.payload
+    },
+    setErrorDataAccount: (state, action) => {
+      state.errorDataAccount = action.payload || null
+    },
+    resetErrorDataAccount: (state) => {
+      state.errorDataAccount = null
+    },
+  },
+})
+
 const initialLogoutState = {
     logoutSuccess: false,
     logoutError: null,

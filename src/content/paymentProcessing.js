@@ -100,15 +100,28 @@ const PaymentProcessing = () => {
         errorFieldsExtendServiceStore, 
         errorSubdomain,
         errorExtendServiceStore, 
-        loadingExtendServiceStore
+        loadingExtendServiceStore,
+        dataExtendServiceStore,
     } = useSelector((state) => state.persisted.extendServiceStore)
 
     useEffect(() => {
-        if (successExtendServiceStore) {
-            navigate("/invoice")
-            dispatch(resetExtendServiceStore())
+      if (successExtendServiceStore) {
+        if (dataExtendServiceStore.payment_method === "EWALLET") {
+          const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+          const redirectUrl = isMobile 
+            ? dataExtendServiceStore.redirect_url_mobile 
+            : dataExtendServiceStore.redirect_url_web;
+
+          window.location.href = redirectUrl;
+        } else {
+          navigate("/invoice/extend/service");
         }
-    }, successExtendServiceStore)
+
+        setTimeout(() => {
+          dispatch(resetExtendServiceStore());
+        }, 500);
+      }
+    }, [successExtendServiceStore, dataExtendServiceStore]);
 
     useEffect(() => {
         if (errorExtendServiceStore) {
@@ -118,6 +131,16 @@ const PaymentProcessing = () => {
         })
         }
     }, [errorExtendServiceStore])
+
+    useEffect(() => {
+      if (errorFieldsExtendServiceStore) {
+        setPhoneNumberError(errorFieldsExtendServiceStore[0]?.PhoneNumberEwallet)
+        dispatch(resetErrorExtendServiceStore())
+      }
+    }, [errorFieldsExtendServiceStore])
+
+    console.log("Data error apa ini kawan: ", errorFieldsExtendServiceStore)
+    console.log("Data error apa ini kawan: ", phoneNumberError)
 
 
     // Function untuk mendapatkan icon payment method
@@ -139,7 +162,7 @@ const PaymentProcessing = () => {
         if (!product || !paymentMethod) return 0;
         
         if (paymentMethod.type_payment_method === 'EWALLET' || paymentMethod.type_payment_method === 'QR') {
-        return product.price * paymentMethod.fee;
+        return ((product.price*tax)+product.price) * paymentMethod.fee;
         } else {
         return paymentMethod.fee;
         }
@@ -194,14 +217,13 @@ const PaymentProcessing = () => {
             subdomain: '',
             product_service_id: continueCurrent || selectedProduct.id,
             payment_method_id: selectedPaymentMethod.id,
-            phone_number_ewallet: phoneNumber,
-            amount: 1000
+            phone_number_ewallet: '62' + phoneNumber,
+            amount: calculateTotal()
       }
 
-        dispatch(extendServiceStore(data))
+      setPhoneNumberError('')
+      dispatch(extendServiceStore(data))
     }
-
-    console.log("data prodcts: ", products)
 
     return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -214,6 +236,8 @@ const PaymentProcessing = () => {
                 onClose={() => { 
                     setToast(null)
                     dispatch(resetErrorExtendServiceStore())
+                    dispatch(resetErrorProductService())
+                    dispatch(resetErrorPaymentMethods())
                 }} 
                 duration={3000}
                 />
@@ -389,10 +413,11 @@ const PaymentProcessing = () => {
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     className="w-full pl-20 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                   />
-                  {phoneNumberError && (
-                    <p className="mt-2 text-sm text-red-600">{phoneNumberError}</p>
-                  )}
                 </div>
+
+                {phoneNumberError && (
+                  <p className="mt-2 text-sm text-red-600">{phoneNumberError}</p>
+                )}
               </div>
             )}
 
@@ -512,7 +537,7 @@ const PaymentProcessing = () => {
 
                 {/* Domain Setup (if not verified) */}
                 <div className="pb-4 border-b border-gray-100">
-                  {(currentService.verified_at === null && currentService.full_domain) ? (
+                  {(currentService.verified_at === null && currentService.full_domain === "") ? (
                     <div>
                       <p className="text-sm text-gray-600">Domain Setup</p>
                       {domainInput ? (
@@ -607,8 +632,16 @@ const PaymentProcessing = () => {
                 }`}
                 onClick={() => handleExtendService()}
               >
-                Lanjutkan Pembayaran
-                <ArrowRight className="w-4 h-4" />
+                { loadingExtendServiceStore ? (
+                  <>
+                    Proses Pembayaran...
+                  </>
+                ) : (
+                  <>
+                    Lanjutkan Pembayaran
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </div>
           </div>

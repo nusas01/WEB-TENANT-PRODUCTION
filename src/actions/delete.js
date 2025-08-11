@@ -18,7 +18,6 @@ export const deleteEmployee = (id) => {
       return response.data
     } catch (error) {
       dispatch(setErrorDeleteEmployee(error?.response?.data?.error || 'Gagal menghapus employee'))
-      throw error
     } finally {
       dispatch(setLoadingDeleteEmployee(false))
     }

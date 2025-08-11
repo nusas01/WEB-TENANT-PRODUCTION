@@ -20,7 +20,6 @@ export const updateEmployee = (formData) => {
       return response.data
     } catch (error) {
       dispatch(setErrorUpdateEmployee(error?.response?.data?.error || 'Gagal memperbarui employee'))
-      throw error
     } finally {
       dispatch(setLoadingUpdateEmployee(false))
     }

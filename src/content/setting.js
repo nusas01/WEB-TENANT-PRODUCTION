@@ -34,13 +34,18 @@ const SettingsComponent = () => {
   const { ref: headerRef, height: headerHeight } = useElementHeight();
 
   // Account data state
-  const [accountData, setAccountData] = useState({
-    id: 'ACC001',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    password: 'password123',
-    phone_number: '+6281234567890'
-  });
+  const {
+    dataAccount:accountData,
+    loadingDataAccount,
+    errorDataAccount
+  } = useSelector((state) => state.persisted.getDataAccount)
+//   const [accountData, setAccountData] = useState({
+//     id: 'ACC001',
+//     name: 'John Doe',
+//     email: 'john.doe@example.com',
+//     password: 'password123',
+//     phone_number: '+6281234567890'
+//   });
 
   // Xendit integration state
   const [xenditData, setXenditData] = useState({
@@ -82,7 +87,6 @@ const SettingsComponent = () => {
       return;
     }
 
-    setAccountData(tempAccountData);
     setIsEditing(false);
     setErrors({});
   };
@@ -255,6 +259,25 @@ const SettingsComponent = () => {
                                     </div>
                                 </div>
 
+                                {/* Email */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Email Address *
+                                    </label>
+                                    <div className="relative">
+                                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                    <input
+                                        type="email"
+                                        value={isEditing ? tempAccountData.email : accountData.email}
+                                        onChange={(e) => handleAccountInputChange('email', e.target.value)}
+                                        disabled
+                                        className={`pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed`}
+                                        placeholder="Enter your email address"
+                                    />
+                                    </div>
+                                    {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                                </div>
+
                                 {/* Name */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -276,29 +299,6 @@ const SettingsComponent = () => {
                                     />
                                     </div>
                                     {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
-                                </div>
-
-                                {/* Email */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Email Address *
-                                    </label>
-                                    <div className="relative">
-                                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                                    <input
-                                        type="email"
-                                        value={isEditing ? tempAccountData.email : accountData.email}
-                                        onChange={(e) => handleAccountInputChange('email', e.target.value)}
-                                        disabled
-                                        className={`pl-10 w-full px-3 py-2 border rounded-lg ${
-                                        errors.email ? 'border-red-500' : 'border-gray-300'
-                                        } ${
-                                        isEditing ? 'bg-white' : 'bg-gray-50'
-                                        } focus:ring-2 focus:ring-orange-500 focus:border-transparent`}
-                                        placeholder="Enter your email address"
-                                    />
-                                    </div>
-                                    {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                                 </div>
 
                                 {/* Phone Number */}
@@ -377,16 +377,16 @@ const SettingsComponent = () => {
                                     <h3 className="text-sm font-medium text-gray-900 mb-3">Status Integrasi Saat Ini</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="flex items-center">
-                                        <div className={`w-3 h-3 rounded-full mr-2 ${xenditData.business_id ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                                        <span className="text-sm text-gray-600">Business ID: {xenditData.business_id ? 'Configured' : 'Not Set'}</span>
+                                        <div className={`w-3 h-3 rounded-full mr-2 ${accountData.business_id ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                                        <span className="text-sm text-gray-600">Business ID: {accountData.business_id ? 'Configured' : 'Not Set'}</span>
                                     </div>
                                     <div className="flex items-center">
-                                        <div className={`w-3 h-3 rounded-full mr-2 ${xenditData.api_key ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                                        <span className="text-sm text-gray-600">API Key: {xenditData.api_key ? 'Configured' : 'Not Set'}</span>
+                                        <div className={`w-3 h-3 rounded-full mr-2 ${accountData.api_key ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                                        <span className="text-sm text-gray-600">API Key: {accountData.api_key ? 'Configured' : 'Not Set'}</span>
                                     </div>
                                     <div className="flex items-center">
-                                        <div className={`w-3 h-3 rounded-full mr-2 ${xenditData.secret_key_webhook ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                                        <span className="text-sm text-gray-600">Webhook Secret: {xenditData.secret_key_webhook ? 'Configured' : 'Not Set'}</span>
+                                        <div className={`w-3 h-3 rounded-full mr-2 ${accountData.secret_key_webhook ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                                        <span className="text-sm text-gray-600">Webhook Secret: {accountData.secret_key_webhook ? 'Configured' : 'Not Set'}</span>
                                     </div>
                                     </div>
                                 </div>
@@ -400,7 +400,7 @@ const SettingsComponent = () => {
                                     <Building className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                     <input
                                         type="text"
-                                        value={xenditData.business_id}
+                                        value={accountData.business_id}
                                         onChange={(e) => handleXenditInputChange('business_id', e.target.value)}
                                         className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                         placeholder="Enter your Xendit Business ID"
@@ -418,7 +418,7 @@ const SettingsComponent = () => {
                                     <Key className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                     <input
                                         type="password"
-                                        value={xenditData.api_key}
+                                        value={accountData.api_key}
                                         onChange={(e) => handleXenditInputChange('api_key', e.target.value)}
                                         className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                         placeholder="Enter your Xendit API Key"
@@ -436,7 +436,7 @@ const SettingsComponent = () => {
                                     <Shield className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                     <input
                                         type="password"
-                                        value={xenditData.secret_key_webhook}
+                                        value={accountData.secret_key_webhook}
                                         onChange={(e) => handleXenditInputChange('secret_key_webhook', e.target.value)}
                                         className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                         placeholder="Enter your Webhook Secret Key"
@@ -461,9 +461,9 @@ const SettingsComponent = () => {
                                         <p className="mb-2">Setelah menyimpan pengaturan ini, Anda harus menambahkan webhook endpoint berikut ke dashboard Xendit Anda:</p>
                                         <div className="bg-white border border-orange-300 rounded p-3 mb-3">
                                             <div className="flex justify-between items-center">
-                                            <code className="text-sm font-mono text-gray-800">https://yourdomain.com/api/xendit/webhook</code>
+                                            <code className="text-sm font-mono text-gray-800">{accountData.domain_webhook}</code>
                                             <button
-                                                onClick={() => navigator.clipboard.writeText('https://yourdomain.com/api/xendit/webhook')}
+                                                onClick={() => navigator.clipboard.writeText(`${accountData.domain_webhook}`)}
                                                 className="ml-2 px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs hover:bg-orange-200 transition-colors"
                                             >
                                                 Copy
@@ -491,7 +491,7 @@ const SettingsComponent = () => {
                                     className="flex-1 flex items-center justify-center px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
                                     >
                                     <Save className="w-4 h-4 mr-2" />
-                                    {xenditData.business_id || xenditData.api_key || xenditData.secret_key_webhook ? 'Update' : 'Save'} Xendit Settings
+                                    {accountData.business_id || accountData.api_key ||accountData.secret_key_webhook ? 'Update' : 'Save'} Xendit Settings
                                     </button>
                                     <button
                                     onClick={() => {

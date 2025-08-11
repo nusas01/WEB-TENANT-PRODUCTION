@@ -12,10 +12,14 @@ import { ScrollToTop } from './content/helper';
 import PrivateRoute from './reducers/privateRoute';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
-import { fetchAuthStatusLogin } from './actions/get'; 
+import { 
+  fetchAuthStatusLogin,
+  fetchDataAccount,
+} from './actions/get'; 
 import PaymentProcessing from './content/paymentProcessing'
 import CreateEmployee from './content/createEmployee';
 import AddStoreForm from './content/addStore';
+import PendingTransactions from './content/transaction';
 
 function App() {
   const dispatch = useDispatch()
@@ -26,6 +30,14 @@ function App() {
       dispatch(fetchAuthStatusLogin())
     }
   }, [loggedIn])
+
+  // get data account
+  const {dataAccount, errorDataAccount, loadingDataAccount} = useSelector((state) => state.persisted.getDataAccount)
+  useEffect(() => {
+    if (!dataAccount) {
+      dispatch(fetchDataAccount())
+    }
+  }, [])
 
   const {dataRegisterVerification} = useSelector((state) => state.persisted.registerVerification)
   const {dataExtendServiceStore} = useSelector((state) => state.persisted.extendServiceStore)
@@ -40,16 +52,18 @@ function App() {
         <Route path='/signup' element={<TenantRegistrationForm/>}/>
         <Route path='/signup/verification' element={<VerificationForm/>}/>
         <Route path='/forgot/password' element={<ForgotPasswordComponent/>}/>
-        <Route path='/invoice/signup' element={<PaymentInvoice paymentData={dataRegisterVerification} coloType={"external"}/>}/>
+        <Route path='/invoice/signup' element={<PaymentInvoice paymentData={dataRegisterVerification} colorType={"external"}/>}/>
+
+        <Route path='/payment/required' element={<PendingTransactions/>}/>
 
         <Route element={<PrivateRoute/>}> 
           <Route path='/store' element={<StoreManagementDashboard/>}/>
-          <Route path='/store/create/employee' element={<CreateEmployee/>}/>
+          <Route path='/store/employee' element={<CreateEmployee/>}/>
           <Route path='/store/add' element={<AddStoreForm/>}/>
           <Route path='/payment/processing' element={<PaymentProcessing/>}/>
           <Route path='/setting' element={<SettingsComponent/>}/>
-          <Route path='/invoice/extend/service' element={<PaymentInvoice paymentData={dataExtendServiceStore} coloType={"internal"}/>}/>
-          <Route path='/invoice/create/store' element={<PaymentInvoice paymentData={dataSuccess} coloType={"internal"}/>}/>
+          <Route path='/invoice/extend/service' element={<PaymentInvoice paymentData={dataExtendServiceStore} colorType={"internal"}/>}/>
+          <Route path='/invoice/create/store' element={<PaymentInvoice paymentData={dataSuccess} colorType={"internal"}/>}/>
         </Route> 
       </Routes>
     </Router>
