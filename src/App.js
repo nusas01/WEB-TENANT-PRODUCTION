@@ -20,6 +20,7 @@ import PaymentProcessing from './content/paymentProcessing'
 import CreateEmployee from './content/createEmployee';
 import AddStoreForm from './content/addStore';
 import PendingTransactions from './content/transaction';
+import UpdateStoreTenantForm from './content/updateStore';
 
 function App() {
   const dispatch = useDispatch()
@@ -34,7 +35,7 @@ function App() {
   // get data account
   const {dataAccount, errorDataAccount, loadingDataAccount} = useSelector((state) => state.persisted.getDataAccount)
   useEffect(() => {
-    if (!dataAccount) {
+    if (Object.keys(dataAccount).length === 0) {
       dispatch(fetchDataAccount())
     }
   }, [])
@@ -59,6 +60,7 @@ function App() {
         <Route element={<PrivateRoute/>}> 
           <Route path='/store' element={<StoreManagementDashboard/>}/>
           <Route path='/store/employee' element={<CreateEmployee/>}/>
+          <Route path='/store/update' element={<UpdateStoreTenantForm/>}/>
           <Route path='/store/add' element={<AddStoreForm/>}/>
           <Route path='/payment/processing' element={<PaymentProcessing/>}/>
           <Route path='/setting' element={<SettingsComponent/>}/>

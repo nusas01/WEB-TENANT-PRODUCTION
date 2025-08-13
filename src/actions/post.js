@@ -31,10 +31,7 @@ export const login = (data) => async (dispatch) => {
 
         const response = {
             errorLogin: errorData?.error,
-            errorPassLogin: errorData.ErrorField?.Password 
-            || errorData.ErrorField[0]?.Password || undefined,
-            errorEmailLogin: errorData.ErrorField?.Email 
-            || errorData.ErrorField[0]?.Email || undefined,
+            errorField: errorData.ErrorField,
         };
 
         dispatch(loginError(response));

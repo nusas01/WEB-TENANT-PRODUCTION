@@ -13,6 +13,7 @@ import {
   detailStoreSlice,
   getEmployeesSlice,
   getDataAccountSlice,
+  getRequiredPaymentSlice,
 } from './get'
 import { 
   loginSlice,
@@ -29,7 +30,8 @@ import {
   changePasswordEmployeeSlice,
 } from './patch'
 import {
-  updateEmployeeSlice
+  updateEmployeeSlice,
+  updateStoreSlice,
 } from './put'
 import {
   deleteEmployeeSlice
@@ -48,6 +50,7 @@ const persistedReducers = combineReducers({
   detailStore: detailStoreSlice.reducer,
   getEmployee: getEmployeesSlice.reducer,
   getDataAccount: getDataAccountSlice.reducer,
+  getRequiredPayment: getRequiredPaymentSlice.reducer, 
 })
 
 // 2. Konfigurasi persist
@@ -68,6 +71,7 @@ const nonPersistedReducers = {
   updateEmployeeState: updateEmployeeSlice.reducer,
   deleteEmployeeState: deleteEmployeeSlice.reducer,
   changePasswordEmployeeState: changePasswordEmployeeSlice.reducer,
+  updateStoreState: updateStoreSlice.reducer,
 }
 
 const rootReducer = combineReducers({

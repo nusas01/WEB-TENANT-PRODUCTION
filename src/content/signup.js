@@ -61,7 +61,8 @@ export default function TenantRegistrationForm() {
   })
 
   const [formData, setFormData] = useState({
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
     phone_number: '',
@@ -202,16 +203,17 @@ export default function TenantRegistrationForm() {
     const newErrors = {};
 
     switch (name) {
-      case 'name':
-        if (!value) newErrors.name = 'Name is required';
-        else if (value.length < 6) newErrors.name = 'Name must be at least 6 characters';
-        else if (value.length > 50) newErrors.name = 'Name must not exceed 50 characters';
+      case 'first_name':
+      case 'last_name':
+        if (!value) newErrors[name] = `${name.replace('_', ' ')} wajib diisi`;
+        else if (value.length < 6) newErrors[name] = `${name.replace('_', ' ')} minimal 6 karakter`;
+        else if (value.length > 50) newErrors[name] = `${name.replace('_', ' ')} maksimal 50 karakter`;
         break;
 
       case 'email':
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!value) newErrors.email = 'Email is required';
-        else if (!emailRegex.test(value)) newErrors.email = 'Please enter a valid email';
+        if (!value) newErrors.email = 'Email wajib diisi';
+        else if (!emailRegex.test(value)) newErrors.email = 'Masukkan email yang valid';
         break;
 
       case 'password':
@@ -219,36 +221,36 @@ export default function TenantRegistrationForm() {
         const hasNumber = /\d/.test(value);
         const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
 
-        if (!value) newErrors.password = 'Password is required';
-        else if (value.length < 6) newErrors.password = 'Password must be at least 6 characters';
-        else if (value.length > 50) newErrors.password = 'Password must not exceed 50 characters';
-        else if (!hasUppercase) newErrors.password = 'Password must contain at least one uppercase letter';
-        else if (!hasNumber) newErrors.password = 'Password must contain at least one number';
-        else if (!hasSpecial) newErrors.password = 'Password must contain at least one special character';
+        if (!value) newErrors.password = 'Kata sandi wajib diisi';
+        else if (value.length < 6) newErrors.password = 'Kata sandi minimal 6 karakter';
+        else if (value.length > 50) newErrors.password = 'Kata sandi maksimal 50 karakter';
+        else if (!hasUppercase) newErrors.password = 'Kata sandi harus mengandung setidaknya 1 huruf kapital';
+        else if (!hasNumber) newErrors.password = 'Kata sandi harus mengandung setidaknya 1 angka';
+        else if (!hasSpecial) newErrors.password = 'Kata sandi harus mengandung setidaknya 1 karakter spesial';
         break;
 
       case 'phone_number':
       case 'phone_number_store':
       case 'phone_number_ewallet':
-        const phoneRegex = /^(\+?62|0)[0-9]{9,12}$/;
+        const phoneRegex = /^\+[1-9][0-9]{7,14}$/;
         if (name === 'phone_number' && !value) {
-          newErrors[name] = 'Phone number is required';
+          newErrors[name] = 'Nomor telepon wajib diisi';
         } else if (value && !phoneRegex.test(value)) {
-          newErrors[name] = 'Please enter a valid Indonesian phone number';
+          newErrors[name] = 'Masukkan nomor telepon Indonesia yang valid (format: +62...)';
         } else if (name === 'phone_number_ewallet' && paymentMethod === 'EWALLET' && !value) {
-          newErrors[name] = 'Phone number ewallet is required';
+          newErrors[name] = 'Nomor telepon e-wallet wajib diisi';
         }
         break;
 
       case 'postal_code':
-        if (!value) newErrors.postal_code = 'Postal code is required';
+        if (!value) newErrors.postal_code = 'Kode pos wajib diisi';
         else if (value.length !== 5 || !/^\d{5}$/.test(value)) {
-          newErrors.postal_code = 'Postal code must be exactly 5 digits';
+          newErrors.postal_code = 'Kode pos harus terdiri dari tepat 5 angka';
         }
         break;
 
       case 'payment_method':
-        if (!value) newErrors.payment_method = 'Payment method is required';
+        if (!value) newErrors.payment_method = 'Metode pembayaran wajib diisi';
         break;
 
       case 'subdomain':
@@ -707,32 +709,62 @@ export default function TenantRegistrationForm() {
             </div>
 
             {/* Full Name */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Full Name <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+            <div className='flex items-center gap-4 justify-between'>
+              <div className="space-y-2 w-full">
+                <label className="block text-sm font-medium text-gray-700">
+                  First Name <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleInputChange}
+                    placeholder="Enter your first name"
+                    maxLength={50}
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                      errors.first_name ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  />
                 </div>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter your full name"
-                  maxLength={50}
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.name ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                />
+                {errors.first_name && (
+                  <div className="flex items-center space-x-1 text-red-600 text-sm">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{errors.first_name}</span>
+                  </div>
+                )}
               </div>
-              {errors.name && (
-                <div className="flex items-center space-x-1 text-red-600 text-sm">
-                  <AlertCircle className="h-4 w-4" />
-                  <span>{errors.name}</span>
+
+              <div className="space-y-2 w-full">
+                <label className="block text-sm font-medium text-gray-700">
+                  Last Name <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleInputChange}
+                    placeholder="Enter your last name"
+                    maxLength={50}
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                      errors.last_name ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  />
                 </div>
-              )}
+                {errors.last_name && (
+                  <div className="flex items-center space-x-1 text-red-600 text-sm">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{errors.last_name}</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Email Address */}

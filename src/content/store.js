@@ -36,7 +36,7 @@ import { useElementHeight } from './helper';
 import { useDispatch, useSelector } from 'react-redux';
 import { navbarSlice } from '../reducers/reducers';
 import StoreDropdown from '../helperComponent/dropDownStore'
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Toast, 
   ToastPortal
@@ -52,7 +52,8 @@ import {
 } from '../reducers/get'
 import NoStoreSelectedContainer from '../helperComponent/noStoreSelected';
 import {
-  updateEmployeeSlice
+  updateEmployeeSlice,
+  updateStoreSlice,
 } from '../reducers/put'
 import {
   createEmployeeSlice
@@ -69,8 +70,16 @@ import {
 import {
   deleteEmployeeSlice
 } from '../reducers/delete'
-import { DeleteEmployeeConfirmation } from './model';
-import { fetchAllEmployees } from '../actions/get';
+import { 
+  DeleteEmployeeConfirmation,
+  ServicePreparationNotice,
+} from './model';
+import { 
+  fetchAllEmployees,
+  fetchAllStores,
+  fetchDataAccount,
+  fetchDetailStore,
+} from '../actions/get';
 
 const StoreManagementDashboard = () => {
   const dispatch = useDispatch()
@@ -80,6 +89,7 @@ const StoreManagementDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
   const [error, setError] = useState({});
+  const location = useLocation();
 
   const { setIsOpen } = navbarSlice.actions
   const { isOpen, isMobileDeviceType } = useSelector((state) => state.persisted.navbar)
@@ -334,10 +344,33 @@ const StoreManagementDashboard = () => {
 
   // handle data account
   const {dataAccount, errorDataAccount, loadingDataAccount} = useSelector((state) => state.persisted.getDataAccount)
+  useEffect(() => {
+    if (Object.keys(dataAccount).length === 0) {
+      dispatch(fetchDataAccount())
+    }
+  }, [])
 
 
 
-  const [editingStore, setEditingStore] = useState(false);
+  // handle action update store
+  const {resetUpdateStore} = updateStoreSlice.actions
+  const {successUpdateStore} = useSelector((state) => state.updateStoreState)
+  const storeId = location.state?.storeIdUpdateStore
+
+  useEffect(() => {
+      if (successUpdateStore) {
+        console.log("data update store id: ", storeId)
+        setToast({
+          type: "success",
+          message: "Berhasil memperbaruhi data store"
+        })
+        dispatch(resetUpdateStore())
+        dispatch(fetchAllStores())
+        dispatch(fetchDetailStore(storeId))
+      }
+  }, [successUpdateStore])
+
+
 
   const calculateAge = (dateOfBirth) => {
     const today = new Date();
@@ -350,7 +383,7 @@ const StoreManagementDashboard = () => {
     return age;
   };
 
-  console.log("data account tenant: ", dataAccount)
+  console.log("data account tenant: ", storeInfo)
 
   // Filter employees based on search and filter criteria
   const filteredEmployees = employees
@@ -393,26 +426,26 @@ const StoreManagementDashboard = () => {
         <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
           <div className="max-w-7xl">
               {toast && (
-                <ToastPortal> 
-                    <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-[9999]'>
-                    <Toast 
-                    message={toast.message} 
-                    type={toast.type} 
-                    onClose={() => { 
-                      setToast(null)
-                      dispatch(resetDetailStoreError())
-                      dispatch(resetStoreError())
-                      dispatch(resetErrorGetEmployees())
-                      dispatch(resetUpdateEmployee())
-                      dispatch(resetCreateEmployee())
-                      dispatch(resetChangePasswordEmployee())
-                      dispatch(resetDeleteEmployee())
-                    }} 
-                    duration={5000}
-                    />
-                    </div>
-                </ToastPortal>
-            )}
+                  <ToastPortal> 
+                      <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-[9999]'>
+                      <Toast 
+                      message={toast.message} 
+                      type={toast.type} 
+                      onClose={() => { 
+                        setToast(null)
+                        dispatch(resetDetailStoreError())
+                        dispatch(resetStoreError())
+                        dispatch(resetErrorGetEmployees())
+                        dispatch(resetUpdateEmployee())
+                        dispatch(resetCreateEmployee())
+                        dispatch(resetChangePasswordEmployee())
+                        dispatch(resetDeleteEmployee())
+                      }} 
+                      duration={5000}
+                      />
+                      </div>
+                  </ToastPortal>
+              )}
 
             { deleteEmployeeId && (
               <DeleteEmployeeConfirmation 
@@ -425,7 +458,7 @@ const StoreManagementDashboard = () => {
             {/* Header */}
             <div
               ref={headerRef}
-              className={`fixed top-0 z-10 bg-white border-b border-gray-200 ${isMobileDeviceType && isOpen ? 'hidden' : ''}`}
+              className={`fixed top-0 z-[9999] bg-white border-b border-gray-200 ${isMobileDeviceType && isOpen ? 'hidden' : ''}`}
               style={{
                 left: (isMobileDeviceType) ? '0' : '288px',
                 width: isMobileDeviceType ? '100%' : 'calc(100% - 288px)',
@@ -467,10 +500,14 @@ const StoreManagementDashboard = () => {
               <FinanceRequiredCard/> 
             )}
             
-            {(Object.keys(storeInfo).length > 0 && daysDiff === 0) && (
+            {(Object.keys(storeInfo).length > 0 && daysDiff >= 0 && storeInfo.verified_at) && (
                 <ServiceStatusCards expiration_access={storeInfo.expiration_access}/>
             )}
-            
+
+            {(storeInfo.full_domain && !storeInfo.verified_at) && (
+              <ServicePreparationNotice/>
+            )}
+
             {Object.keys(storeInfo).length === 0 ? (
               <NoStoreSelectedContainer/>
             ) : (
@@ -489,7 +526,7 @@ const StoreManagementDashboard = () => {
                       </div>
                     </div>
                     <button
-                      onClick={() => setEditingStore(!editingStore)}
+                      onClick={() => navigate('/store/update', {state: {dataStoreState: detailStore}})}
                       className="bg-white px-6 py-1.5 text-gray-900 rounded-lg flex items-center gap-2 transition-colors"
                     >
                       <Edit3 size={18} />
@@ -907,28 +944,51 @@ const StoreManagementDashboard = () => {
                 <div className="mt-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
-                      <h4 className="font-semibold text-gray-900">Paket Saat Ini: {storeInfo.service_name}</h4>
-                      <p className="text-sm text-gray-600">Berakhir pada: {formatDateTime(storeInfo.expiration_access)}</p>
+                      <h4 className="font-semibold text-gray-900">
+                        Paket Saat Ini: {storeInfo.service_name}
+                      </h4>
+                      {(!storeInfo.full_domain && !storeInfo.verified_at) && (
+                        <p className="text-sm text-yellow-600">
+                          Perpanjang Layanan dan Lengkapi domain kembali.
+                        </p>
+                      )}
+
+                      {(storeInfo.full_domain && storeInfo.verified_at) && (
+                        <p className="text-sm text-gray-600">
+                          Berakhir pada: {formatDateTime(storeInfo.expiration_access)}
+                        </p>
+                      )}
+
+                      {/* Status jika layanan masih disiapkan */}
+                      {(storeInfo.full_domain && !storeInfo.verified_at) && (
+                        <p className="text-sm text-yellow-600 font-medium mt-1">
+                          Layanan sedang dalam persiapan. Tunggu verifikasi sebelum bisa diperpanjang.
+                        </p>
+                      )}
                     </div>
+
                     <div className="flex gap-3">
                       <button
-                      onClick={() => handleNavigatePaymentProcessing({
-                        "store_id": storeInfo.id,
-                        "id": storeInfo.service_id,
-                        "current_service": storeInfo.service_name, 
-                        "verified_at": storeInfo.verified_at,
-                        "full_domain": storeInfo.full_domain,
-                      })}
-                      className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm transition-colors shadow-md"
+                        disabled={storeInfo.full_domain && !storeInfo.verified_at}
+                        onClick={() => handleNavigatePaymentProcessing({
+                          "store_id": storeInfo.id,
+                          "id": storeInfo.service_id,
+                          "current_service": storeInfo.service_name, 
+                          "verified_at": storeInfo.verified_at,
+                          "full_domain": storeInfo.full_domain,
+                        })}
+                        className={`px-4 py-2 rounded-lg text-sm transition-colors shadow-md
+                          ${(storeInfo.full_domain && !storeInfo.verified_at)
+                            ? "bg-gray-400 cursor-not-allowed text-white"
+                            : "bg-orange-600 hover:bg-orange-700 text-white"
+                          }`}
                       >
-                        <>
-                          Perpanjang Layanan
-                        </>
+                        Perpanjang Layanan
                       </button>
                     </div>
                   </div>
                 </div>
-            </div>
+              </div>
             </>  
             )}
           </div>

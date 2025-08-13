@@ -11,19 +11,31 @@ import {
   ExternalLink,
   CreditCard,
   Building2,
-  Wallet
+  Wallet,
+  ArrowLeft
 } from 'lucide-react';
 import {
     formatCurrency,
     formatDateTime
 } from './helper'
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const PaymentInvoice = ({ paymentData, colorType }) => {
   const navigate = useNavigate()
   const [downloading, setDownloading] = useState(false);
   const [copiedVA, setCopiedVA] = useState(false);
   const invoiceRef = useRef(null);
+  const location = useLocation();
+  const pathName = location?.pathname
+
+  const handleToPendingTransactionList = () => {
+    if (pathName === '/invoice/extend/service') {
+      navigate('/payment/required')
+    } 
+    if (pathName === '/invoice/create/store') {
+      navigate('/payment/required')
+    }
+  }
 
   useEffect(() => {
     if (!paymentData) {
@@ -80,8 +92,6 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
       minute: '2-digit'
     });
   };
-
-  const totalAmount = paymentData.amount + paymentData.tax + paymentData.fee;
 
   const getChannelIcon = (method) => {
     switch (method) {
@@ -193,7 +203,44 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
+
       <div className="max-w-2xl mx-auto">
+        {pathName !== '/invoice/signup'} {
+          <div className='flex gap-4 mb-4 items-center'>
+            <ArrowLeft 
+             className='w-10 h-10 text-gray-900 cursor-pointer'
+             onClick={() => handleToPendingTransactionList()}
+            />
+            <p className='text-gray-900 text-2xl font-semibold'>Payment Required</p>
+          </div>
+        }
+
+        {/* Payment Completion Information Banner */}
+        <div className={`mb-6 ${colorType === 'external' ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200' : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'} border-2 rounded-xl p-5 shadow-sm`}>
+          <div className="flex items-start gap-4">
+            <div className={`p-2 ${colorType === 'external' ? 'bg-emerald-100' : 'bg-blue-100'} rounded-full flex-shrink-0`}>
+              <AlertCircle className={`w-6 h-6 ${colorType === 'external' ? 'text-emerald-600' : 'text-blue-600'}`} />
+            </div>
+            <div>
+              <h3 className={`font-semibold ${colorType === 'external' ? 'text-emerald-800' : 'text-blue-800'} mb-2`}>
+                Penting: Setelah Melakukan Pembayaran
+              </h3>
+              <div className={`${colorType === 'external' ? 'text-emerald-700' : 'text-blue-700'} text-sm space-y-2`}>
+                <p className="font-medium">Untuk memastikan status pembayaran terupdate dengan benar:</p>
+                <div className="pl-4">
+                  <p>• Setelah berhasil melakukan pembayaran, <strong>tutup browser</strong> sepenuhnya</p>
+                  <p>• Tunggu 1-2 menit untuk proses verifikasi otomatis</p>
+                  <p>• <strong>Buka kembali browser</strong> dan akses akun Anda</p>
+                  <p>• Status pembayaran akan terupdate secara otomatis</p>
+                </div>
+                <p className="text-xs mt-3 opacity-80">
+                  * Hal ini diperlukan untuk refresh data pembayaran dari server secara optimal
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Main Invoice Card */}
         <div ref={invoiceRef} className={`bg-white rounded-lg shadow-lg border ${colorType === 'external' ? 'border-emerald-100' : 'border-gray-200'} overflow-hidden`}>
           {/* Header Section */}
@@ -291,23 +338,42 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
                     <AlertCircle className={`w-5 h-5 ${theme.textSecondary} mt-0.5 flex-shrink-0`} />
                     <div className="text-left">
                       <p className={`${theme.textAccent} font-medium text-sm`}>Informasi:</p>
-                      <p className={`${theme.textPrimary} text-sm mt-1`}>
-                        Pastikan saldo {paymentData.channel_code} Anda mencukupi untuk melakukan pembayaran sebesar <strong>{formatCurrency(totalAmount)}</strong>
-                      </p>
+                      {paymentData.channel_code === 'OVO' ? (
+                        <div className={`${theme.textPrimary} text-sm mt-1`}>
+                          <p className="mb-2">
+                            <strong>Silakan buka aplikasi OVO Anda</strong> untuk menyelesaikan pembayaran sebesar <strong>{formatCurrency(paymentData.amount)}</strong>
+                          </p>
+                          <p className="mb-2">
+                            • Pastikan aplikasi OVO sudah terpasang di perangkat Anda
+                          </p>
+                          <p className="mb-2">
+                            • Periksa notifikasi atau inbox pada aplikasi OVO
+                          </p>
+                          <p>
+                            • Pastikan saldo OVO Anda mencukupi untuk melakukan pembayaran
+                          </p>
+                        </div>
+                      ) : (
+                        <p className={`${theme.textPrimary} text-sm mt-1`}>
+                          Pastikan saldo {paymentData.channel_code} Anda mencukupi untuk melakukan pembayaran sebesar <strong>{formatCurrency(paymentData.amount)}</strong>
+                        </p>
+                      )}
                     </div>
                   </div>
-
-                  <button 
-                    onClick={() => window.open(paymentData.redirect_url_web, '_blank')}
-                    className={`w-full bg-white text-gray-900 font-semibold py-3 px-6 rounded-lg border-2 ${theme.borderColor} transition-colors flex items-center justify-center gap-2 group`}
-                  >
-                    Lanjutkan Pembayaran
-                    <ExternalLink className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </button>
+                    
+                    {paymentData.channel_code !== 'OVO' && (
+                      <button 
+                        onClick={() => window.open(paymentData.redirect_url_web, '_blank')}
+                        className={`w-full bg-white text-gray-900 font-semibold py-3 px-6 rounded-lg border-2 ${theme.borderColor} transition-colors flex items-center justify-center gap-2 group`}
+                      >
+                        Lanjutkan Pembayaran
+                        <ExternalLink className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </button>
+                    )}
                 </div>
               </div>
             )}
-            
+
             {paymentData.payment_method === 'VA' && (
               <div>
                 <div className="text-center mb-6">

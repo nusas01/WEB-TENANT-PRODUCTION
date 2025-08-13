@@ -1,5 +1,8 @@
 import axios from "axios";
-import { updateEmployeeSlice } from "../reducers/put";
+import { 
+  updateEmployeeSlice,
+  updateStoreSlice,
+} from "../reducers/put";
 
 const {
   setSuccessUpdateEmployee,
@@ -26,4 +29,29 @@ export const updateEmployee = (formData) => {
   }
 }
 
-
+const {
+  setSuccessUpdateStore,
+  setErrorUpdateStore,
+  setLoadingUpdateStore,
+} = updateStoreSlice.actions
+export const updateStore = (formData) => {
+  return async (dispatch) => {  
+    dispatch(setLoadingUpdateStore(true))
+    try {
+      const response = await axios.put(process.env.REACT_APP_ADD_STORE, formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      })
+      dispatch(setSuccessUpdateStore(response?.data))
+    } catch(error) {
+      dispatch(setErrorUpdateStore({
+        error: error.response?.data?.error,
+        errorField: error.response?.data?.ErrorField
+      }))
+    } finally {
+      dispatch(setLoadingUpdateStore(false))
+    }
+  }
+}

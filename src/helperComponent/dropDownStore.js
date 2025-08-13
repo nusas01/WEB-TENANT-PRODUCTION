@@ -154,7 +154,7 @@ const StoreDropdown = () => {
 
         {/* Dropdown Menu */}
         {isOpen && (
-          <div className="absolute z-10 mt-2 w-full bg-white rounded-xl shadow-xl max-h-96 overflow-hidden">
+          <div className="absolute z-[1000] mt-2 w-full bg-white rounded-xl shadow-xl max-h-96 overflow-hidden">
             {/* Header with Add Store Button */}
             <div className="p-3 flex items-center justify-between">
               <h2>Pilih Store</h2>

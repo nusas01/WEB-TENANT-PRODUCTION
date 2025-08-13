@@ -4,8 +4,7 @@ const initialLoginState = {
     successLogin: false, 
     errorLogin: null, 
     loadingLogin: false, 
-    errorPassLogin: null,
-    errorEmailLogin: null, 
+    errorField: {},
 }
 export const loginSlice = createSlice({
     name: 'login', 
@@ -16,8 +15,7 @@ export const loginSlice = createSlice({
         },
         loginError: (state, action) => {
             state.errorLogin = action.payload.errorLogin 
-            state.errorPassLogin = action.payload.errorPassLogin
-            state.errorEmailLogin = action.payload.errorEmailLogin
+            state.errorField = action.payload.errorField || {}
         },
         setLoadingLogin: (state, action) => {
             state.loadingLogin = action.payload
@@ -25,8 +23,7 @@ export const loginSlice = createSlice({
         resetLogin: (state) => {
             state.successLogin = false
             state.errorLogin = null
-            state.errorPassLogin = null 
-            state.errorEmailLogin = null
+            state.errorField = {}
         }
     }
 })
@@ -148,7 +145,7 @@ export const createEmployeeSlice = createSlice({
 const initialAddStore = {
     successAddStore: false,
     dataSuccess: null,
-    errorFieldsAddStore: null,
+    errorFieldsAddStore: {},
     errorAddStore: null,
     loadingAddStore: false,
 }
@@ -161,14 +158,14 @@ export const addStoreSlice = createSlice({
             state.dataSuccess = action.payload.data
         },
         setErrorAddStore: (state, action) => {
-            state.errorFieldsAddStore = action.payload.errorField
+            state.errorFieldsAddStore = action.payload.errorField || {}
             state.errorAddStore = action.payload.error
         },
         setLoadingAddStore: (state, action) => {
             state.loadingAddStore = action.payload
         },
         resetAddStore: (state) => {
-            state.errorFieldsAddStore = null
+            state.errorFieldsAddStore = {}
             state.errorAddStore = null
             state.successAddStore = false
         }

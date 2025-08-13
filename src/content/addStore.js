@@ -22,6 +22,7 @@ import {
 import {
     fetchProductServices, 
     fetchPaymentMethods, 
+    fetchRequiredPayment,
 } from '../actions/get'
 import {
     formatCurrency
@@ -34,6 +35,7 @@ import {
 } from '../actions/post'
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { fromJSON } from 'postcss';
 
 const AddStoreForm = () => {
     const dispatch = useDispatch()
@@ -57,6 +59,8 @@ const AddStoreForm = () => {
     const [errors, setErrors] = useState({});
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [selectedPayment, setSelectedPayment] = useState(null);
+    const {isMobileDeviceType} = useSelector((state) => state.persisted.navbar)
+    
   
     // handle package or products service
     const {resetErrorProductService} = productServicesSlice.actions
@@ -91,13 +95,14 @@ const AddStoreForm = () => {
 
     useEffect(() => {
         if (errorPaymentMethods) {
-        setToast({
-            type: "error",
-            message: "terjadi kesalahan saat memuat metode pembayaran, silahkan coba lagi nanti."
-        })
+            setToast({
+                type: "error",
+                message: "terjadi kesalahan saat memuat metode pembayaran, silahkan coba lagi nanti."
+            })
         }
     }, [errorPaymentMethods])
 
+    console.log("payment method: ", products)
 
     // validate form data
     const validateAllFields = () => {
@@ -109,40 +114,46 @@ const AddStoreForm = () => {
             switch (key) {
             case 'name':
                 if (!value) {
-                newErrors.name = 'Name is required';
-                isValid = false;
+                    newErrors.name = 'Nama wajib diisi';
+                    isValid = false;
                 } else if (value.length < 6) {
-                newErrors.name = 'Name must be at least 6 characters';
-                isValid = false;
+                    newErrors.name = 'Nama harus terdiri dari minimal 6 karakter';
+                    isValid = false;
                 } else if (value.length > 50) {
-                newErrors.name = 'Name must not exceed 50 characters';
-                isValid = false;
+                    newErrors.name = 'Nama tidak boleh lebih dari 50 karakter';
+                    isValid = false;
                 } else {
-                delete newErrors.name;
+                    delete newErrors.name;
                 }
                 break;
 
             case 'phone_number':
                 if (!value) {
-                newErrors.phone_number = 'Phone number is required';
-                isValid = false;
-                } else if (!/^\d+$/.test(value)) {
-                newErrors.phone_number = 'Phone number must contain only numbers';
-                isValid = false;
+                    newErrors.phone_number = 'Nomor telepon wajib diisi';
+                    isValid = false;
                 } else {
-                delete newErrors.phone_number;
+                    delete newErrors.phone_number;
                 }
                 break;
 
+            case 'phone_number_ewallet':
+                if (selectedPayment?.type_payment_method === 'EWALLET' && !value) {
+                    newErrors.phone_number_ewallet = 'Phone number Ewallet perlu diisi';
+                } else {
+                    delete newErrors.phone_number_ewallet
+                }
+                break;
+
+
             case 'address':
                 if (!value) {
-                newErrors.address = 'Address is required';
-                isValid = false;
+                    newErrors.address = 'Alamat wajib diisi';
+                    isValid = false;
                 } else if (value.length > 100) {
-                newErrors.address = 'Address must not exceed 100 characters';
-                isValid = false;
+                    newErrors.address = 'Alamat tidak boleh lebih dari 100 karakter';
+                    isValid = false;
                 } else {
-                delete newErrors.address;
+                    delete newErrors.address;
                 }
                 break;
 
@@ -150,37 +161,37 @@ const AddStoreForm = () => {
             case 'state':
             case 'country':
                 if (!value) {
-                newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} is required`;
-                isValid = false;
+                    newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} wajib diisi`;
+                    isValid = false;
                 } else if (value.length > 50) {
-                newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} must not exceed 50 characters`;
-                isValid = false;
+                    newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} tidak boleh lebih dari 50 karakter`;
+                    isValid = false;
                 } else {
-                delete newErrors[key];
+                    delete newErrors[key];
                 }
                 break;
 
             case 'postal_code':
                 if (!value) {
-                newErrors.postal_code = 'Postal code is required';
-                isValid = false;
+                    newErrors.postal_code = 'Kode pos wajib diisi';
+                    isValid = false;
                 } else if (value.length !== 5) {
-                newErrors.postal_code = 'Postal code must be exactly 5 characters';
-                isValid = false;
+                    newErrors.postal_code = 'Kode pos harus terdiri dari 5 karakter';
+                    isValid = false;
                 } else {
-                delete newErrors.postal_code;
+                    delete newErrors.postal_code;
                 }
                 break;
 
             case 'subdomain':
                 if (!value) {
-                newErrors.subdomain = 'Subdomain is required';
-                isValid = false;
+                    newErrors.subdomain = 'Subdomain wajib diisi';
+                    isValid = false;
                 } else if (value.length > 10) {
-                newErrors.subdomain = 'Subdomain must not exceed 10 characters';
-                isValid = false;
+                    newErrors.subdomain = 'Subdomain tidak boleh lebih dari 10 karakter';
+                    isValid = false;
                 } else {
-                delete newErrors.subdomain;
+                    delete newErrors.subdomain;
                 }
                 break;
 
@@ -191,8 +202,23 @@ const AddStoreForm = () => {
 
         setErrors(newErrors);
         return isValid;
-        };
+    };
 
+    const calculateTotal = () => {
+        if (!selectedProduct || !selectedPayment) return 0;
+        
+        const subtotal = selectedProduct.price;
+        const taxAmount = subtotal * tax;
+        let feeAmount = 0;
+
+        if (selectedPayment?.type_payment_method === 'EWALLET' || selectedPayment?.type_payment_method === 'QR') {
+        feeAmount = (subtotal+taxAmount) * selectedPayment.fee;
+        } else {
+        feeAmount = selectedPayment.fee;
+        }
+
+        return subtotal + taxAmount + feeAmount;
+    };
 
 
     // handle add store 
@@ -201,18 +227,67 @@ const AddStoreForm = () => {
 
     const handleCreateStore = () => {
         if (validateAllFields()) {
-            dispatch(addStore(formData));
-        }   
+            dispatch(addStore({
+                name: formData.name,
+                phone_number: '+62' + formData.phone_number,
+                address: formData.address,
+                city: formData.city,
+                state: formData.state,
+                country: formData.country,
+                postal_code: formData.postal_code,
+                subdomain: formData.subdomain,
+                payment_method_id: formData.payment_method_id,
+                product_service_id: formData.product_service_id,
+                phone_number_ewallet: '+62' + formData.phone_number_ewallet,
+                price: calculateTotal(),
+            }));
+            dispatch(resetAddStore())
+            setErrors({})
+        }
     };
 
     useEffect(() => {
-        validateAllFields()
-    }, [formData])
+        if (Object.keys(errorFieldsAddStore).length > 0) {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' 
+            });
+
+            if (Array.isArray(errorFieldsAddStore) && errorFieldsAddStore.length > 0) {
+                const mergedErrors = errorFieldsAddStore.reduce((acc, curr) => {
+                    return { ...acc, ...curr };
+                }, {});
+
+                setErrors(prev => ({
+                    ...prev,
+                    ...mergedErrors
+                }));
+            }
+        }
+    }, [errorFieldsAddStore])
+
+    console.log("errro field create store: ", errorFieldsAddStore)
+    console.log("error create store: ", errors)
+
+    useEffect(() => {
+        console.log("Updated errors: ", errors);
+    }, [errors]);
+
+
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            window.scrollTo({
+            top: 0,
+            behavior: 'smooth' 
+            });
+        }
+    }, [errors])
 
     useEffect(() => {
         if (successAddStore) {
-            navigate('/navigate')
+            navigate('/invoice/create/store')
             dispatch(resetAddStore())
+            dispatch(fetchRequiredPayment())
         }
     }, [successAddStore])
 
@@ -245,22 +320,6 @@ const AddStoreForm = () => {
         ...prev, 
         payment_method_id: payment.id 
         }));
-    };
-
-    const calculateTotal = () => {
-        if (!selectedProduct || !selectedPayment) return 0;
-        
-        const subtotal = selectedProduct.price;
-        const taxAmount = subtotal * tax;
-        let feeAmount = 0;
-
-        if (selectedPayment.type_payment_method === 'EWALLET' || selectedPayment.type_payment_method === 'QR') {
-        feeAmount = subtotal * selectedPayment.fee;
-        } else {
-        feeAmount = selectedPayment.fee;
-        }
-
-        return subtotal + taxAmount + feeAmount;
     };
 
     const getPaymentIcon = (type) => {
@@ -299,7 +358,7 @@ const AddStoreForm = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="min-h-screen bg-gray-50 py-8 px-4 overflow-y-auto">
             {toast && (
                 <ToastPortal> 
                     <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-100'>
@@ -363,20 +422,26 @@ const AddStoreForm = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         Phone Number *
                     </label>
-                    <input
-                        type="text"
-                        name="phone_number"
-                        value={formData.phone_number}
-                        onChange={handleInputChange}
-                        className={`w-full px-4 py-3 rounded-lg border ${
-                        errors.phone_number ? 'border-red-300' : 'border-gray-300'
-                        } focus:ring-2 focus:ring-gray-900 focus:border-transparent`}
-                        placeholder="08123456789"
-                    />
-                    {errors.phone_number && (
+                    <div 
+                    className={`flex items-center w-full px-4 py-3 rounded-lg border 
+                        ${(errors.phone_number || errors.PhoneNumber) ? 'border-red-300' : 'border-gray-300'} 
+                        focus-within:ring-2 focus-within:ring-gray-900`}
+                    >
+                        <span className="mr-2">+62</span>
+                        <span className="mr-2 items-center">|</span>
+                        <input
+                            type="text"
+                            name="phone_number"
+                            value={formData.phone_number}
+                            onChange={handleInputChange}
+                            className="flex-1 outline-none border-none focus:ring-0"
+                            placeholder="8123456789"
+                        />
+                    </div>
+                    {(errors.phone_number || errors.PhoneNumber) && (
                         <div className="flex items-center mt-2 text-red-600 text-sm">
                         <AlertCircle className="w-4 h-4 mr-1" />
-                        {errors.phone_number}
+                        {errors.phone_number || errors.PhoneNumber}
                         </div>
                     )}
                     </div>
@@ -392,7 +457,7 @@ const AddStoreForm = () => {
                         value={formData.subdomain}
                         onChange={handleInputChange}
                         className={`w-full px-4 py-3 pr-28 rounded-lg border ${
-                            errors.subdomain ? 'border-red-300' : 'border-gray-300'
+                            (errors.subdomain || errors.Subdomain) ? 'border-red-300' : 'border-gray-300'
                         } focus:ring-2 focus:ring-gray-900 focus:border-transparent`}
                         placeholder="mystore"
                         />
@@ -400,10 +465,10 @@ const AddStoreForm = () => {
                         .nusas.id
                         </span>
                     </div>
-                    {errors.subdomain && (
+                    {(errors.subdomain || errors.Subdomain)  && (
                         <div className="flex items-center mt-2 text-red-600 text-sm">
                         <AlertCircle className="w-4 h-4 mr-1" />
-                        {errors.subdomain}
+                        {errors.subdomain || errors.Subdomain}
                         </div>
                     )}
                     {!errors.subdomain && formData.subdomain && (
@@ -541,59 +606,111 @@ const AddStoreForm = () => {
             <div className="space-y-6">
                 {/* Product Selection */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center mb-6">
-                    <Package className="w-6 h-6 text-gray-900 mr-3" />
-                    <h2 className="text-xl font-semibold text-gray-900">Choose Your Plan</h2>
-                </div>
-
-                <div className="space-y-4">
-                    {products.map((product) => (
-                   <div
-                        key={product.id}
-                        onClick={(e) => {
-                            if (product.status !== 'Active') return;
-                            handleProductSelect(product);
-                        }}
-                        className={`relative rounded-lg border-2 p-4 transition-all ${
-                            selectedProduct?.id === product.id
-                            ? 'border-gray-900 bg-gray-50'
-                            : product.status !== 'Active'
-                                ? 'opacity-50 cursor-not-allowed'
-                                : 'border-gray-200 hover:border-gray-300 cursor-pointer'
-                        }`}
-                    >
-                        <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                            {product.product}
-                            </h3>
-                            <div className="flex items-center space-x-2 mt-1">
-                            <span className="text-2xl font-bold text-gray-900">
-                                {formatCurrency(product.price)}
-                            </span>
-                            {product.original_price > product.price && (
-                                <span className="text-sm text-gray-500 line-through">
-                                {formatCurrency(product.original_price)}
-                                </span>
-                            )}
-                            </div>
-                            <div className="mt-2">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                product.status === 'Active' 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                                {product.status}
-                            </span>
-                            </div>
-                        </div>
-                        {selectedProduct?.id === product.id && (
-                            <CheckCircle className="w-6 h-6 text-gray-900" />
-                        )}
-                        </div>
+                    <div className="flex items-center mb-6">
+                        <Package className="w-6 h-6 text-gray-900 mr-3" />
+                        <h2 className="text-xl font-semibold text-gray-900">Choose Your Plan</h2>
                     </div>
-                    ))}
-                </div>
+                    <div className="space-y-4">
+                        {products.map((product) => (
+                            <div
+                                key={product.id}
+                                onClick={(e) => {
+                                    if (product.status !== 'Active') return;
+                                    handleProductSelect(product);
+                                }}
+                                className={`relative rounded-lg border-2 p-4 transition-all ${
+                                    selectedProduct?.id === product.id
+                                        ? 'border-gray-900 bg-gray-50'
+                                        : product.status !== 'Active'
+                                            ? 'opacity-50 cursor-not-allowed'
+                                            : 'border-gray-200 hover:border-gray-300 cursor-pointer'
+                                }`}
+                            >
+                                {/* Badge for discounts */}
+                                {product.badge && (
+                                    <div className="absolute -top-2 -right-2">
+                                        <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-sm">
+                                            {product.badge}
+                                        </span>
+                                    </div>
+                                )}
+                                
+                                {/* Popular badge */}
+                                {product.popular && (
+                                    <div className="absolute -top-2 left-4">
+                                        <span className="bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-sm">
+                                            Popular
+                                        </span>
+                                    </div>
+                                )}
+
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        {/* Product Name and Segment */}
+                                        <div className="flex items-center space-x-2 mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-900">
+                                                {product.name || product.product}
+                                            </h3>
+                                        </div>
+                                        
+                                        {/* Segment description */}
+                                        {product.segment && (
+                                            <p className="text-sm text-gray-600 mb-3">
+                                                {product.segment}
+                                            </p>
+                                        )}
+                                        
+                                        {/* Pricing */}
+                                        <div className="flex items-center space-x-2 mb-3">
+                                            <span className="text-2xl font-bold text-gray-900">
+                                                {formatCurrency(product.price)}
+                                            </span>
+                                            {product.originalPrice && product.originalPrice > product.price && (
+                                                <span className="text-sm text-gray-500 line-through">
+                                                    {formatCurrency(product.originalPrice)}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {/* Features */}
+                                        {product.features && product.features.length > 0 && (
+                                            <div className="mb-3">
+                                                <div className="space-y-1">
+                                                    {product.features.slice(0, 3).map((feature, index) => (
+                                                        <div key={index} className="flex items-center text-sm text-gray-600">
+                                                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                                                            {feature}
+                                                        </div>
+                                                    ))}
+                                                    {product.features.length > 3 && (
+                                                        <div className="text-sm text-gray-500 mt-1">
+                                                            +{product.features.length - 3} more features
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        {/* Status */}
+                                        <div className="mt-2">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                product.status === 'Active'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-yellow-100 text-yellow-800'
+                                            }`}>
+                                                {product.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Selection indicator */}
+                                    {selectedProduct?.id === product.id && (
+                                        <CheckCircle className="w-6 h-6 text-gray-900 mt-1" />
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Payment Method Selection */}
@@ -643,6 +760,35 @@ const AddStoreForm = () => {
                             </div>
                         </div>
                         ))}
+                        {selectedPayment?.type_payment_method === "EWALLET" && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Phone Number Ewallet*
+                                </label>
+                                <div 
+                                className={`flex items-center w-full px-4 py-3 rounded-lg border 
+                                    ${(errors.phone_number_ewallet || errors.PhoneNumberEwallet) ? 'border-red-300' : 'border-gray-300'} 
+                                    focus-within:ring-2 focus-within:ring-gray-900`}
+                                >
+                                    <span className="mr-2">+62</span>
+                                    <span className="mr-2 items-center">|</span>
+                                    <input
+                                        type="text"
+                                        name="phone_number_ewallet"
+                                        value={formData.phone_number_ewallet}
+                                        onChange={handleInputChange}
+                                        className="flex-1 outline-none border-none focus:ring-0"
+                                        placeholder="8123456789"
+                                    />
+                                </div>
+                                {(errors.phone_number_ewallet || errors.PhoneNumberEwallet) && (
+                                    <div className="flex items-center mt-2 text-red-600 text-sm">
+                                    <AlertCircle className="w-4 h-4 mr-1" />
+                                    {errors.phone_number_ewallet || errors.PhoneNumberEwallet}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
                 </div>
@@ -669,7 +815,7 @@ const AddStoreForm = () => {
                     <div className="flex justify-between items-center py-2 border-b border-gray-100">
                         <span className="text-gray-600">Payment Fee ({selectedPayment.channel_code})</span>
                         <span className="font-semibold">
-                        {selectedPayment.type_payment_method === 'EWALLET' || selectedPayment.type_payment_method === 'QR'
+                        {selectedPayment?.type_payment_method === 'EWALLET' || selectedPayment?.type_payment_method === 'QR'
                             ? formatCurrency(selectedProduct.price * selectedPayment.fee)
                             : formatCurrency(selectedPayment.fee)
                         }
@@ -687,7 +833,7 @@ const AddStoreForm = () => {
                 {/* Submit Button */}
                 <button
                 type="button"
-                disabled={!selectedProduct || !selectedPayment || Object.keys(errors).length > 0 || loadingAddStore}
+                disabled={!selectedProduct || !selectedPayment || loadingAddStore}
                 onClick={() => handleCreateStore()}
                 className="w-full bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                 >

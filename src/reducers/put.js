@@ -24,3 +24,31 @@ export const updateEmployeeSlice = createSlice({
     },
   },
 })
+
+const initialUpdateStoreState = {
+  successUpdateStore: false,
+  errorUpdateStore: null,
+  errorFieldUpdateStore: {},
+  loadingUpdateStore: false,
+}
+export const updateStoreSlice = createSlice({
+  name: 'updateStore',
+  initialState: initialUpdateStoreState,
+  reducers: {
+    setSuccessUpdateStore: (state, action) => {
+      state.successUpdateStore = action.payload
+    },
+    setErrorUpdateStore: (state, action) => {
+      state.errorUpdateStore = action.payload.error || null
+      state.errorFieldUpdateStore = action.payload.errorField || {}
+    },
+    setLoadingUpdateStore: (state, action) => {
+      state.loadingUpdateStore = action.payload
+    },
+    resetUpdateStore: (state) => {
+      state.successUpdateStore = false
+      state.errorUpdateStore = null
+      state.errorFieldUpdateStore = {}
+    },
+  },
+})

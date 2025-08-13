@@ -34,11 +34,21 @@ export default function LoginForm() {
     successLogin, 
     errorLogin, 
     loadingLogin, 
-    errorPassLogin, 
-    errorEmailLogin
+    errorField,
   } = useSelector((state) => state.loginState)
-  console.log("apakah ini cuccess: ", successLogin)
-  console.log("error apa ini tee:", errorPassLogin, errorEmailLogin )
+
+  useEffect(() => {
+    if (Object.keys(errorField).length > 0) {
+      const mergedErrors = errorField.reduce((acc, curr) => {
+          return { ...acc, ...curr };
+      }, {});
+
+      setErrors(prev => ({
+          ...prev,
+          ...mergedErrors
+      }));
+    }
+  }, [errorField])
 
   useEffect(() => {
     if (successLogin) {
@@ -182,14 +192,14 @@ export default function LoginForm() {
                   onChange={handleInputChange}
                   placeholder="Enter your email"
                   className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    (errors.email || errorEmailLogin) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    (errors.email || errors?.Email) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
               </div>
-              {(errors.email || errorEmailLogin) && (
+              {(errors.email || errors?.Email) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.email || errorEmailLogin}</span>
+                  <span>{errors.email || errors?.Email}</span>
                 </div>
               )}
             </div>
@@ -208,7 +218,7 @@ export default function LoginForm() {
                   onChange={handleInputChange}
                   placeholder="Enter your password"
                   className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    (errors.password || errorPassLogin) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    (errors.password || errors?.Password) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
                 <button
@@ -219,10 +229,10 @@ export default function LoginForm() {
                   {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
                 </button>
               </div>
-              {(errors.password || errorPassLogin) && (
+              {(errors.password || errors?.Password) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.password || errorPassLogin}</span>
+                  <span>{errors.password || errors?.Password}</span>
                 </div>
               )}
             </div>

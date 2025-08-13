@@ -15,7 +15,7 @@ export const loginStatusSlice = createSlice({
 })
 
 const initialDataAccountState = {
-  dataAccount: null,
+  dataAccount: {},
   loadingDataAccount: false,
   errorDataAccount: null,
 }
@@ -24,7 +24,7 @@ export const getDataAccountSlice = createSlice({
   initialState: initialDataAccountState,
   reducers: {
     setDataAccount: (state, action) => {
-      state.dataAccount = action.payload || []
+      state.dataAccount = action.payload || {}
     },
     setLoadingDataAccount: (state, action) => {
       state.loadingDataAccount = action.payload
@@ -185,6 +185,30 @@ export const getEmployeesSlice = createSlice({
     },
     resetErrorGetEmployees: (state) => {
       state.errorGetEmployees = null
+    },
+  },
+})
+
+const initialRequiredPaymentState = {
+  dataRequiredPayment: [],
+  loadingRequiredPayment: false,
+  errorRequiredPayment: null,
+}
+export const getRequiredPaymentSlice = createSlice({
+  name: 'dataRequiredPayment',
+  initialState: initialRequiredPaymentState,
+  reducers: {
+    setRequiredPayment: (state, action) => {
+      state.dataRequiredPayment = action.payload || []
+    },
+    setLoadingRequiredPayment: (state, action) => {
+      state.loadingRequiredPayment = action.payload
+    },
+    setErrorRequiredPayment: (state, action) => {
+      state.errorRequiredPayment = action.payload || null
+    },
+    resetErrorRequiredPayment: (state) => {
+      state.errorRequiredPayment = null
     },
   },
 })

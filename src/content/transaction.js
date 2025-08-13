@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Hourglass,
   Store, 
@@ -16,10 +16,17 @@ import Sidebar from './sidebar';
 import { useDispatch, useSelector } from 'react-redux';
 import { navbarSlice } from '../reducers/reducers';
 import { useElementHeight } from './helper';
+import {
+  Toast,
+  ToastPortal
+} from './alert';
+import {getRequiredPaymentSlice} from '../reducers/get'
+import {fetchRequiredPayment} from '../actions/get'
 
 const PendingTransactions = () => {
   const dispatch = useDispatch()
   const [copiedId, setCopiedId] = useState(null);
+  const {toast, setToast} = useState(null)
 
   const { setIsOpen } = navbarSlice.actions
   const { isOpen, isMobileDeviceType } = useSelector((state) => state.persisted.navbar)
@@ -28,52 +35,22 @@ const PendingTransactions = () => {
   
   
   // Sample data berdasarkan struktur yang diberikan
-  const transactions = [
-    {
-      id: "TXN-001-2024-08-001",
-      tax: 1500,
-      fee: 2500,
-      product: "Premium Coffee Bundle",
-      payment_method: "EWALLET",
-      payment_reference: "gopay://payment?id=GP123456789",
-      channel_code: "GOPAY",
-      expires_at: "2024-08-11T14:30:00Z",
-      store_name: "Kopi Nusantara"
-    },
-    {
-      id: "TXN-001-2024-08-002",
-      tax: 2000,
-      fee: 3000,
-      product: "Wireless Headphones",
-      payment_method: "VA",
-      payment_reference: "8170123456789012",
-      channel_code: "BCA",
-      expires_at: "2024-08-11T16:45:00Z",
-      store_name: "Tech Store Indonesia"
-    },
-    {
-      id: "TXN-001-2024-08-003",
-      tax: 1000,
-      fee: 1500,
-      product: "Organic Tea Set",
-      payment_method: "QR",
-      payment_reference: "QR_CODE_DATA_STRING_123456",
-      channel_code: "QRIS",
-      expires_at: "2024-08-11T12:15:00Z",
-      store_name: "Healthy Living Store"
-    },
-    {
-      id: "TXN-001-2024-08-004",
-      tax: 3000,
-      fee: 4000,
-      product: "Gaming Mouse",
-      payment_method: "EWALLET",
-      payment_reference: "ovo://payment?ref=OV987654321",
-      channel_code: "OVO",
-      expires_at: "2024-08-11T18:20:00Z",
-      store_name: "Gaming World"
+  const {resetErrorRequiredPayment} = getRequiredPaymentSlice.actions
+  const {dataRequiredPayment:transactions, loadingRequiredPayment, errorRequiredPayment} = useSelector((state) => state.persisted.getRequiredPayment)
+  useEffect(() => {
+    if (transactions.length === 0) {
+      dispatch(fetchRequiredPayment())
     }
-  ];
+  }, [])
+
+  useEffect(() => {
+    if (errorRequiredPayment) {
+      setToast({
+          type: "error",
+          message: "terjadi kesalahan saat memuat required payment, silahkan coba lagi nanti."
+      })
+    }
+  }, [errorRequiredPayment])
 
   const handleCopyCode = (code, id) => {
     navigator.clipboard.writeText(code);
@@ -154,6 +131,22 @@ const PendingTransactions = () => {
       )}
 
       <div className='flex-1'>
+        {toast && (
+            <ToastPortal> 
+                <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-100'>
+                <Toast 
+                message={toast.message} 
+                type={toast.type} 
+                onClose={() => { 
+                    setToast(null)
+                    dispatch(resetErrorRequiredPayment())
+                }} 
+                duration={3000}
+                />
+                </div>
+            </ToastPortal>
+        )}
+
         <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
           <div className="max-w-7xl">
             {/* Header */}
@@ -195,140 +188,224 @@ const PendingTransactions = () => {
 
             {/* Transactions List */}
             <div className="space-y-4" style={{marginTop: headerHeight}}>
-              {transactions.map((transaction) => (
-                <div key={transaction.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="p-6">
-                    {/* Header Transaction */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-gray-900 rounded-lg">
-                          <Store className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{transaction.store_name}</h3>
-                          <p className="text-sm text-gray-500">ID: {transaction.id}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getChannelColor(transaction.channel_code)}`}>
-                          {transaction.channel_code}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Product Info */}
-                    <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Receipt className="w-4 h-4 text-gray-600" />
-                        <span className="font-medium text-gray-900">{transaction.product}</span>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <span>Pajak: {formatCurrency(transaction.tax)}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span>Biaya: {formatCurrency(transaction.fee)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Payment Method Section */}
-                    <div className="border rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="p-1.5 bg-gray-100 rounded">
-                          {getPaymentMethodIcon(transaction.payment_method, transaction.channel_code)}
-                        </div>
-                        <span className="font-medium text-gray-900">
-                          {transaction.payment_method === 'EWALLET' && 'E-Wallet'}
-                          {transaction.payment_method === 'VA' && 'Virtual Account'}
-                          {transaction.payment_method === 'QR' && 'QR Code'}
-                        </span>
-                      </div>
-
-                      {/* E-Wallet Payment */}
-                      {transaction.payment_method === 'EWALLET' && (
-                        <div className="space-y-3">
-                          <p className="text-sm text-gray-600">
-                            Klik tombol di bawah untuk membuka aplikasi pembayaran
-                          </p>
-                          <button
-                            onClick={() => handleEwalletRedirect(transaction.payment_reference)}
-                            className="w-full bg-gray-900 text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                            Buka Aplikasi {transaction.channel_code}
-                          </button>
-                        </div>
-                      )}
-
-                      {/* Virtual Account Payment */}
-                      {transaction.payment_method === 'VA' && (
-                        <div className="space-y-3">
-                          <p className="text-sm text-gray-600">
-                            Gunakan nomor Virtual Account berikut untuk transfer
-                          </p>
-                          <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
-                            <span className="font-mono text-lg font-semibold text-gray-900">
-                              {transaction.payment_reference}
-                            </span>
-                            <button
-                              onClick={() => handleCopyCode(transaction.payment_reference, transaction.id)}
-                              className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                              title="Salin nomor VA"
-                            >
-                              {copiedId === transaction.id ? (
-                                <span className="text-green-600 text-sm font-medium">Tersalin!</span>
-                              ) : (
-                                <Copy className="w-4 h-4 text-gray-600" />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* QR Code Payment */}
-                      {transaction.payment_method === 'QR' && (
-                        <div className="space-y-3">
-                          <p className="text-sm text-gray-600">
-                            Scan QR Code berikut dengan aplikasi pembayaran Anda
-                          </p>
-                          <div className="flex justify-center">
-                            <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-                              <img
-                                src={generateQRCode(transaction.payment_reference)}
-                                alt="QR Code"
-                                className="w-32 h-32"
-                              />
+              {/* Loading State */}
+              {loadingRequiredPayment && (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, index) => (
+                    <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-pulse">
+                      <div className="p-6">
+                        {/* Header Skeleton */}
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-gray-300 rounded-lg"></div>
+                            <div>
+                              <div className="h-4 bg-gray-300 rounded w-32 mb-2"></div>
+                              <div className="h-3 bg-gray-200 rounded w-20"></div>
                             </div>
                           </div>
+                          <div className="h-6 bg-gray-300 rounded-full w-16"></div>
                         </div>
-                      )}
-                    </div>
 
-                    {/* Expiry Warning */}
-                    <div className="mt-4 flex items-center gap-2 text-sm">
-                      <AlertCircle className="w-4 h-4 text-orange-500" />
-                      <span className="text-gray-600">
-                        Berlaku hingga: <span className="font-medium text-orange-600">
-                          {formatExpiryTime(transaction.expires_at)}
+                        {/* Product Info Skeleton */}
+                        <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-4 h-4 bg-gray-300 rounded"></div>
+                            <div className="h-4 bg-gray-300 rounded w-24"></div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="h-3 bg-gray-200 rounded w-20"></div>
+                            <div className="h-3 bg-gray-200 rounded w-20"></div>
+                          </div>
+                        </div>
+
+                        {/* Payment Method Skeleton */}
+                        <div className="border rounded-lg p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                            <div className="h-4 bg-gray-300 rounded w-20"></div>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="h-3 bg-gray-200 rounded w-full"></div>
+                            <div className="h-10 bg-gray-300 rounded-lg w-full"></div>
+                          </div>
+                        </div>
+
+                        {/* Expiry Skeleton */}
+                        <div className="mt-4 flex items-center gap-2">
+                          <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
+                          <div className="h-3 bg-gray-200 rounded w-40"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Actual Transactions */}
+              {!loadingRequiredPayment && transactions && transactions.length > 0 && 
+                transactions.map((transaction) => (
+                  <div key={transaction.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="p-6">
+                      {/* Header Transaction */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-gray-900 rounded-lg">
+                            <Store className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-gray-900">{transaction.store_name}</h3>
+                            <p className="text-sm text-gray-500">ID: {transaction.id}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getChannelColor(transaction.channel_code)}`}>
+                            {transaction.channel_code}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Product Info */}
+                      <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Receipt className="w-4 h-4 text-gray-600" />
+                          <span className="font-medium text-gray-900">{transaction.product}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <span>Pajak: {formatCurrency(transaction.tax)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span>Biaya: {formatCurrency(transaction.fee)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Payment Method Section */}
+                      <div className="border rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="p-1.5 bg-gray-100 rounded">
+                            {getPaymentMethodIcon(transaction.payment_method, transaction.channel_code)}
+                          </div>
+                          <span className="font-medium text-gray-900">
+                            {transaction.payment_method === 'EWALLET' && 'E-Wallet'}
+                            {transaction.payment_method === 'VA' && 'Virtual Account'}
+                            {transaction.payment_method === 'QR' && 'QR Code'}
+                          </span>
+                        </div>
+
+                        {/* E-Wallet Payment */}
+                        {transaction.payment_method === 'EWALLET' && (
+                          <div className="space-y-3">
+                            <p className="text-sm text-gray-600">
+                              Klik tombol di bawah untuk membuka aplikasi pembayaran
+                            </p>
+                            <button
+                              onClick={() => handleEwalletRedirect(transaction.payment_reference)}
+                              className="w-full bg-gray-900 text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                              Buka Aplikasi {transaction.channel_code}
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Virtual Account Payment */}
+                        {transaction.payment_method === 'VA' && (
+                          <div className="space-y-3">
+                            <p className="text-sm text-gray-600">
+                              Gunakan nomor Virtual Account berikut untuk transfer
+                            </p>
+                            <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
+                              <span className="font-mono text-lg font-semibold text-gray-900">
+                                {transaction.payment_reference}
+                              </span>
+                              <button
+                                onClick={() => handleCopyCode(transaction.payment_reference, transaction.id)}
+                                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                                title="Salin nomor VA"
+                              >
+                                {copiedId === transaction.id ? (
+                                  <span className="text-green-600 text-sm font-medium">Tersalin!</span>
+                                ) : (
+                                  <Copy className="w-4 h-4 text-gray-600" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* QR Code Payment */}
+                        {transaction.payment_method === 'QR' && (
+                          <div className="space-y-3">
+                            <p className="text-sm text-gray-600">
+                              Scan QR Code berikut dengan aplikasi pembayaran Anda
+                            </p>
+                            <div className="flex justify-center">
+                              <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
+                                <img
+                                  src={generateQRCode(transaction.payment_reference)}
+                                  alt="QR Code"
+                                  className="w-32 h-32"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Expiry Warning */}
+                      <div className="mt-4 flex items-center gap-2 text-sm">
+                        <AlertCircle className="w-4 h-4 text-orange-500" />
+                        <span className="text-gray-600">
+                          Berlaku hingga: <span className="font-medium text-orange-600">
+                            {formatExpiryTime(transaction.expires_at)}
+                          </span>
                         </span>
-                      </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))
+              }
 
-            {/* Empty State */}
-            {transactions.length === 0 && (
-              <div className="text-center py-12">
-                <div className="p-4 bg-gray-100 rounded-full inline-block mb-4">
-                  <Receipt className="w-8 h-8 text-gray-400" />
+              {/* Modern Empty State */}
+              {!loadingRequiredPayment && transactions && transactions.length === 0 && (
+                <div className="text-center bg-white rounded-xl shadow-lg border border-gray-200 py-[18vh]">
+                  {/* Animated Icon Container */}
+                  <div className="relative mb-8">
+                    <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl inline-block relative overflow-hidden">
+                      {/* Background decoration */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-900/5 to-transparent"></div>
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-gray-900/10 rounded-full"></div>
+                      <div className="absolute -bottom-1 -left-1 w-6 h-6 bg-gray-900/5 rounded-full"></div>
+                      
+                      {/* Main icon */}
+                      <Receipt className="w-12 h-12 text-gray-400 relative z-10" />
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="max-w-sm mx-auto">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                      Tidak ada transaksi pending
+                    </h3>
+                    <p className="text-gray-500 leading-relaxed mb-6">
+                      Semua transaksi Anda sudah diselesaikan. Transaksi baru yang memerlukan pembayaran akan muncul di sini.
+                    </p>
+                    
+                    {/* Action button */}
+                    <button 
+                      onClick={() => window.location.reload()}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors text-sm"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Refresh
+                    </button>
+                  </div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada transaksi pending</h3>
-                <p className="text-gray-500">Semua transaksi Anda sudah diselesaikan</p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>

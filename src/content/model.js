@@ -6,7 +6,9 @@ import {
   BarChart2, 
   Clock,
   Calendar,
-  RefreshCw,
+  Settings,
+  Info,
+  CheckCircle,
   Lock,
   AlertTriangle,
   X,
@@ -38,7 +40,7 @@ export const FinanceRequiredCard = () => {
               Silakan isi data di bagian <strong>Keuangan</strong> pada dasbor Anda untuk menyelesaikan proses pendaftaran.
             </p>
 
-            <div className="bg-amber-50 rounded-lg p-4 mb-6 border border-amber-100">
+            <div className="bg-amber-50 rounded-lg p-4 mb-4 border border-amber-100">
               <h3 className="font-semibold text-amber-800 flex items-center gap-2 mb-2">
                 <FileText size={18} /> Data yang Diperlukan
               </h3>
@@ -115,7 +117,7 @@ export const ServiceStatusCards = ({expiration_access}) => {
                   Segera lakukan perpanjangan untuk melanjutkan akses ke seluruh fitur platform.
                 </p>
 
-                <div className="bg-red-50 rounded-lg p-4 mb-6 border border-red-100">
+                <div className="bg-red-50 rounded-lg p-4 mb-4 border border-red-100">
                   <h3 className="font-semibold text-red-800 flex items-center gap-2 mb-2">
                     <Lock size={18} /> Dampak Jika Tidak Diperpanjang
                   </h3>
@@ -225,3 +227,83 @@ export const DeleteEmployeeConfirmation = ({
     </div>
   );
 };
+
+
+export function ServicePreparationNotice() {
+  return (
+    <div className="max-w-7xl mx-auto lg:p-12 p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+      {/* Header dengan Icon */}
+      <div className="flex items-center justify-center mb-4">
+        <div className="relative">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+            <Settings className="w-8 h-8 text-green-500 animate-spin" style={{animationDuration: '3s'}} />
+          </div>
+          <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+            <Clock className="w-3 h-3 text-white" />
+          </div>
+        </div>
+      </div>
+
+      {/* Judul */}
+      <div className="text-center mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Layanan Sedang Dipersiapkan
+        </h2>
+        <p className="text-gray-600 text-md">
+          Kami sedang mempersiapkan pengalaman terbaik untuk Anda
+        </p>
+      </div>
+
+      {/* Status Info */}
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+        <div className="flex items-start space-x-3">
+          <Info className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+          <div>
+            <h3 className="font-semibold text-green-800 mb-2">Status Saat Ini</h3>
+            <p className="text-green-700 text-sm leading-relaxed">
+              Tim kami sedang bekerja keras untuk memastikan semua fitur berfungsi dengan optimal. 
+              Layanan akan segera tersedia dengan performa terbaik.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Yang Sedang Dipersiapkan */}
+      <div className="mb-4">
+        <h3 className="font-semibold text-gray-800 mb-4 flex items-center">
+          <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+          Yang Sedang Kami Persiapkan:
+        </h3>
+        
+        <div className="space-y-3">
+          <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-gray-700">Optimisasi performa sistem</span>
+          </div>
+          <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-gray-700">Peningkatan keamanan data</span>
+          </div>
+          <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-gray-700">Deploy website store</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Estimasi Waktu */}
+      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-4">
+        <div className="flex items-center space-x-3">
+          <Clock className="w-6 h-6" />
+          <div>
+            <h3 className="font-semibold mb-1">Estimasi Waktu</h3>
+            <p className="text-green-100 text-sm">
+              Layanan diperkirakan akan tersedia dalam waktu dekat. 
+              Kami akan segera menginformasikan ketika sudah siap!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

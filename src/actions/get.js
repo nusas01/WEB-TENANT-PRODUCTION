@@ -8,6 +8,7 @@ import {
     detailStoreSlice,
     getEmployeesSlice,
     getDataAccountSlice,
+    getRequiredPaymentSlice,
 } from '../reducers/get'
 
 
@@ -165,3 +166,19 @@ export const fetchAllEmployees = (storeId) => {
   }
 }
 
+const {setRequiredPayment, setLoadingRequiredPayment, setErrorRequiredPayment} = getRequiredPaymentSlice.actions
+export const fetchRequiredPayment = () => {
+    return async (dispatch) => {
+      dispatch(setLoadingRequiredPayment(true))
+      try{
+          const response = await axios.get(`${process.env.REACT_APP_PENDING_TRANSACTION}`, {
+              withCredentials: true
+          })
+          dispatch(setRequiredPayment(response?.data))
+      } catch(error) {
+          dispatch(setErrorRequiredPayment(error.response?.data?.error))
+      } finally {
+          dispatch(setLoadingRequiredPayment(false))
+      }
+    }
+}

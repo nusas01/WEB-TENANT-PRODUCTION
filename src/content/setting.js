@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, 
   Mail, 
@@ -8,6 +8,7 @@ import {
   EyeOff, 
   Save, 
   Key, 
+  ArrowLeft,
   Building, 
   Shield,
   Edit3,
@@ -20,6 +21,9 @@ import Sidebar from './sidebar';
 import { navbarSlice } from '../reducers/reducers';
 import { useSelector, useDispatch } from 'react-redux';
 import { useElementHeight } from './helper';
+import {
+    fetchDataAccount,
+} from '../actions/get'
 
 
 const SettingsComponent = () => {
@@ -39,6 +43,12 @@ const SettingsComponent = () => {
     loadingDataAccount,
     errorDataAccount
   } = useSelector((state) => state.persisted.getDataAccount)
+  useEffect(() => {
+    if (Object.keys(accountData).length === 0) {
+      dispatch(fetchDataAccount())
+    }
+  }, [])
+  console.log("account data apa ini: ", accountData)
 //   const [accountData, setAccountData] = useState({
 //     id: 'ACC001',
 //     name: 'John Doe',
@@ -252,7 +262,7 @@ const SettingsComponent = () => {
                                     <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                     <input
                                         type="text"
-                                        value={accountData.id}
+                                        value={accountData?.id}
                                         disabled
                                         className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                                     />
@@ -268,14 +278,14 @@ const SettingsComponent = () => {
                                     <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                     <input
                                         type="email"
-                                        value={isEditing ? tempAccountData.email : accountData.email}
+                                        value={isEditing ? tempAccountData?.email : accountData?.email}
                                         onChange={(e) => handleAccountInputChange('email', e.target.value)}
                                         disabled
                                         className={`pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed`}
                                         placeholder="Enter your email address"
                                     />
                                     </div>
-                                    {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                                    {errors?.email && <p className="mt-1 text-sm text-red-600">{errors?.email}</p>}
                                 </div>
 
                                 {/* Name */}
@@ -287,11 +297,11 @@ const SettingsComponent = () => {
                                     <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                     <input
                                         type="text"
-                                        value={isEditing ? tempAccountData.name : accountData.name}
+                                        value={isEditing ? tempAccountData?.name : accountData?.name}
                                         onChange={(e) => handleAccountInputChange('name', e.target.value)}
                                         disabled={!isEditing}
                                         className={`pl-10 w-full px-3 py-2 border rounded-lg ${
-                                        errors.name ? 'border-red-500' : 'border-gray-300'
+                                        errors?.name ? 'border-red-500' : 'border-gray-300'
                                         } ${
                                         isEditing ? 'bg-white' : 'bg-gray-50'
                                         } focus:ring-2 focus:ring-orange-500 focus:border-transparent`}
