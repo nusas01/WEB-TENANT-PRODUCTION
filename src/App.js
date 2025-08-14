@@ -21,6 +21,7 @@ import CreateEmployee from './content/createEmployee';
 import AddStoreForm from './content/addStore';
 import PendingTransactions from './content/transaction';
 import UpdateStoreTenantForm from './content/updateStore';
+import ChangePaymentGateway from './content/changePaymentGateway';
 
 function App() {
   const dispatch = useDispatch()
@@ -64,6 +65,7 @@ function App() {
           <Route path='/store/add' element={<AddStoreForm/>}/>
           <Route path='/payment/processing' element={<PaymentProcessing/>}/>
           <Route path='/setting' element={<SettingsComponent/>}/>
+          <Route path='/setting/submission/change/payment/gateway' element={<ChangePaymentGateway/>}/>
           <Route path='/invoice/extend/service' element={<PaymentInvoice paymentData={dataExtendServiceStore} colorType={"internal"}/>}/>
           <Route path='/invoice/create/store' element={<PaymentInvoice paymentData={dataSuccess} colorType={"internal"}/>}/>
         </Route> 

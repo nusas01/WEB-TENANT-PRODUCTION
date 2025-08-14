@@ -6,6 +6,7 @@ import {
     postEmployeeSlice,
     createEmployeeSlice,
     addStoreSlice,
+    submissionChangePaymentGatewaySlice,
 } from "../reducers/post"
 import { data } from "react-router-dom";
 import {
@@ -167,5 +168,31 @@ export const addStore = (data) => async (dispatch) => {
         }))
     } finally {
         dispatch(setLoadingAddStore(false))
+    }
+}
+
+const {setSuccessSubmissionChangePaymentGateway,setErrorSubmissionChangePaymentGateway,setLoadingSubmissionChangePaymentGateway} = submissionChangePaymentGatewaySlice.actions 
+export const submissionChangePaymentGateway = (data) => async (dispatch) => {
+    const config = {
+        headers: {
+            "Content-Type": "application/json",
+        },
+        withCredentials: true,
+    }
+    dispatch(setLoadingSubmissionChangePaymentGateway(true))
+    try {
+        const response = await axios.post(
+            `${process.env.REACT_APP_POST_SUBMISSION_CHANGE_CREDENTIAL_STORE}`,
+            data,
+            config
+        )
+        dispatch(setSuccessSubmissionChangePaymentGateway(response?.data?.success))
+    } catch (error) {
+        dispatch(setErrorSubmissionChangePaymentGateway({
+            error: error?.response?.data?.error,
+            errorField: error?.response?.data?.ErrorField,
+        }))
+    } finally {
+        dispatch(setLoadingSubmissionChangePaymentGateway(false))
     }
 }

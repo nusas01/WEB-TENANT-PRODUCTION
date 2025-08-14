@@ -171,3 +171,31 @@ export const addStoreSlice = createSlice({
         }
     }
 })
+
+const initialSubmissionChangePaymentGatewayState = {
+  successSubmissionChangePaymentGateway: false,
+  errorSubmissionChangePaymentGateway: null,
+  errorFieldSubmissionChangePaymentGateway: null,
+  loadingSubmissionChangePaymentGateway: false,
+}
+export const submissionChangePaymentGatewaySlice = createSlice({
+  name: 'submissionChangePaymentGateway',
+  initialState: initialSubmissionChangePaymentGatewayState,
+  reducers: {
+    setSuccessSubmissionChangePaymentGateway: (state, action) => {
+      state.successSubmissionChangePaymentGateway = action.payload
+    },
+    setErrorSubmissionChangePaymentGateway: (state, action) => {
+      state.errorSubmissionChangePaymentGateway = action.payload.error || null
+      state.errorFieldSubmissionChangePaymentGateway = action.payload.errorField || null
+    },
+    setLoadingSubmissionChangePaymentGateway: (state, action) => {
+      state.loadingSubmissionChangePaymentGateway = action.payload
+    },
+    resetSubmissionChangePaymentGateway: (state) => {
+      state.successSubmissionChangePaymentGateway = false
+      state.errorSubmissionChangePaymentGateway = null
+      state.errorFieldSubmissionChangePaymentGateway = null
+    },
+  },
+})

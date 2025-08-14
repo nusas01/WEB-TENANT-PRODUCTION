@@ -110,7 +110,7 @@ const UpdateStoreTenantForm = () => {
 
     useEffect(() => {
         if (successUpdateStore) {
-            navigate('/store', {state: {storeIdUpdateStore: dataStore.id}});
+            navigate('/store', {state: {storeIdUpdateStore: dataStore?.id}});
         }
     }, [successUpdateStore]);
 

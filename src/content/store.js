@@ -496,7 +496,7 @@ const StoreManagementDashboard = () => {
           <div className='mx-auto space-y-8' style={{marginTop: headerHeight}}>
             <StoreDropdown/>
 
-            {!dataAccount?.api_key && !dataAccount?.secret_key_webhook && !dataAccount?.business_id && (
+            {!dataAccount?.api_key && !dataAccount?.secret_key_webhook && !dataAccount?.bussness_id && (
               <FinanceRequiredCard/> 
             )}
             

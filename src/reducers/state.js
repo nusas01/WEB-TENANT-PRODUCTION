@@ -14,6 +14,8 @@ import {
   getEmployeesSlice,
   getDataAccountSlice,
   getRequiredPaymentSlice,
+  GetStatusChangePaymentGatewaySlice,
+  GetProductChangePaymentGatewaySlice,
 } from './get'
 import { 
   loginSlice,
@@ -22,6 +24,7 @@ import {
   postEmployeeSlice,
   createEmployeeSlice,
   addStoreSlice,
+  submissionChangePaymentGatewaySlice,
 } from './post'
 import {
   registerVerificationSlice,
@@ -51,6 +54,8 @@ const persistedReducers = combineReducers({
   getEmployee: getEmployeesSlice.reducer,
   getDataAccount: getDataAccountSlice.reducer,
   getRequiredPayment: getRequiredPaymentSlice.reducer, 
+  GetStatusChangePaymentGateway: GetStatusChangePaymentGatewaySlice.reducer,
+  GetProductChangePaymentGateway: GetProductChangePaymentGatewaySlice.reducer,
 })
 
 // 2. Konfigurasi persist
@@ -72,6 +77,7 @@ const nonPersistedReducers = {
   deleteEmployeeState: deleteEmployeeSlice.reducer,
   changePasswordEmployeeState: changePasswordEmployeeSlice.reducer,
   updateStoreState: updateStoreSlice.reducer,
+  submissionChangePaymentGatewayState: submissionChangePaymentGatewaySlice.reducer,
 }
 
 const rootReducer = combineReducers({

@@ -212,3 +212,51 @@ export const getRequiredPaymentSlice = createSlice({
     },
   },
 })
+
+const initialStatusChangePaymentGatewayState = {
+  isUpdate: null,
+  loadingStatusChangePaymentGateway: false,
+  errorStatusChangePaymentGateway: null,
+}
+export const GetStatusChangePaymentGatewaySlice = createSlice({
+  name: 'statusChangePaymentGateway',
+  initialState: initialStatusChangePaymentGatewayState,
+  reducers: {
+    setSuccessStatusChangePaymentGateway: (state, action) => {
+      state.isUpdate = action.payload || null
+    },
+    setLoadingStatusChangePaymentGateway: (state, action) => {
+      state.loadingStatusChangePaymentGateway = action.payload
+    },
+    setErrorStatusChangePaymentGateway: (state, action) => {
+      state.errorStatusChangePaymentGateway = action.payload || null
+    },
+    resetErrorStatusChangePaymentGateway: (state) => {
+      state.errorStatusChangePaymentGateway = null
+    },
+  },
+})
+
+const initialProductChangePaymentGatewayState = {
+  dataProductChangePaymentGateway: {},
+  loadingProductChangePaymentGateway: false,
+  errorProductChangePaymentGateway: null,
+}
+export const GetProductChangePaymentGatewaySlice = createSlice({
+  name: 'ProductChangePaymentGateway',
+  initialState: initialProductChangePaymentGatewayState,
+  reducers: {
+    setSuccessProductChangePaymentGateway: (state, action) => {
+      state.dataProductChangePaymentGateway= action.payload || {}
+    },
+    setLoadingProductChangePaymentGateway: (state, action) => {
+      state.loadingProductChangePaymentGateway = action.payload
+    },
+    setErrorProductChangePaymentGateway: (state, action) => {
+      state.errorProductChangePaymentGateway = action.payload || null
+    },
+    resetProductChangePaymentGateway: (state) => {
+      state.errorProductChangePaymentGateway = null
+    },
+  },
+})

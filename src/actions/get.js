@@ -9,6 +9,8 @@ import {
     getEmployeesSlice,
     getDataAccountSlice,
     getRequiredPaymentSlice,
+    GetStatusChangePaymentGatewaySlice,
+    GetProductChangePaymentGatewaySlice,
 } from '../reducers/get'
 
 
@@ -179,6 +181,40 @@ export const fetchRequiredPayment = () => {
           dispatch(setErrorRequiredPayment(error.response?.data?.error))
       } finally {
           dispatch(setLoadingRequiredPayment(false))
+      }
+    }
+}
+
+const {setSuccessStatusChangePaymentGateway, setErrorStatusChangePaymentGateway, setLoadingStatusChangePaymentGateway} = GetStatusChangePaymentGatewaySlice.actions
+export const fetchStatusChangePaymentGateway = () => {
+    return async (dispatch) => {
+      dispatch(setLoadingStatusChangePaymentGateway(true))
+      try{
+          const response = await axios.get(`${process.env.REACT_APP_GET_STATUS_CHANGE_PAYMENT_GATEWAY}`, {
+              withCredentials: true
+          })
+          dispatch(setSuccessStatusChangePaymentGateway(response?.data?.is_update))
+      } catch(error) {
+          dispatch(setErrorStatusChangePaymentGateway(error.response?.data?.error))
+      } finally {
+          dispatch(setLoadingStatusChangePaymentGateway(false))
+      }
+    }
+}
+
+const {setSuccessProductChangePaymentGateway, setErrorProductChangePaymentGateway, setLoadingProductChangePaymentGateway} = GetProductChangePaymentGatewaySlice.actions
+export const fetchProductChangePaymentGateway = () => {
+    return async (dispatch) => {
+      dispatch(setLoadingProductChangePaymentGateway(true))
+      try{
+          const response = await axios.get(`${process.env.REACT_APP_GET_PRODUCT_CHANGE_PAYMENT_GATEWAY}`, {
+              withCredentials: true
+          })
+          dispatch(setSuccessProductChangePaymentGateway(response?.data?.data))
+      } catch(error) {
+          dispatch(setErrorProductChangePaymentGateway(error.response?.data?.error))
+      } finally {
+          dispatch(setLoadingProductChangePaymentGateway(false))
       }
     }
 }
