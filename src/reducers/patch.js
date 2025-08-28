@@ -60,6 +60,34 @@ export const patchCredentialStoreSlice = createSlice({
     }
 })
 
+const initialUpdateChangePaymentGateway = {
+    successUpdateChangePaymentGateway: false,
+    errorFieldsUpdateChangePaymentGateway: null,
+    errorUpdateChangePaymentGateway: null,
+    loadingUpdateChangePaymentGateway: false,
+}
+export const updateChangePaymentGatewaySlice = createSlice({
+    name: 'updateChangePaymentGateway',
+    initialState: initialUpdateChangePaymentGateway,
+    reducers: {
+        setSuccessUpdateChangePaymentGateway: (state, action) => {
+            state.successUpdateChangePaymentGateway = action.payload
+        },
+        setErrorUpdateChangePaymentGateway: (state, action) => {
+            state.errorFieldsUpdateChangePaymentGateway = action.payload.errorField
+            state.errorUpdateChangePaymentGateway = action.payload.error
+        },
+        setLoadingUpdateChangePaymentGateway: (state, action) => {
+            state.loadingUpdateChangePaymentGateway = action.payload
+        },
+        resetUpdateChangePaymentGateway: (state) => {
+            state.errorFieldsUpdateChangePaymentGateway = null
+            state.errorUpdateChangePaymentGateway = null
+            state.successUpdateChangePaymentGateway = false
+        }
+    }
+})
+
 
 const initialExtendServiceStore = {
     successExtendServiceStore: false,

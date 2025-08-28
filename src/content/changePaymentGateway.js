@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CreditCard, ArrowRight, Building, Info, Phone, Wallet, Check, RefreshCw } from 'lucide-react';
+import { AlertCircle, CreditCard, Loader, ArrowRight, Building, Info, Phone, Wallet, Check, RefreshCw } from 'lucide-react';
 import {
     GetProductChangePaymentGatewaySlice,
     paymentMethodsSlice
@@ -24,6 +24,7 @@ const ChangePaymentGateway = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [errors, setErrors] = useState({})
+
 
 
     // handle get data product change payment gateway
@@ -58,7 +59,7 @@ const ChangePaymentGateway = () => {
 
     useEffect(() => {
         if (paymentMethods.length === 0) {
-        dispatch(fetchPaymentMethods())
+            dispatch(fetchPaymentMethods())
         }
     }, [])
 
@@ -70,6 +71,8 @@ const ChangePaymentGateway = () => {
             })
         }
     }, [errorPaymentMethods])
+
+
 
     // Group payment methods by type
     const groupedPaymentMethods = paymentMethods.reduce((acc, method) => {
@@ -137,25 +140,20 @@ const ChangePaymentGateway = () => {
         }
     }, [errorSubmissionChangePaymentGateway])
 
-    // useEffect(() => {
-    //     if (Object.keys(errorFieldSubmissionChangePaymentGateway).length > 0) {
-    //         window.scrollTo({
-    //             top: 0,
-    //             behavior: 'smooth' 
-    //         });
+    useEffect(() => {
+        if (errorFieldSubmissionChangePaymentGateway) {
+            if (Array.isArray(errorFieldSubmissionChangePaymentGateway) && errorFieldSubmissionChangePaymentGateway.length > 0) {
+                const mergedErrors = errorFieldSubmissionChangePaymentGateway.reduce((acc, curr) => {
+                    return { ...acc, ...curr };
+                }, {});
 
-    //         if (Array.isArray(errorFieldSubmissionChangePaymentGateway) && errorFieldSubmissionChangePaymentGateway.length > 0) {
-    //             const mergedErrors = errorFieldSubmissionChangePaymentGateway.reduce((acc, curr) => {
-    //                 return { ...acc, ...curr };
-    //             }, {});
-
-    //             setErrors(prev => ({
-    //                 ...prev,
-    //                 ...mergedErrors
-    //             }));
-    //         }
-    //     }
-    // }, [errorFieldSubmissionChangePaymentGateway])
+                setErrors(prev => ({
+                    ...prev,
+                    ...mergedErrors
+                }));
+            }
+        }
+    }, [errorFieldSubmissionChangePaymentGateway])
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -168,9 +166,13 @@ const ChangePaymentGateway = () => {
     // Calculate summary
     const calculateSummary = () => {
         if (!selectedPaymentMethod) return null;
-        
+        let fee
         const baseAmount = dataProductChangePaymentGateway.price;
-        const fee = selectedPaymentMethod.fee;
+        if (selectedPaymentMethod.type_payment_method !== 'VA') {
+            fee = selectedPaymentMethod.fee * baseAmount;
+        } else {
+            fee = selectedPaymentMethod.fee;
+        }
         const totalAmount = baseAmount + fee;
         const refundAmount = 8000; // Fixed refund amount
         const deductedAmount = totalAmount - refundAmount;
@@ -189,20 +191,24 @@ const ChangePaymentGateway = () => {
         setDataSubmission({
         ...dataSubmission,
         payment_method_id: method.id,
-        amount: dataProductChangePaymentGateway.price + method.fee
+        amount: method.type_payment_method !== 'VA' 
+            ?  (dataProductChangePaymentGateway.price * method.fee) + dataProductChangePaymentGateway.price
+            : dataProductChangePaymentGateway.price + method.fee
         });
         setShowSummary(true);
     };
 
     const handleSubmit = () => {
+        setErrors({})
         dispatch(submissionChangePaymentGateway({
             payment_method_id: dataSubmission.payment_method_id,
             product_service_id: dataProductChangePaymentGateway.id,
-            amount: dataSubmission.amount
+            amount: dataSubmission.amount,
+            phone_number_ewallet: `+62${dataSubmission.phone_number_ewallet}`
         }))
     };
 
-    console.log("data summery: ", calculateSummary())
+    console.log("data summery: ", paymentMethods)
     const summary = calculateSummary();
 
     return (
@@ -246,8 +252,8 @@ const ChangePaymentGateway = () => {
                     <ul className="space-y-1 text-blue-700">
                     <li>• Dana yang Anda bayarkan digunakan untuk testing sistem</li>
                     <li>• Sebagian besar dana akan dikembalikan ke akun Xendit Anda</li>
-                    <li>• Pengembalian dana: <span className="font-semibold">Rp 8.000</span> (jumlah tetap)</li>
                     <li>• Selisih dana digunakan untuk biaya testing dan administrasi</li>
+                    <li>• Jika menggunakan Ewallet untuk pembayaran testing maka pastikan phone number ewallet diisi dengan benar</li>
                     </ul>
                 </div>
                 </div>
@@ -323,7 +329,7 @@ const ChangePaymentGateway = () => {
                                             placeholder="8123456789"
                                         />
                                     </div>
-                                    {(errors.phone_number_ewallet || errors.PhoneNumberEwallet) && (
+                                    {(errors.phone_number_ewallet || errors.PhoneNumberEwallet ) && (
                                         <div className="flex items-center mt-2 text-red-600 text-sm">
                                         <AlertCircle className="w-4 h-4 mr-1" />
                                         {errors.phone_number_ewallet || errors.PhoneNumberEwallet}
@@ -369,9 +375,15 @@ const ChangePaymentGateway = () => {
 
                     <button
                     onClick={() => handleSubmit()}
+                    disabled={loadingSubmissionChangePaymentGateway}
                     className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                     >
-                        { loadingSubmissionChangePaymentGateway ? 'Proccess...' : (
+                        { loadingSubmissionChangePaymentGateway 
+                        ?  <>
+                                <Loader className="w-4 h-4 animate-spin" />
+                                Proccess...
+                            </>
+                        : (
                             <>
                                 Lanjutkan Pembayaran
                                 <ArrowRight className="w-4 h-4" />
@@ -399,10 +411,10 @@ const ChangePaymentGateway = () => {
                 <div>
                 <h4 className="font-medium text-gray-900 mb-2">Catatan Penting</h4>
                 <div className="text-sm text-gray-600 space-y-2">
-                    <p>• Proses testing akan berlangsung otomatis setelah pembayaran berhasil</p>
-                    <p>• Dana akan dikembalikan dalam waktu 1-3 hari kerja setelah testing selesai</p>
-                    <p>• Hubungi customer service jika ada kendala dalam proses pembayaran</p>
-                    <p>• Simpan bukti pembayaran untuk keperluan tracking</p>
+                    <p>• Proses testing akan di proses setelah pembayaran berhasil</p>
+                    <p>• Setelah Pembayaran berhasil, harap isi kembali data account xendit anda</p>
+                    <p>• Pengisian di lakukan seperti pertama kali input account xendit di dasboard setting bagian xendit integration</p>
+                    <p>• Dan Pastikan anda mengikuti langkah langkah seperti yang ada di dashboard</p>
                 </div>
                 </div>
             </div>

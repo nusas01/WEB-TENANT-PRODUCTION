@@ -206,7 +206,7 @@ export default function TenantRegistrationForm() {
       case 'first_name':
       case 'last_name':
         if (!value) newErrors[name] = `${name.replace('_', ' ')} wajib diisi`;
-        else if (value.length < 6) newErrors[name] = `${name.replace('_', ' ')} minimal 6 karakter`;
+        else if (value.length < 4) newErrors[name] = `${name.replace('_', ' ')} minimal 4 karakter`;
         else if (value.length > 50) newErrors[name] = `${name.replace('_', ' ')} maksimal 50 karakter`;
         break;
 
@@ -232,11 +232,8 @@ export default function TenantRegistrationForm() {
       case 'phone_number':
       case 'phone_number_store':
       case 'phone_number_ewallet':
-        const phoneRegex = /^\+[1-9][0-9]{7,14}$/;
         if (name === 'phone_number' && !value) {
           newErrors[name] = 'Nomor telepon wajib diisi';
-        } else if (value && !phoneRegex.test(value)) {
-          newErrors[name] = 'Masukkan nomor telepon Indonesia yang valid (format: +62...)';
         } else if (name === 'phone_number_ewallet' && paymentMethod === 'EWALLET' && !value) {
           newErrors[name] = 'Nomor telepon e-wallet wajib diisi';
         }
@@ -381,7 +378,7 @@ export default function TenantRegistrationForm() {
         acc[field] = message;
         return acc;
       }, {});
-
+      window.scrollTo({ top: 0, behavior: "smooth" });
       setErrors(prev => ({ ...prev, ...mappedErrors }));
       dispatch(resetRegisterAccount());
     }
@@ -434,7 +431,27 @@ export default function TenantRegistrationForm() {
 
     // Jika tidak ada error, kirim data
     if (Object.keys(allErrors).length === 0) {
-      dispatch(registerAccount(formData));
+      dispatch(registerAccount({
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        password: formData.password,
+        phone_number: "+62" + formData.phone_number,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        postal_code: formData.postal_code,
+        phone_number_ewallet: "+62" + formData.phone_number_ewallet,
+        product_service_id: formData.product_service_id,
+        price: formData.price,
+        payment_method: formData.payment_method,
+        channel_code: formData.channel_code,
+        payment_method_id: formData.payment_method_id,
+        name_store: formData.name_store,
+        phone_number_store: "+62" + formData.phone_number_store,
+        subdomain: formData.subdomain,
+      }));
     }
   };
 
@@ -811,7 +828,7 @@ export default function TenantRegistrationForm() {
                   onChange={handleInputChange}
                   placeholder="Create a strong password"
                   maxLength={50}
-                  className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
+                  className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors${
                     errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
@@ -836,25 +853,26 @@ export default function TenantRegistrationForm() {
               <label className="block text-sm font-medium text-gray-700">
                 Phone Number <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  name="phone_number"
-                  value={formData.phone_number}
-                  onChange={handleInputChange}
-                  placeholder="e.g., +6281234567890"
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.phone_number ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                />
+              <div 
+                className={`flex items-center w-full px-4 py-3 rounded-lg border 
+                    ${(errors?.phone_number || errors?.PhoneNumber) ? 'border-red-300' : 'border-gray-300'} 
+                    `}
+                >
+                  <span className="mr-2">+62</span>
+                  <span className="mr-2 items-center">|</span>
+                  <input
+                    type="text"
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleInputChange}
+                    placeholder="e.g., +6281234567890"
+                    className="flex-1 outline-none border-none focus:ring-0"
+                  />
               </div>
-              {errors.phone_number && (
+              {errors.phone_number || errors.PhoneNumber && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.phone_number}</span>
+                  <span>{errors.phone_number || errors.PhoneNumber}</span>
                 </div>
               )}
             </div>
@@ -863,7 +881,7 @@ export default function TenantRegistrationForm() {
             <div className="md:col-span-2 mt-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
                 <MapPin className="h-5 w-5 text-green-500 mr-2" />
-                Address Information
+                Address Store 
               </h2>
             </div>
 
@@ -1054,25 +1072,26 @@ export default function TenantRegistrationForm() {
               <label className="block text-sm font-medium text-gray-700">
                 Store Phone Number (Optional)
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-gray-400" />
-                </div>
+              <div 
+              className={`flex items-center w-full px-4 py-3 rounded-lg border 
+                  ${(errors.phone_number_store || errors.PhoneNumberStore) ? 'border-red-300' : 'border-gray-300'} 
+                  focus-within:ring-2 focus-within:ring-gray-900`}
+              >
+                <span className="mr-2">+62</span>
+                <span className="mr-2 items-center">|</span>
                 <input
                   type="text"
                   name="phone_number_store"
                   value={formData.phone_number_store}
                   onChange={handleInputChange}
                   placeholder="e.g., +6281234567890"
-                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.phone_number_store ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
-                  }`}
+                  className="flex-1 outline-none border-none focus:ring-0"
                 />
               </div>
-              {errors.phone_number_store && (
+              {errors.phone_number_store || errors.PhoneNumberStore && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.phone_number_store}</span>
+                  <span>{errors.phone_number_store || errors.PhoneNumberStore}</span>
                 </div>
               )}
 
@@ -1241,25 +1260,26 @@ export default function TenantRegistrationForm() {
                 <label className="block text-sm font-medium text-gray-700">
                   E-Wallet Phone Number <span className="text-red-500">*</span>
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Phone className="h-5 w-5 text-gray-400" />
-                  </div>
+                <div 
+                className={`flex items-center w-full px-4 py-3 rounded-lg border 
+                    ${(errors.phone_number_ewallet || errors.PhoneNumberEwallet) ? 'border-red-300' : 'border-gray-300'} 
+                    focus-within:ring-2 focus-within:ring-gray-900`}
+                >
+                    <span className="mr-2">+62</span>
+                    <span className="mr-2 items-center">|</span>
                   <input
                     type="text"
                     name="phone_number_ewallet"
                     value={formData.phone_number_ewallet}
                     onChange={handleInputChange}
                     placeholder="Phone number linked to your e-wallet"
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                      errors.phone_number_ewallet ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                    className="flex-1 outline-none border-none focus:ring-0"
                   />
                 </div>
-                {errors.phone_number_ewallet && (
+                {errors.phone_number_ewallet || errors.PhoneNumberEwallet && (
                   <div className="flex items-center space-x-1 text-red-600 text-sm">
                     <AlertCircle className="h-4 w-4" />
-                    <span>{errors.phone_number_ewallet}</span>
+                    <span>{errors.phone_number_ewallet || errors.PhoneNumberEwallet}</span>
                   </div>
                 )}
               </div>

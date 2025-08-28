@@ -4,7 +4,11 @@ import {
     patchCredentialStoreSlice,
     extendServiceStoreSlice,
     changePasswordEmployeeSlice,
+    updateChangePaymentGatewaySlice,
 } from "../reducers/patch" 
+import {statusExpiredUserTokenSlice} from '../reducers/expToken'
+
+const {setStatusExpiredUserToken} = statusExpiredUserTokenSlice.actions
 
 const {setSuccessRegisterVerification, setErrorRegisterVerification, setLoadingRegisterVerification, setDataRegisterVerification} = registerVerificationSlice.actions
 export const registerVerification = (data) => async (dispatch) => {
@@ -42,6 +46,9 @@ export const patchCredentialStore = (data) => async (dispatch) => {
         const response = await axios.post(`${process.env.REACT_APP_PATCH_CREDENTIAL_STORE}`, data, config)
         dispatch(setSuccessPatchCredentialStore(response?.data?.success))
     } catch (error) {
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
         dispatch(setErrorPatchCredentialStore({ 
             error: error?.response?.data?.error,
             errorField: error?.response?.data?.ErrorField,
@@ -66,6 +73,9 @@ export const extendServiceStore = (data) => async (dispatch) => {
         dispatch(setSuccessExtendServiceStore(response?.data?.success))
         dispatch(setDataExtendServiceStore(response?.data?.data))
     } catch (error) {
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
         dispatch(setErrorExtendServiceStore({ 
             error: error?.response?.data?.error,
             errorField: error?.response?.data?.ErrorField,
@@ -75,7 +85,6 @@ export const extendServiceStore = (data) => async (dispatch) => {
         dispatch(setLoadingExtendServiceStore(false))
     }
 }
-
 
 const {setSuccessChangePasswordEmployee, setErrorChangePasswordEmployee, setLoadingChangePasswordEmployee} = changePasswordEmployeeSlice.actions
 export const changePasswordEmployee = (data) => async (dispatch) => {
@@ -90,6 +99,9 @@ export const changePasswordEmployee = (data) => async (dispatch) => {
         const response = await axios.patch(`${process.env.REACT_APP_CHANGE_PASSWORD_EMPLOYEE}`, data, config)
         dispatch(setSuccessChangePasswordEmployee(response?.data?.success))
     } catch (error) {
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
         dispatch(setErrorChangePasswordEmployee({ 
             error: error?.response?.data?.error,
             errorField: error?.response?.data?.ErrorField,
@@ -99,3 +111,27 @@ export const changePasswordEmployee = (data) => async (dispatch) => {
     }
 }
 
+const {setSuccessUpdateChangePaymentGateway, setErrorUpdateChangePaymentGateway, setLoadingUpdateChangePaymentGateway} = updateChangePaymentGatewaySlice.actions
+export const updateChangePaymentGateway = (data) => async (dispatch) => {
+    const config = {
+        headers: {
+            "Content-Type": "application/json",
+        },
+        withCredentials: true,
+    }
+    dispatch(setLoadingUpdateChangePaymentGateway(true))
+    try {
+        const response = await axios.patch(`${process.env.REACT_APP_UPDATE_CHANGE_PAYMENT_GATEWAY}`, data, config)
+        dispatch(setSuccessUpdateChangePaymentGateway(response?.data?.success))
+    } catch (error) {
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
+        dispatch(setErrorUpdateChangePaymentGateway({ 
+            error: error?.response?.data?.error,
+            errorField: error?.response?.data?.ErrorField,
+        }))
+    } finally {
+        dispatch(setLoadingUpdateChangePaymentGateway(false))
+    }
+}

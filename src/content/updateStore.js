@@ -342,10 +342,16 @@ const UpdateStoreTenantForm = () => {
                                 </div>
                                 {errors.PostalCode && <p className="mt-1 text-sm text-red-600">• {errors.PostalCode}</p>}
                             </div>
-
                         </div>
 
-                        <div className="mt-10 flex justify-end">
+                        <div className="mt-10 flex justify-end space-x-4">
+                            <button
+                                type="button"
+                                onClick={() => navigate(-1)}
+                                className='px-6 py-3 rounded-lg font-medium bg-white hover:bg-gray-300 border border-gray-900 text-gray-9000 transition duration-300'
+                            >
+                                Cancel 
+                            </button>
                             <button
                                 type="submit"
                                 disabled={loadingUpdateStore}

@@ -765,6 +765,13 @@ const CreateEmployee = () => {
               <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t">
                 <button
                   type="button"
+                  onClick={() => navigate(-1)}
+                  className='px-6 py-3 rounded-lg font-medium bg-white hover:bg-gray-300 border border-gray-900 text-gray-9000 transition duration-300'
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
                   onClick={() => handleSubmit()}
                   disabled={loadingCreateEmployee}
                   className="flex-1 bg-gray-900 text-white py-3 px-6 rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2"

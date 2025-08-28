@@ -12,6 +12,9 @@ import { data } from "react-router-dom";
 import {
     loginStatusSlice
 } from "../reducers/get"
+import {statusExpiredUserTokenSlice} from '../reducers/expToken'
+
+const {setStatusExpiredUserToken} = statusExpiredUserTokenSlice.actions
 
 const {setLoginStatus} = loginStatusSlice.actions
 const { loginSuccess, loginError, setLoadingLogin } = loginSlice.actions
@@ -100,6 +103,9 @@ export const postEmployee = (data) => async (dispatch) => {
         const response = await axios.post(`${process.env.REACT_APP_POST_EMPLOYEE}`, data, config)
         dispatch(setSuccessPostEmployee(response?.data?.success))
     } catch (error) {
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
         dispatch(setErrorPostEmployee({ 
             error: error?.response?.data?.error,
             errorField: error?.response?.data?.ErrorField,
@@ -127,7 +133,9 @@ export const createEmployee = (formData) => {
       dispatch(setSuccessCreateEmployee(true))
       return response.data
     } catch (error) {
-        console.log("error oyy: ", error)
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
         dispatch(setErrorCreateEmployee({
             error: error?.response?.data?.error || 'Gagal membuat employee', 
             errorField: error?.response?.data?.ErrorField[0],
@@ -162,6 +170,9 @@ export const addStore = (data) => async (dispatch) => {
             data: response?.data?.data,
         }))
     } catch (error) {
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
         dispatch(setErrorAddStore({
             error: error?.response?.data?.error,
             errorField: error?.response?.data?.ErrorField,
@@ -175,7 +186,7 @@ const {setSuccessSubmissionChangePaymentGateway,setErrorSubmissionChangePaymentG
 export const submissionChangePaymentGateway = (data) => async (dispatch) => {
     const config = {
         headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
         },
         withCredentials: true,
     }
@@ -188,6 +199,9 @@ export const submissionChangePaymentGateway = (data) => async (dispatch) => {
         )
         dispatch(setSuccessSubmissionChangePaymentGateway(response?.data?.success))
     } catch (error) {
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
         dispatch(setErrorSubmissionChangePaymentGateway({
             error: error?.response?.data?.error,
             errorField: error?.response?.data?.ErrorField,

@@ -12,7 +12,9 @@ import {
     GetStatusChangePaymentGatewaySlice,
     GetProductChangePaymentGatewaySlice,
 } from '../reducers/get'
+import {statusExpiredUserTokenSlice} from '../reducers/expToken'
 
+const {setStatusExpiredUserToken} = statusExpiredUserTokenSlice.actions
 
 const {setLoginStatus} = loginStatusSlice.actions
 export const fetchAuthStatusLogin = () => {
@@ -38,7 +40,7 @@ export const fetchDataAccount = () => {
           })
           dispatch(setDataAccount(response?.data))
       } catch(error) {
-          dispatch(setErrorDataAccount(error.response?.data?.error))
+            dispatch(setErrorDataAccount(error.response?.data?.error))
       } finally {
           dispatch(setLoadingDataAccount(false))
       }
@@ -54,10 +56,13 @@ export const fetchLogout = () => {
               withCredentials: true
           })
           dispatch(setSuccessLogout(response?.data.success))
-          dispatch(setLoginStatus(false))
+          dispatch((false))
           // reset data customer ketika sudah di buat endpoint
       } catch(error) {
-          dispatch(setErrorLogout(error.response?.data?.error))
+            if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+                dispatch(setStatusExpiredUserToken(true));
+            }
+            dispatch(setErrorLogout(error.response?.data?.error))
       } finally {
           dispatch(setLoadingLogout(false))
       }
@@ -110,14 +115,17 @@ export const fetchAllStores = () => {
   return async (dispatch) => {
     dispatch(setLoadingStore(true))
     try {
-      const response = await axios.get(process.env.REACT_APP_GET_ALL_STORE, {
-        withCredentials: true,
-      })
-      dispatch(setAllStores(response?.data || []))
+        const response = await axios.get(process.env.REACT_APP_GET_ALL_STORE, {
+            withCredentials: true,
+        })
+        dispatch(setAllStores(response?.data || []))
     } catch (error) {
-      dispatch(setErrorStore(error?.response?.data?.error || 'Gagal memuat daftar store'))
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
+        dispatch(setErrorStore(error?.response?.data?.error || 'Gagal memuat daftar store'))
     } finally {
-      dispatch(setLoadingStore(false))
+        dispatch(setLoadingStore(false))
     }
   }
 }
@@ -139,6 +147,9 @@ export const fetchDetailStore = (id) => {
             })
             dispatch(setDetailStore(response?.data))
         } catch (error) {
+            if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+                dispatch(setStatusExpiredUserToken(true));
+            }
             dispatch(setErrorDetailStore(error.response?.data?.error))
         } finally {
             dispatch(setLoadingDetailStore(false))
@@ -161,9 +172,12 @@ export const fetchAllEmployees = (storeId) => {
       })
       dispatch(setEmployees(response?.data || []))
     } catch (error) {
-      dispatch(setErrorGetEmployees(error?.response?.data?.error || 'Gagal memuat daftar employee'))
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
+        dispatch(setErrorGetEmployees(error?.response?.data?.error || 'Gagal memuat daftar employee'))
     } finally {
-      dispatch(setLoadingGetEmployees(false))
+        dispatch(setLoadingGetEmployees(false))
     }
   }
 }
@@ -173,14 +187,17 @@ export const fetchRequiredPayment = () => {
     return async (dispatch) => {
       dispatch(setLoadingRequiredPayment(true))
       try{
-          const response = await axios.get(`${process.env.REACT_APP_PENDING_TRANSACTION}`, {
-              withCredentials: true
-          })
-          dispatch(setRequiredPayment(response?.data))
+        const response = await axios.get(`${process.env.REACT_APP_PENDING_TRANSACTION}`, {
+            withCredentials: true
+        })
+        dispatch(setRequiredPayment(response?.data))
       } catch(error) {
-          dispatch(setErrorRequiredPayment(error.response?.data?.error))
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
+        dispatch(setErrorRequiredPayment(error.response?.data?.error))
       } finally {
-          dispatch(setLoadingRequiredPayment(false))
+        dispatch(setLoadingRequiredPayment(false))
       }
     }
 }
@@ -190,14 +207,17 @@ export const fetchStatusChangePaymentGateway = () => {
     return async (dispatch) => {
       dispatch(setLoadingStatusChangePaymentGateway(true))
       try{
-          const response = await axios.get(`${process.env.REACT_APP_GET_STATUS_CHANGE_PAYMENT_GATEWAY}`, {
-              withCredentials: true
-          })
-          dispatch(setSuccessStatusChangePaymentGateway(response?.data?.is_update))
+        const response = await axios.get(`${process.env.REACT_APP_GET_STATUS_CHANGE_PAYMENT_GATEWAY}`, {
+            withCredentials: true
+        })
+        dispatch(setSuccessStatusChangePaymentGateway(response?.data?.is_update))
       } catch(error) {
-          dispatch(setErrorStatusChangePaymentGateway(error.response?.data?.error))
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
+        dispatch(setErrorStatusChangePaymentGateway(error.response?.data?.error))
       } finally {
-          dispatch(setLoadingStatusChangePaymentGateway(false))
+        dispatch(setLoadingStatusChangePaymentGateway(false))
       }
     }
 }
@@ -207,14 +227,17 @@ export const fetchProductChangePaymentGateway = () => {
     return async (dispatch) => {
       dispatch(setLoadingProductChangePaymentGateway(true))
       try{
-          const response = await axios.get(`${process.env.REACT_APP_GET_PRODUCT_CHANGE_PAYMENT_GATEWAY}`, {
-              withCredentials: true
-          })
-          dispatch(setSuccessProductChangePaymentGateway(response?.data?.data))
+        const response = await axios.get(`${process.env.REACT_APP_GET_PRODUCT_CHANGE_PAYMENT_GATEWAY}`, {
+            withCredentials: true
+        })
+        dispatch(setSuccessProductChangePaymentGateway(response?.data?.data))
       } catch(error) {
-          dispatch(setErrorProductChangePaymentGateway(error.response?.data?.error))
+        if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+            dispatch(setStatusExpiredUserToken(true));
+        }
+        dispatch(setErrorProductChangePaymentGateway(error.response?.data?.error))
       } finally {
-          dispatch(setLoadingProductChangePaymentGateway(false))
+        dispatch(setLoadingProductChangePaymentGateway(false))
       }
     }
 }

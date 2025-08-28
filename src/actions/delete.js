@@ -1,5 +1,8 @@
 import axios from "axios";
 import { deleteEmployeeSlice  } from "../reducers/delete";
+import {statusExpiredUserTokenSlice} from '../reducers/expToken'
+
+const {setStatusExpiredUserToken} = statusExpiredUserTokenSlice.actions
 
 const {
   setSuccessDeleteEmployee,
@@ -17,6 +20,9 @@ export const deleteEmployee = (id) => {
       dispatch(setSuccessDeleteEmployee(true))
       return response.data
     } catch (error) {
+      if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+        dispatch(setStatusExpiredUserToken(true));
+      }
       dispatch(setErrorDeleteEmployee(error?.response?.data?.error || 'Gagal menghapus employee'))
     } finally {
       dispatch(setLoadingDeleteEmployee(false))

@@ -9,6 +9,7 @@ import {
   Store
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { logoutSlice } from '../reducers/get';
 import { loginSlice } from '../reducers/post';
 import { login } from '../actions/post';
 import { 
@@ -29,6 +30,7 @@ export default function LoginForm() {
   });
 
   // handle sumbit login
+  const { resetLogout } = logoutSlice.actions
   const { resetLogin } = loginSlice.actions
   const {
     successLogin, 
@@ -52,13 +54,14 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (successLogin) {
-      navigate('/store')
       setFormData({
         email: '',
         password: '',
       })
       setErrors({})
       dispatch(resetLogin())
+      dispatch(resetLogout())
+      navigate('/store')
     }
   }, [successLogin])
 

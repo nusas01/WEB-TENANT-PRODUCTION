@@ -14,7 +14,10 @@ import { useDeviceDetection } from "./helper";
 import { useSelector, useDispatch } from "react-redux";
 import { navbarSlice } from "../reducers/reducers";
 import { fetchLogout } from "../actions/get";
-import { logoutSlice } from "../reducers/get";
+import { 
+  logoutSlice, 
+  loginStatusSlice 
+} from "../reducers/get";
 import { 
   Toast,
   ToastPortal
@@ -49,8 +52,8 @@ const Sidebar = ({activeMenu}) => {
 
   useEffect(() => {
     if (logoutSuccess) {
-      navigate('/')
       dispatch(resetLogout())
+      navigate('/')
     }
   }, [logoutSuccess])
 

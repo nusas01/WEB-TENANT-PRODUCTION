@@ -31,6 +31,7 @@ import {
   patchCredentialStoreSlice,
   extendServiceStoreSlice,
   changePasswordEmployeeSlice,
+  updateChangePaymentGatewaySlice,
 } from './patch'
 import {
   updateEmployeeSlice,
@@ -39,8 +40,11 @@ import {
 import {
   deleteEmployeeSlice
 } from './delete'
+import {
+  statusExpiredUserTokenSlice
+} from './expToken'
 
-// 1. Reducer yang ingin dipersist
+// 1. Reducer yang dipersist
 const persistedReducers = combineReducers({
   navbar: navbarSlice.reducer,
   loginStatus: loginStatusSlice.reducer,
@@ -64,7 +68,7 @@ const persistConfig = {
   storage: sessionStorage,
 }
 
-// 3. Reducer yang tidak ingin dipersist
+// 3. Reducer yang tidak dipersist
 const nonPersistedReducers = {
   loginState: loginSlice.reducer,
   logoutState: logoutSlice.reducer,
@@ -78,6 +82,8 @@ const nonPersistedReducers = {
   changePasswordEmployeeState: changePasswordEmployeeSlice.reducer,
   updateStoreState: updateStoreSlice.reducer,
   submissionChangePaymentGatewayState: submissionChangePaymentGatewaySlice.reducer,
+  statusExpiredUserTokenState: statusExpiredUserTokenSlice.reducer,
+  updateChangePaymentGatewayState: updateChangePaymentGatewaySlice.reducer,
 }
 
 const rootReducer = combineReducers({

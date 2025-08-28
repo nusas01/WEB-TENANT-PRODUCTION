@@ -259,8 +259,11 @@ export default function QRestroLanding() {
                   </button>
                 ))}
                 <div className="pt-4 space-y-3">
-                  <button className="w-full py-3 text-green-600 border border-green-500/30 rounded-full hover:bg-green-50 transition-all duration-300">
-                    Demo Gratis
+                  <button 
+                    onClick={() => navigate('/login')}
+                    className="w-full py-3 text-green-600 border border-green-500/30 rounded-full hover:bg-green-50 transition-all duration-300"
+                  >
+                    Login
                   </button>
                   <button 
                     onClick={() => scrollToSection('packages')}

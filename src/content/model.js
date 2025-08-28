@@ -13,8 +13,12 @@ import {
   AlertTriangle,
   X,
   Trash2,
+  Shield,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { formatDateTime } from './helper';
+import { useState } from 'react';
 
 
 export const FinanceRequiredCard = () => {
@@ -301,6 +305,199 @@ export function ServicePreparationNotice() {
               Layanan diperkirakan akan tersedia dalam waktu dekat. 
               Kami akan segera menginformasikan ketika sudah siap!
             </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function XenditCredentialsGuide() {
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [copiedItems, setCopiedItems] = useState({});
+
+  const handleCopy = (text, item) => {
+    navigator.clipboard.writeText(text);
+    setCopiedItems(prev => ({ ...prev, [item]: true }));
+    setTimeout(() => {
+      setCopiedItems(prev => ({ ...prev, [item]: false }));
+    }, 2000);
+  };
+
+  const steps = [
+    {
+      title: "Business ID",
+      path: "Dashboard Xendit → Settings → Your Business and Profile → Your Business → Business ID",
+      description: "ID unik yang mengidentifikasi bisnis Anda di sistem Xendit"
+    },
+    {
+      title: "API Key",
+      path: "Dashboard Xendit → Settings → Developers → API Keys → Isi Key name → Money-in products Write → Balance Write → Transaction Write → Generate/Copy Api Key",
+      description: "Kunci autentikasi untuk mengakses layanan Xendit API",
+      sensitive: true
+    },
+    {
+      title: "Webhook Secret",
+      path: "Dashboard Xendit → Settings → Developers → Webhooks → View Webhook Verification Token → Copy the token",
+      description: "Token untuk memverifikasi webhook dari Xendit",
+      sensitive: true
+    }
+  ];
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="bg-white rounded-xl shadow-sm border p-6 mb-2">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-blue-100 rounded-lg">
+            <Shield className="h-6 w-6 text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Cara Mendapatkan Kredensial Xendit
+          </h2>
+        </div>
+        
+        {/* Security Warning */}
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg mb-2">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-6 w-6 text-red-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="text-lg font-semibold text-red-800 mb-2">
+                ⚠️ PERINGATAN KEAMANAN PENTING
+              </h3>
+              <div className="text-red-700 space-y-2">
+                <p className="font-medium">
+                  JANGAN PERNAH membagikan kredensial ini kepada siapapun!
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>Data ini hanya digunakan untuk mengisi form di sistem kami</li>
+                  <li>Kami TIDAK PERNAH meminta kredensial melalui email, WhatsApp, atau platform lainnya</li>
+                  <li>Kami hanya meminta input kredensial melalui form resmi di sistem ini</li>
+                  <li>Membagikan kredensial dapat menyebabkan kerugian finansial yang serius</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Info Note */}
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+          <div className="flex items-start gap-3">
+            <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+            <div className="text-blue-700">
+              <p className="text-sm">
+                <strong>Catatan:</strong> Kredensial ini diperlukan untuk integrasi payment gateway dengan sistem kami. 
+                Pastikan Anda mengakses dashboard Xendit resmi di <code className="bg-blue-100 px-1 rounded">dashboard.xendit.co</code>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Steps */}
+      <div className="space-y-2">
+        {steps.map((step, index) => (
+          <div key={index} className="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+                    {index + 1}
+                  </div>
+                </div>
+                
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {step.title}
+                    </h3>
+                    {step.sensitive && (
+                      <div className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                        Sensitif
+                      </div>
+                    )}
+                  </div>
+                  
+                  <p className="text-sm text-gray-600 mb-4">
+                    {step.description}
+                  </p>
+                  
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm text-gray-700 font-mono flex-1">
+                        {step.path}
+                      </p>
+                      <button
+                        onClick={() => handleCopy(step.path, step.title)}
+                        className="flex items-center gap-1 px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors text-sm"
+                      >
+                        {copiedItems[step.title] ? (
+                          <>
+                            <Check className="h-4 w-4 text-green-600" />
+                            <span className="text-green-600">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Additional Security Tips */}
+      <div className="mt-2 bg-white rounded-xl shadow-sm border p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Shield className="h-5 w-5 text-green-600" />
+          Tips Keamanan Tambahan
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-sm text-gray-700">
+                Selalu logout dari dashboard Xendit setelah selesai
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-sm text-gray-700">
+                Gunakan koneksi internet yang aman dan terpercaya
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-sm text-gray-700">
+                Jangan akses dari komputer atau jaringan publik
+              </p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-sm text-gray-700">
+                Periksa URL dashboard untuk memastikan keaslian
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-sm text-gray-700">
+                Segera ubah API key jika dicurigai telah bocor
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-sm text-gray-700">
+                Monitor aktivitas akun secara berkala
+              </p>
+            </div>
           </div>
         </div>
       </div>

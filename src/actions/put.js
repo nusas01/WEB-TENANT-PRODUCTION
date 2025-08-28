@@ -3,6 +3,9 @@ import {
   updateEmployeeSlice,
   updateStoreSlice,
 } from "../reducers/put";
+import {statusExpiredUserTokenSlice} from '../reducers/expToken'
+
+const {setStatusExpiredUserToken} = statusExpiredUserTokenSlice.actions
 
 const {
   setSuccessUpdateEmployee,
@@ -22,6 +25,9 @@ export const updateEmployee = (formData) => {
       dispatch(setSuccessUpdateEmployee(true))
       return response.data
     } catch (error) {
+      if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+        dispatch(setStatusExpiredUserToken(true));
+      }
       dispatch(setErrorUpdateEmployee(error?.response?.data?.error || 'Gagal memperbarui employee'))
     } finally {
       dispatch(setLoadingUpdateEmployee(false))
@@ -46,6 +52,9 @@ export const updateStore = (formData) => {
       })
       dispatch(setSuccessUpdateStore(response?.data))
     } catch(error) {
+      if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+        dispatch(setStatusExpiredUserToken(true));
+      }
       dispatch(setErrorUpdateStore({
         error: error.response?.data?.error,
         errorField: error.response?.data?.ErrorField
