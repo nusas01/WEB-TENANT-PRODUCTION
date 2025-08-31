@@ -5,8 +5,13 @@ import {
   Zap, 
   ArrowRight, 
   Play, 
+  Briefcase,
+  Lightbulb,
+  Handshake,
+  Rocket,
   QrCode, 
   Smartphone, 
+  Lock,
   BarChart3, 
   Users, 
   Shield, 
@@ -76,12 +81,31 @@ export default function QRestroLanding() {
     }
   }, [errorProductService])
 
-  const stats = [
-    { icon: TrendingUp, number: '500+', label: 'Restoran Partner' },
-    { icon: Users, number: '50K+', label: 'Transaksi Harian' },
-    { icon: Target, number: '99.9%', label: 'Uptime Guaranteed' },
-    { icon: Globe, number: '24/7', label: 'Support Premium' }
-  ];
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+      
+      // Track active section based on scroll position
+      const sections = ['home', 'services', 'packages', 'features', 'contact'];
+      const scrollPosition = window.scrollY + 100; // offset for header
+      
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const offsetTop = element.offsetTop;
+          const offsetBottom = offsetTop + element.offsetHeight;
+          
+          if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // const packages = [
   //   {
@@ -187,12 +211,10 @@ export default function QRestroLanding() {
       }`}>
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center">
-                <Zap className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-2xl font-bold bg-gradient-to-r from-green-400 to-green-500 bg-clip-text text-transparent">
-                QRestro
+            <div className="flex items-center space-x-1">
+              <img src="/image/logo_nusas_1.png" alt="logo" className="w-12 h-12" />
+              <div className="text-2xl font-bold bg-gradient-to-br from-green-500 to-green-600 bg-clip-text text-transparent">
+                nusas
               </div>
             </div>
             
@@ -294,7 +316,7 @@ export default function QRestroLanding() {
               </span>
               <br />
               <span className="bg-gradient-to-r from-green-600 via-green-500 to-green-700 bg-clip-text text-transparent">
-                Restoran Anda
+                Restoran And Coffee Shop Anda
               </span>
             </h1>
 
@@ -308,7 +330,7 @@ export default function QRestroLanding() {
                 onClick={() => scrollToSection('packages')}
                 className="group px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full font-semibold hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-100 flex items-center space-x-3"
               >
-                <span>Mulai Gratis Hari Ini</span>
+                <span>Mulai Sekarang</span>
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </button>
               
@@ -321,7 +343,7 @@ export default function QRestroLanding() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
+            {/* <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center group">
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500/10 to-green-600/10 rounded-2xl mb-4 group-hover:scale-110 transition-transform border border-green-500/10">
@@ -333,7 +355,7 @@ export default function QRestroLanding() {
                   <div className="text-gray-500 text-sm">{stat.label}</div>
                 </div>
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -359,7 +381,7 @@ export default function QRestroLanding() {
               </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Solusi end-to-end yang akan mentransformasi operasional restoran Anda dengan teknologi AI dan automation
+              Solusi end-to-end yang akan mentransformasi operasional bisnis restoran dan coffee shop Anda dengan teknologi AI dan automation
             </p>
           </div>
 
@@ -369,43 +391,76 @@ export default function QRestroLanding() {
                 icon: QrCode,
                 title: "Smart QR Ordering",
                 description: "QR Code dinamis dengan menu interaktif, customizable sesuai brand, dan analytics mendalam untuk setiap meja.",
-                gradient: "from-green-500 to-green-600",
+                gradient: "from-green-500 to-lime-600",
                 features: ["Dynamic Menu", "Table Analytics", "Brand Customization"]
+              },
+              {
+                icon: Mail,
+                title: "Email Payment Receipt",
+                description: "Fitur otomatis yang mengirimkan struk pembayaran langsung ke email pelanggan setelah transaksi di kasir.",
+                gradient: "from-blue-500 to-indigo-600",
+                features: [
+                  "Struk pembayaran digital",
+                  "Pengiriman otomatis via email",
+                  "Mendukung transaksi kasir"
+                ]
+              },
+              {
+                icon: QrCode,
+                title: "QR Ordering via Cashier",
+                description: "Kasir dapat menyediakan pemesanan cepat dengan membagikan kode QR yang dapat discan pelanggan.",
+                gradient: "from-purple-500 to-fuchsia-600",
+                features: [
+                  "Pemesanan instan melalui QR",
+                  "Integrasi langsung ke sistem kasir",
+                  "Meminimalisir antrean"
+                ]
+              },
+              {
+                icon: Lock,
+                title: "Disable Cash Payment",
+                description: "Opsi untuk menonaktifkan metode pembayaran tunai sehingga transaksi hanya lewat non-tunai.",
+                gradient: "from-rose-500 to-orange-600",
+                features: [
+                  "Menonaktifkan pembayaran tunai",
+                  "Fokus ke pembayaran digital",
+                  "Meningkatkan efisiensi"
+                ]
               },
               {
                 icon: Smartphone,
                 title: "Progressive Web App",
-                description: "Website responsive yang berfungsi seperti aplikasi mobile native dengan offline support dan push notifications.",
-                gradient: "from-green-600 to-emerald-600",
-                features: ["Offline Support", "Push Notifications", "Mobile Native Feel"]
+                description: "Website responsive yang berfungsi seperti aplikasi mobile native dan push notifications.",
+                gradient: "from-teal-500 to-emerald-600",
+                features: ["Responsive Design", "Push Notifications", "Mobile Native Feel"]
               },
               {
                 icon: BarChart3,
                 title: "AI-Powered Analytics",
                 description: "Dashboard dengan machine learning yang memberikan insight prediktif dan rekomendasi untuk meningkatkan profit.",
-                gradient: "from-emerald-500 to-green-600",
+                gradient: "from-cyan-500 to-sky-600",
                 features: ["Predictive Analytics", "Revenue Optimization", "Smart Recommendations"]
               },
               {
                 icon: Users,
                 title: "Workforce Management",
                 description: "Sistem HR terintegrasi dengan face recognition untuk absensi, shift scheduling otomatis, dan payroll calculation.",
-                gradient: "from-green-700 to-green-600",
+                gradient: "from-amber-500 to-yellow-600",
                 features: ["Face Recognition", "Auto Scheduling", "Payroll Integration"]
               },
               {
                 icon: Shield,
                 title: "Enterprise Security",
                 description: "Keamanan tingkat enterprise dengan enkripsi end-to-end, backup otomatis, dan compliance standar internasional.",
-                gradient: "from-green-600 to-emerald-700",
+                gradient: "from-slate-600 to-gray-800",
                 features: ["End-to-End Encryption", "Auto Backup", "International Compliance"]
               },
               {
                 icon: Zap,
                 title: "Real-time Sync",
-                description: "Sinkronisasi real-time across all devices dengan WebSocket technology untuk update instant di semua platform.",
-                gradient: "from-green-500 to-emerald-500",
-                features: ["WebSocket Technology", "Instant Updates", "Multi-Device Sync"]
+                description: "Sinkronisasi real-time across all devices dengan real-time technology untuk update instant di semua platform.",
+                gradient: "from-pink-500 to-red-600",
+                features: ["Real-time Technology", "Instant Updates", "Multi-Device Sync"]
               }
             ].map((service, index) => (
               <div
@@ -414,11 +469,11 @@ export default function QRestroLanding() {
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/3 to-green-600/3 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
-                <div className={`relative w-16 h-16 bg-gradient-to-br ${service.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`relative w-16 h-16 bg-gradient-to-br ${service.gradient} rounded-2xl flex items-center justify-center mb-6 transition-transform duration-300`}>
                   <service.icon className="h-8 w-8 text-white" />
                 </div>
 
-                <h3 className="text-2xl font-bold mb-4 text-gray-900 group-hover:text-green-600 transition-colors duration-300">
+                <h3 className="text-2xl font-bold mb-4 text-gray-900 transition-colors duration-300">
                   {service.title}
                 </h3>
 
@@ -621,7 +676,7 @@ export default function QRestroLanding() {
             {/* Left Content */}
             <div>
               <div className="inline-block px-4 py-2 bg-green-500/5 border border-green-500/10 rounded-full mb-6">
-                <span className="text-green-600 font-medium">Mengapa QRestro?</span>
+                <span className="text-green-600 font-medium">Mengapa nusas?</span>
               </div>
               
               <h2 className="text-4xl sm:text-5xl font-bold mb-8">
@@ -637,19 +692,19 @@ export default function QRestroLanding() {
               <div className="space-y-8">
                 {[
                   {
-                    icon: Zap,
-                    title: "Performance Lightning Fast",
-                    description: "Sistem cloud dengan CDN global untuk loading time di bawah 2 detik di seluruh Indonesia."
+                    icon: QrCode,
+                    title: "Smart QR Ordering",
+                    description: "QR Code dinamis dengan menu interaktif, dapat dikustomisasi sesuai brand, dan menyediakan analytics mendalam."
                   },
                   {
-                    icon: Eye,
-                    title: "AI-Driven Insights",
-                    description: "Machine learning algorithms yang menganalisis pattern pelanggan dan memberikan actionable insights."
+                    icon: BarChart3,
+                    title: "AI-Powered Analytics",
+                    description: "Dashboard dengan machine learning yang memberikan insight prediktif dan rekomendasi cerdas untuk meningkatkan profit."
                   },
                   {
                     icon: Shield,
-                    title: "Enterprise Grade Security",
-                    description: "Sertifikasi ISO 27001 dengan encryption AES-256 dan backup multi-region untuk data protection maksimal."
+                    title: "Enterprise Security",
+                    description: "Keamanan tingkat enterprise dengan enkripsi end-to-end, backup otomatis, dan kepatuhan standar internasional."
                   }
                 ].map((item, index) => (
                   <div key={index} className="flex items-start space-x-4 group">
@@ -700,11 +755,11 @@ export default function QRestroLanding() {
                 
                 <div className="space-y-4">
                   {[
-                    "99.9% uptime dengan monitoring 24/7",
-                    "API integration dengan 50+ payment gateways",
-                    "Multi-language support (ID, EN, CN)",
-                    "Scalable architecture untuk unlimited growth",
-                    "White-label customization available"
+                    "Smart QR Ordering untuk pengalaman pemesanan modern",
+                    "AI-Powered Analytics dengan insight prediktif",
+                    "Enterprise Security dengan enkripsi end-to-end",
+                    "Progressive Web App yang responsif dan mobile native feel",
+                    "Real-time Sync di semua perangkat"
                   ].map((benefit, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <div className="w-2 h-2 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
@@ -758,15 +813,15 @@ export default function QRestroLanding() {
                     {
                       icon: Mail,
                       title: "Email Support",
-                      info: "hello@qrestro.id",
+                      info: "hello@nusas.id",
                       gradient: "from-green-600 to-emerald-600"
                     },
-                    {
-                      icon: MapPin,
-                      title: "Kantor Pusat",
-                      info: "Jakarta Selatan, Indonesia",
-                      gradient: "from-emerald-500 to-green-600"
-                    }
+                    // {
+                    //   icon: MapPin,
+                    //   title: "Kantor Pusat",
+                    //   info: "Jakarta Selatan, Indonesia",
+                    //   gradient: "from-emerald-500 to-green-600"
+                    // }
                   ].map((contact, index) => (
                     <div key={index} className="flex items-center space-x-4 group hover:transform hover:scale-100 transition-all duration-300">
                       <div className={`w-14 h-14 bg-gradient-to-br ${contact.gradient} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
@@ -793,57 +848,75 @@ export default function QRestroLanding() {
                   </div>
                 </div>
                 <p className="text-gray-400 text-sm">
-                  Tim support kami tersedia 24/7 untuk emergency dan prioritas tinggi. 
+                  Tim support kami tersedia untuk emergency dan prioritas tinggi. 
                   Response time rata-rata kurang dari 15 menit di jam kerja.
                 </p>
               </div>
             </div>
 
             {/* CTA Card */}
-            <div className="bg-white rounded-3xl p-8 sm:p-10 border border-gray-200 shadow-lg shadow-black/5 backdrop-blur-sm">
+             <div className="bg-white rounded-3xl p-8 sm:p-10 border border-gray-200 shadow-lg shadow-black/5 backdrop-blur-sm">
+              {/* Header */}
               <div className="text-center mb-8">
                 <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <Sparkles className="h-10 w-10 text-white" />
                 </div>
-                <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent bg-clip-text text-transparent">
-                  Demo Eksklusif
+                <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                  Konsultasi Eksklusif
                 </h3>
                 <p className="text-gray-400 mb-8">
-                  Dapatkan demo personal dengan data real dari bisnis serupa + konsultasi strategis gratis senilai Rp 2.500.000
+                  Dapatkan sesi konsultasi strategis 1-on-1 dengan tim kami + studi kasus dari bisnis serupa untuk inspirasi solusi.
                 </p>
               </div>
 
+              {/* List Benefit */}
               <div className="space-y-6 mb-8">
                 {[
-                  "✨ Setup demo dengan data real bisnis Anda",
-                  "📊 Analisis kompetitor dan market positioning",
-                  "💡 Strategi implementasi step-by-step",
-                  "🎯 ROI calculation dan business case",
-                  "🚀 Free trial 14 hari full features"
+                  { icon: Briefcase, text: "Studi kasus dari bisnis serupa" },
+                  { icon: BarChart3, text: "Review potensi efisiensi & revenue" },
+                  { icon: Lightbulb, text: "Rekomendasi implementasi sistem" },
+                  { icon: Target, text: "Roadmap digitalisasi bertahap" },
+                  { icon: Rocket, text: "Akses presentasi & materi eksklusif" }
                 ].map((benefit, index) => (
                   <div key={index} className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-gradient-to-r from-green-400 to-green-500 rounded-full"></div>
-                    <span className="text-gray-300">{benefit}</span>
+                    <benefit.icon className="h-5 w-5 text-green-500" />
+                    <span className="text-gray-300">{benefit.text}</span>
                   </div>
                 ))}
               </div>
 
+              {/* Button ke WhatsApp */}
               <div className="space-y-4">
-                <button className="w-full py-4 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl font-semibold text-white hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-100">
-                  Jadwalkan Demo Sekarang
-                </button>
+                <a
+                  href={`https://wa.me/6281234567890?text=Halo%20saya%20ingin%20menjadwalkan%20konsultasi.%0A%0APertanyaan:%0A1.%20Apa%20saja%20yang%20akan%20dibahas%20dalam%20sesi%20konsultasi?%0A2.%20Berapa%20lama%20durasi%20sesi%20ini?%0A3.%20Apakah%20ada%20biaya%20tambahan%20untuk%20implementasi?`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full py-4 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl font-semibold text-white text-center hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-100"
+                >
+                  Konsultasi
+                </a>
               </div>
 
-              <div className="text-center mt-6">
-                <p className="text-xs text-gray-600">
-                  💳 No credit card required • 🔒 Data aman & terenkripsi • ✅ Cancel anytime
-                </p>
+              {/* Info bawah */}
+              <div className="text-center mt-6 flex flex-col sm:flex-row justify-center items-center gap-4 text-gray-600 text-sm">
+                <div className="flex items-center space-x-2">
+                  <Shield className="w-4 h-4 text-green-500" />
+                  <span>Data aman & terenkripsi</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>Fleksibel sesuai kebutuhan</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Handshake className="w-4 h-4 text-green-500" />
+                  <span>Tanpa komitmen awal</span>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Trust Indicators */}
-          <div className="mt-20 text-center">
+          {/* <div className="mt-20 text-center">
             <p className="text-gray-400 mb-8">Dipercaya oleh 500+ restoran di seluruh Indonesia</p>
             <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
               {['McDonald\'s', 'KFC', 'Pizza Hut', 'Starbucks', 'Burger King', 'Domino\'s'].map((brand, index) => (
@@ -852,7 +925,7 @@ export default function QRestroLanding() {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -862,12 +935,10 @@ export default function QRestroLanding() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             {/* Brand */}
             <div className="lg:col-span-2">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-white" />
-                </div>
+              <div className="flex items-center space-x-1 mb-6">
+                <img src='/image/logo_nusas_1.png' alt="logo" className="w-12 h-12" />
                 <div className="text-2xl font-bold bg-gradient-to-r from-green-400 to-green-500 bg-clip-text text-transparent">
-                  QRestro
+                  nusas
                 </div>
               </div>
               <p className="text-gray-400 mb-6 leading-relaxed max-w-md">
@@ -925,7 +996,7 @@ export default function QRestroLanding() {
           {/* Bottom Bar */}
           <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row justify-between items-center">
             <div className="text-gray-500 text-sm mb-4 sm:mb-0">
-              © 2025 QRestro. All rights reserved. Made with ❤️ in Indonesia
+              © 2025 nusas. All rights reserved. Made with ❤️ in Indonesia
             </div>
             <div className="flex space-x-6 text-sm text-gray-500">
               <button className="hover:text-green-400 transition-colors">Privacy Policy</button>

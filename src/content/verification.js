@@ -16,6 +16,7 @@ import {
   registerVerification
 } from '../actions/patch'
 import { useNavigate } from 'react-router-dom';
+import { type } from '@testing-library/user-event/dist/type';
 
 export default function VerificationForm() {
   const navigate = useNavigate();
@@ -29,12 +30,13 @@ export default function VerificationForm() {
   const {
     successRegisterVerification,
     errorRegisterVerification, 
+    errorFieldsRegisterVerification,
     loadingRegisterVerification
   } = useSelector((state) => state.persisted.registerVerification)
 
   useEffect(() => {
     if (successRegisterVerification) {
-      navigate('/invoice');
+      navigate('/invoice/signup');
     }
   }, [successRegisterVerification])
  
@@ -44,20 +46,29 @@ export default function VerificationForm() {
 
   useEffect(() => {
     if (errorRegisterVerification) {
-      setToast({
-        type: 'error',
-        message: 'Terjadi kesalahan saat verfikasi. Silahkan coba lagi nanti.'
-      })
+      if (errorRegisterVerification === "auth failed") {
+        setToast({
+          type: 'error',
+          message: 'Authentication failed. Please register again.'
+        })
+      } else {   
+        setToast({
+          type: 'error',
+          message: 'Terjadi kesalahan saat verfikasi. Silahkan coba lagi nanti.'
+        })
+      }
     }
   }, [errorRegisterVerification])
 
   const handleCodeChange = (e) => {
+    dispatch(resetRegisterVerification())
+
     const value = e.target.value.replace(/\D/g, ''); // Only allow digits
-    if (value.length <= 8) {
-      setCode(value);
-      setError('');
-    }
-  };
+      if (value.length <= 8) {
+        setCode(value);
+        setError('');
+      }
+    };
 
   const handleVerify = () => {
     if (!code) {
@@ -98,9 +109,7 @@ export default function VerificationForm() {
         {/* Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="p-4 bg-green-500 rounded-full">
-              <Shield className="h-10 w-10 text-white" />
-            </div>
+            <img src='/image/logo_nusas_1.png' className='w-20 h-20'/>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Verify Your Account</h1>
           <p className="text-gray-600 mb-2">
@@ -139,10 +148,10 @@ export default function VerificationForm() {
                 )}
               </div>
               
-              {error && (
+              {errorFieldsRegisterVerification?.code && (
                 <div className="mt-2 flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{error}</span>
+                  <span>{errorFieldsRegisterVerification?.code}</span>
                 </div>
               )}
             </div>

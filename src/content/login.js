@@ -158,9 +158,7 @@ export default function LoginForm() {
         {/* Header */}
         <div className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-green-500 rounded-full">
-              <Store className="h-8 w-8 text-white" />
-            </div>
+            <img src='/image/logo_nusas_1.png' alt="logo" className="w-16 h-16" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-600">

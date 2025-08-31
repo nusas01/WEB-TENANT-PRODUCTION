@@ -20,7 +20,7 @@ export const registerVerification = (data) => async (dispatch) => {
     }
     dispatch(setLoadingRegisterVerification(true))
     try {
-        const response = await axios.post(`${process.env.REACT_APP_REGISTER_VERIFICATION}`, data, config)
+        const response = await axios.patch(`${process.env.REACT_APP_REGISTER_VERIFICATION}`, data, config)
         dispatch(setSuccessRegisterVerification(response?.data?.success))
         dispatch(setDataRegisterVerification(response?.data?.data))
     } catch (error) {
@@ -43,7 +43,7 @@ export const patchCredentialStore = (data) => async (dispatch) => {
     }
     dispatch(setLoadingPatchCredentialStore(true))
     try {
-        const response = await axios.post(`${process.env.REACT_APP_PATCH_CREDENTIAL_STORE}`, data, config)
+        const response = await axios.patch(`${process.env.REACT_APP_PATCH_CREDENTIAL_STORE}`, data, config)
         dispatch(setSuccessPatchCredentialStore(response?.data?.success))
     } catch (error) {
         if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {

@@ -107,6 +107,7 @@ const SettingsComponent = () => {
                 type: "success",
                 message: "Data intergration payment gateway xendit berhasil disimpan"
             })
+            dispatch(fetchDataAccount())
         }
     }, [successPatchCredentialStore])
 
@@ -127,6 +128,7 @@ const SettingsComponent = () => {
     };
 
     const isDisabled = loadingPatchCredentialStore || xenditData.api_key === "" || xenditData.bussness_id === "" || xenditData.secret_key_webhook === "";
+    console.log("status disabled adalah: ", isDisabled)
 
     const handleInputXendit = () => {
         dispatch(resetPatchCredentialStore())
@@ -167,6 +169,8 @@ const SettingsComponent = () => {
         dispatch(resetUpdateChangePaymentGateway()) 
     }
 
+    console.log("account data: ", accountData)
+    console.log("xendit data: ", xenditData)
     return (
         <div className='flex'>
             {((isMobileDeviceType && isOpen) || !isMobileDeviceType) && (
@@ -448,7 +452,7 @@ const SettingsComponent = () => {
                                                         value={isUpdate ? xenditData.bussness_id : accountData?.bussness_id}
                                                         onChange={(e) => isUpdate 
                                                         ? setXenditData(prev => ({ ...prev, bussness_id: e.target.value }))
-                                                        : handleXenditInputChange('bussnes_id', e.target.value)
+                                                        : handleXenditInputChange('bussness_id', e.target.value)
                                                         }
                                                         disabled={!isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)}
                                                         className={`pl-10 w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
@@ -477,7 +481,7 @@ const SettingsComponent = () => {
                                                     <Key className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                                     <input
                                                         type="password"
-                                                        value={isUpdate ? xenditData.api_key : accountData.api_key}
+                                                        value={isUpdate ? xenditData.api_key : !accountData.api_key ? xenditData.api_key : accountData.api_key}
                                                         onChange={(e) => isUpdate 
                                                         ? setXenditData(prev => ({ ...prev, api_key: e.target.value }))
                                                         : handleXenditInputChange('api_key', e.target.value)
@@ -509,7 +513,7 @@ const SettingsComponent = () => {
                                                     <Shield className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                                     <input
                                                         type="password"
-                                                        value={isUpdate ? xenditData.secret_key_webhook : accountData.secret_key_webhook}
+                                                        value={isUpdate ? xenditData.secret_key_webhook : !accountData.secret_key_webhook ? xenditData.secret_key_webhook : accountData.secret_key_webhook}
                                                         onChange={(e) => isUpdate 
                                                         ? setXenditData(prev => ({ ...prev, secret_key_webhook: e.target.value }))
                                                         : handleXenditInputChange('secret_key_webhook', e.target.value)

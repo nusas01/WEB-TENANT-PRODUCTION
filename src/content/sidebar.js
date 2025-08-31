@@ -22,6 +22,7 @@ import {
   Toast,
   ToastPortal
 } from './alert'
+import { resetApp } from "../reducers/state";
 
 const menuItems = [
   { Icon: Store, title: "Store", path: '/store', key: 'Store' },
@@ -54,6 +55,7 @@ const Sidebar = ({activeMenu}) => {
     if (logoutSuccess) {
       dispatch(resetLogout())
       navigate('/')
+      resetApp()
     }
   }, [logoutSuccess])
 

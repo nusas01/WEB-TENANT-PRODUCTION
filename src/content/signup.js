@@ -865,14 +865,14 @@ export default function TenantRegistrationForm() {
                     name="phone_number"
                     value={formData.phone_number}
                     onChange={handleInputChange}
-                    placeholder="e.g., +6281234567890"
+                    placeholder="81234567890"
                     className="flex-1 outline-none border-none focus:ring-0"
                   />
               </div>
-              {errors.phone_number || errors.PhoneNumber && (
+              {(errors.phone_number || errors?.PhoneNumber) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.phone_number || errors.PhoneNumber}</span>
+                  <span>{errors.phone_number || errors?.PhoneNumber}</span>
                 </div>
               )}
             </div>
@@ -1084,11 +1084,11 @@ export default function TenantRegistrationForm() {
                   name="phone_number_store"
                   value={formData.phone_number_store}
                   onChange={handleInputChange}
-                  placeholder="e.g., +6281234567890"
+                  placeholder="81234567890"
                   className="flex-1 outline-none border-none focus:ring-0"
                 />
               </div>
-              {errors.phone_number_store || errors.PhoneNumberStore && (
+              {(errors.phone_number_store || errors.PhoneNumberStore) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
                   <span>{errors.phone_number_store || errors.PhoneNumberStore}</span>
@@ -1276,7 +1276,7 @@ export default function TenantRegistrationForm() {
                     className="flex-1 outline-none border-none focus:ring-0"
                   />
                 </div>
-                {errors.phone_number_ewallet || errors.PhoneNumberEwallet && (
+                {(errors.phone_number_ewallet || errors.PhoneNumberEwallet) && (
                   <div className="flex items-center space-x-1 text-red-600 text-sm">
                     <AlertCircle className="h-4 w-4" />
                     <span>{errors.phone_number_ewallet || errors.PhoneNumberEwallet}</span>

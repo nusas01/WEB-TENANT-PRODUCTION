@@ -86,15 +86,34 @@ const nonPersistedReducers = {
   updateChangePaymentGatewayState: updateChangePaymentGatewaySlice.reducer,
 }
 
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
   persisted: persistReducer(persistConfig, persistedReducers), 
   ...nonPersistedReducers,
-})
+});
+
+const rootReducer = (state, action) => {
+  if (action.type === "RESET_ALL") {
+    state = undefined; // reset semua slice ke initialState
+  }
+  return appReducer(state, action);
+};
 
 export const tenant = configureStore({
   reducer: rootReducer,
-})
+});
 
-export const persistor = persistStore(tenant)
+export const persistor = persistStore(tenant);
+
+export const resetApp = () => {
+  // 1. Kosongkan data redux-persist
+  persistor.purge();
+
+  // 2. Kosongkan semua storage sessionStorage asli browser
+  window.sessionStorage.clear();
+
+  // 3. Reset state Redux di memory
+  tenant.dispatch({ type: "RESET_ALL" });
+};
+
 
 export default tenant
