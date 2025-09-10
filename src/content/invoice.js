@@ -24,9 +24,13 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
   const navigate = useNavigate()
   const [downloading, setDownloading] = useState(false);
   const [copiedVA, setCopiedVA] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState('');
+  const [isExpired, setIsExpired] = useState(false);
   const invoiceRef = useRef(null);
   const location = useLocation();
   const pathName = location?.pathname
+
+  console.log("paymeny_date", paymentData)
 
   const handleToPendingTransactionList = () => {
     if (pathName === '/invoice/extend/service') {
@@ -42,6 +46,38 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
       navigate('/')
     }
   }, [paymentData])
+
+  // Countdown timer for expires_at
+  useEffect(() => {
+    if (!paymentData?.expires_at) return;
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const expiryTime = new Date(paymentData.expires_at).getTime();
+      const timeDiff = expiryTime - now;
+
+      if (timeDiff <= 0) {
+        setIsExpired(true);
+        setTimeRemaining('Expired');
+        return;
+      }
+
+      const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+      if (hours > 0) {
+        setTimeRemaining(`${hours}h ${minutes}m ${seconds}s`);
+      } else {
+        setTimeRemaining(`${minutes}m ${seconds}s`);
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [paymentData?.expires_at]);
 
   // Color theme configuration
   const themes = {
@@ -215,6 +251,45 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
           </div>
         }
 
+        {/* Expiration Warning Banner */}
+        {paymentData?.expires_at && (
+          <div className={`mb-4 ${isExpired 
+            ? 'bg-gradient-to-r from-red-50 to-orange-50 border-red-300' 
+            : 'bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-300'} border-2 rounded-xl p-4 shadow-sm`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 ${isExpired 
+                  ? 'bg-red-100' 
+                  : 'bg-amber-100'} rounded-full`}>
+                  <Clock className={`w-5 h-5 ${isExpired 
+                    ? 'text-red-600' 
+                    : 'text-amber-600'}`} />
+                </div>
+                <div>
+                  <p className={`font-semibold ${isExpired 
+                    ? 'text-red-800' 
+                    : 'text-amber-800'}`}>
+                    {isExpired ? 'Invoice Expired' : 'Payment Expiration'}
+                  </p>
+                  <p className={`text-sm ${isExpired 
+                    ? 'text-red-700' 
+                    : 'text-amber-700'}`}>
+                    {isExpired 
+                      ? `Expired at ${formatDateTime(paymentData.expires_at)}`
+                      : `Expires at ${formatDateTime(paymentData.expires_at)}`}
+                  </p>
+                </div>
+              </div>
+              {!isExpired && (
+                <div className="text-right">
+                  <p className="text-amber-800 font-bold text-lg">{timeRemaining}</p>
+                  <p className="text-amber-700 text-xs">remaining</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Payment Completion Information Banner */}
         <div className={`mb-6 ${colorType === 'external' ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200' : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'} border-2 rounded-xl p-5 shadow-sm`}>
           <div className="flex items-start gap-4">
@@ -228,21 +303,16 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
               <div className={`${colorType === 'external' ? 'text-emerald-700' : 'text-blue-700'} text-sm space-y-2`}>
                 <p className="font-medium">Untuk memastikan status pembayaran terupdate dengan benar:</p>
                 <div className="pl-4">
-                  <p>• Setelah berhasil melakukan pembayaran, <strong>tutup browser</strong> sepenuhnya</p>
                   <p>• Tunggu 1-2 menit untuk proses verifikasi otomatis</p>
-                  <p>• <strong>Buka kembali browser</strong> dan akses akun Anda</p>
                   <p>• Status pembayaran akan terupdate secara otomatis</p>
                 </div>
-                <p className="text-xs mt-3 opacity-80">
-                  * Hal ini diperlukan untuk refresh data pembayaran dari server secara optimal
-                </p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Main Invoice Card */}
-        <div ref={invoiceRef} className={`bg-white rounded-lg shadow-lg border ${colorType === 'external' ? 'border-emerald-100' : 'border-gray-200'} overflow-hidden`}>
+        <div ref={invoiceRef} className={`bg-white rounded-lg shadow-lg border ${colorType === 'external' ? 'border-emerald-100' : 'border-gray-200'} overflow-hidden ${isExpired ? 'opacity-75' : ''}`}>
           {/* Header Section */}
           <div className={`${theme.headerBg} text-white p-6 relative overflow-hidden`}>
             <div className="absolute inset-0 bg-black bg-opacity-10"></div>
@@ -277,7 +347,7 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
                     <span className="text-xl font-semibold">{paymentData.channel_code}</span>
                   </div>
                   <span className="px-3 py-1 rounded-full text-sm font-medium bg-white bg-opacity-20 text-white border border-white border-opacity-30">
-                    {paymentData.product?.charAt(0).toUpperCase() + paymentData.product?.slice(1)} Plan
+                    {(paymentData.product?.charAt(0).toUpperCase() + paymentData.product?.slice(1)) || (paymentData.products?.charAt(0).toUpperCase() + paymentData.products?.slice(1))} Plan
                   </span>
                 </div>
                 <div className="text-right">
@@ -287,6 +357,24 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
                   <p className="text-3xl font-bold text-white">{formatCurrency(paymentData.amount)}</p>
                 </div>
               </div>
+
+              {/* Header Expiration Info */}
+              {paymentData?.expires_at && (
+                <div className="mt-4 pt-4 border-t border-white border-opacity-20">
+                  <div className="flex items-center justify-between text-white text-sm">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      <span>Valid until: {formatDateTime(paymentData.expires_at)}</span>
+                    </div>
+                    {!isExpired && (
+                      <div className="flex items-center gap-2 bg-white bg-opacity-20 rounded-full px-3 py-1">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                        <span className="font-medium">{timeRemaining}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           
@@ -308,13 +396,6 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
                     </div>
                   </div>
                 </div>
-                
-                {paymentData.expires_at && (
-                  <div className="flex items-center justify-center gap-2 mt-4 text-orange-600">
-                    <Clock className="w-4 h-4" />
-                    <span className="text-sm">Berlaku sampai: {formatDateTime(paymentData.expires_at)}</span>
-                  </div>
-                )}
               </div>
             )}
             
@@ -361,7 +442,7 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
                     </div>
                   </div>
                     
-                    {paymentData.channel_code !== 'OVO' && (
+                    {paymentData.channel_code !== 'OVO' && !isExpired && (
                       <button 
                         onClick={() => window.open(paymentData.redirect_url_web, '_blank')}
                         className={`w-full bg-white text-gray-900 font-semibold py-3 px-6 rounded-lg border-2 ${theme.borderColor} transition-colors flex items-center justify-center gap-2 group`}
@@ -393,6 +474,7 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
                           onClick={() => copyToClipboard(paymentData.virtual_account_number)}
                           className={`ml-3 p-2 ${theme.iconColor} hover:bg-blue-100 rounded-lg transition-colors group`}
                           title="Copy VA Number"
+                          disabled={isExpired}
                         >
                           {copiedVA ? (
                             <CheckCircle className="w-5 h-5 text-green-500" />
@@ -407,13 +489,6 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
                     )}
                   </div>
                 </div>
-                
-                {paymentData.expires_at && (
-                  <div className="flex items-center justify-center gap-2 mt-6 text-orange-600">
-                    <Clock className="w-4 h-4" />
-                    <span className="text-sm">Berlaku sampai: {formatDateTime(paymentData.expires_at)}</span>
-                  </div>
-                )}
               </div>
             )}
           </div>

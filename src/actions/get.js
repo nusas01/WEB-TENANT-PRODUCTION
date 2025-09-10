@@ -210,7 +210,10 @@ export const fetchStatusChangePaymentGateway = () => {
         const response = await axios.get(`${process.env.REACT_APP_GET_STATUS_CHANGE_PAYMENT_GATEWAY}`, {
             withCredentials: true
         })
-        dispatch(setSuccessStatusChangePaymentGateway(response?.data?.is_update))
+        dispatch(setSuccessStatusChangePaymentGateway({ 
+            isUpdate: response?.data?.is_update,
+            isProcess: response?.data?.is_process,
+        }))
       } catch(error) {
         if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
             dispatch(setStatusExpiredUserToken(true));

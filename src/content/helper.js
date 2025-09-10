@@ -123,24 +123,25 @@ export const MappingPackage = (dataProductService) => {
 
   const packageMetadata = {
     Starter: {
-      segment: 'Untuk UMKM & Warung',
+      segment: 'Untuk Operasional Dasar & Bisnis Kecil',
       badge: 'Hemat 33%',
       gradient: 'from-green-500 to-green-600',
       popular: false
     },
     Professional: {
-      segment: 'Untuk Restaurant & Cafe',
+      segment: 'Untuk Pertumbuhan & Manajemen Lengkap',
       badge: 'Most Popular',
       gradient: 'from-green-500 to-emerald-600',
       popular: true
     },
     Enterprise: {
-      segment: 'Untuk Chain & Franchise',
+      segment: 'Untuk Skala Besar',
       badge: 'Best Value',
       gradient: 'from-green-600 to-green-700',
       popular: false
     }
   };
+
 
   const packages = dataProductService.map((item) => {
     const meta = packageMetadata[item.product] || {};

@@ -22,6 +22,7 @@ import {
 } from './alert';
 import {getRequiredPaymentSlice} from '../reducers/get'
 import {fetchRequiredPayment} from '../actions/get'
+import { TimeLeft } from '../helperComponent/countDown';
 
 const PendingTransactions = () => {
   const dispatch = useDispatch()
@@ -35,8 +36,9 @@ const PendingTransactions = () => {
   
   
   // Sample data berdasarkan struktur yang diberikan
-  const {resetErrorRequiredPayment} = getRequiredPaymentSlice.actions
+  const {resetErrorRequiredPayment, removeRequiredPaymentById} = getRequiredPaymentSlice.actions
   const {dataRequiredPayment:transactions, loadingRequiredPayment, errorRequiredPayment} = useSelector((state) => state.persisted.getRequiredPayment)
+  
   useEffect(() => {
     if (transactions.length === 0) {
       dispatch(fetchRequiredPayment())
@@ -84,19 +86,6 @@ const PendingTransactions = () => {
     }).format(amount);
   };
 
-  const formatExpiryTime = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = date.getTime() - now.getTime();
-    const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
-    
-    if (diffHours <= 0) return "Expired";
-    if (diffHours < 24) return `${diffHours} jam lagi`;
-    
-    const diffDays = Math.ceil(diffHours / 24);
-    return `${diffDays} hari lagi`;
-  };
-
   const getPaymentMethodIcon = (method, channelCode) => {
     switch (method) {
       case 'EWALLET':
@@ -118,6 +107,13 @@ const PendingTransactions = () => {
       'QRIS': 'bg-orange-100 text-orange-800'
     };
     return colors[channelCode] || 'bg-gray-100 text-gray-800';
+  };
+
+  // Helper function to check if transaction is expired
+  const isExpired = (expiresAt) => {
+    const now = new Date();
+    const expiryTime = new Date(expiresAt);
+    return now >= expiryTime;
   };
 
   return (
@@ -244,16 +240,32 @@ const PendingTransactions = () => {
               {/* Actual Transactions */}
               {!loadingRequiredPayment && transactions && transactions.length > 0 && 
                 transactions.map((transaction) => (
-                  <div key={transaction.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div key={transaction.id} className={`bg-white rounded-xl shadow-sm border overflow-hidden ${
+                    isExpired(transaction.expires_at) ? 'border-red-200 bg-red-50/30' : 'border-gray-200'
+                  }`}>
+                    {/* CountDownRemoveData component for automatic removal */}
                     <div className="p-6">
                       {/* Header Transaction */}
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-gray-900 rounded-lg">
-                            <Store className="w-5 h-5 text-white" />
+                          <div className={`p-2 rounded-lg ${
+                            isExpired(transaction.expires_at) ? 'bg-red-100' : 'bg-gray-900'
+                          }`}>
+                            <Store className={`w-5 h-5 ${
+                              isExpired(transaction.expires_at) ? 'text-red-600' : 'text-white'
+                            }`} />
                           </div>
                           <div>
-                            <h3 className="font-semibold text-gray-900">{transaction.store_name}</h3>
+                            <h3 className={`font-semibold ${
+                              isExpired(transaction.expires_at) ? 'text-red-900' : 'text-gray-900'
+                            }`}>
+                              {transaction.store_name}
+                              {isExpired(transaction.expires_at) && (
+                                <span className="ml-2 text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+                                  EXPIRED
+                                </span>
+                              )}
+                            </h3>
                             <p className="text-sm text-gray-500">ID: {transaction.id}</p>
                           </div>
                         </div>
@@ -265,10 +277,18 @@ const PendingTransactions = () => {
                       </div>
 
                       {/* Product Info */}
-                      <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                      <div className={`rounded-lg p-4 mb-4 ${
+                        isExpired(transaction.expires_at) ? 'bg-red-50' : 'bg-gray-50'
+                      }`}>
                         <div className="flex items-center gap-2 mb-2">
-                          <Receipt className="w-4 h-4 text-gray-600" />
-                          <span className="font-medium text-gray-900">{transaction.product}</span>
+                          <Receipt className={`w-4 h-4 ${
+                            isExpired(transaction.expires_at) ? 'text-red-600' : 'text-gray-600'
+                          }`} />
+                          <span className={`font-medium ${
+                            isExpired(transaction.expires_at) ? 'text-red-900' : 'text-gray-900'
+                          }`}>
+                            {transaction.product}
+                          </span>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-gray-600">
                           <div className="flex items-center gap-1">
@@ -281,85 +301,140 @@ const PendingTransactions = () => {
                       </div>
 
                       {/* Payment Method Section */}
-                      <div className="border rounded-lg p-4">
+                      <div className={`border rounded-lg p-4 ${
+                        isExpired(transaction.expires_at) ? 'border-red-200 bg-red-50/50' : ''
+                      }`}>
                         <div className="flex items-center gap-2 mb-3">
-                          <div className="p-1.5 bg-gray-100 rounded">
+                          <div className={`p-1.5 rounded ${
+                            isExpired(transaction.expires_at) ? 'bg-red-100' : 'bg-gray-100'
+                          }`}>
                             {getPaymentMethodIcon(transaction.payment_method, transaction.channel_code)}
                           </div>
-                          <span className="font-medium text-gray-900">
+                          <span className={`font-medium ${
+                            isExpired(transaction.expires_at) ? 'text-red-900' : 'text-gray-900'
+                          }`}>
                             {transaction.payment_method === 'EWALLET' && 'E-Wallet'}
                             {transaction.payment_method === 'VA' && 'Virtual Account'}
                             {transaction.payment_method === 'QR' && 'QR Code'}
                           </span>
                         </div>
 
-                        {/* E-Wallet Payment */}
-                        {transaction.payment_method === 'EWALLET' && (
-                          <div className="space-y-3">
-                            <p className="text-sm text-gray-600">
-                              Klik tombol di bawah untuk membuka aplikasi pembayaran
-                            </p>
-                            <button
-                              onClick={() => handleEwalletRedirect(transaction.payment_reference)}
-                              className="w-full bg-gray-900 text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                              Buka Aplikasi {transaction.channel_code}
-                            </button>
-                          </div>
-                        )}
-
-                        {/* Virtual Account Payment */}
-                        {transaction.payment_method === 'VA' && (
-                          <div className="space-y-3">
-                            <p className="text-sm text-gray-600">
-                              Gunakan nomor Virtual Account berikut untuk transfer
-                            </p>
-                            <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
-                              <span className="font-mono text-lg font-semibold text-gray-900">
-                                {transaction.payment_reference}
-                              </span>
+                        {/* Disable payment options if expired */}
+                        <div className={isExpired(transaction.expires_at) ? 'opacity-50 pointer-events-none' : ''}>
+                          {/* E-Wallet Payment */}
+                          {transaction.payment_method === 'EWALLET' && (
+                            <div className="space-y-3">
+                              <p className="text-sm text-gray-600">
+                                {isExpired(transaction.expires_at) 
+                                  ? 'Transaksi telah expired. Silahkan buat transaksi baru.'
+                                  : 'Klik tombol di bawah untuk membuka aplikasi pembayaran'
+                                }
+                              </p>
                               <button
-                                onClick={() => handleCopyCode(transaction.payment_reference, transaction.id)}
-                                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                                title="Salin nomor VA"
+                                onClick={() => handleEwalletRedirect(transaction.payment_reference)}
+                                disabled={isExpired(transaction.expires_at)}
+                                className={`w-full py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                                  isExpired(transaction.expires_at)
+                                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                    : 'bg-gray-900 text-white hover:bg-gray-800'
+                                }`}
                               >
-                                {copiedId === transaction.id ? (
-                                  <span className="text-green-600 text-sm font-medium">Tersalin!</span>
-                                ) : (
-                                  <Copy className="w-4 h-4 text-gray-600" />
-                                )}
+                                <ExternalLink className="w-4 h-4" />
+                                {isExpired(transaction.expires_at) 
+                                  ? 'Expired'
+                                  : `Buka Aplikasi ${transaction.channel_code}`
+                                }
                               </button>
                             </div>
-                          </div>
-                        )}
+                          )}
 
-                        {/* QR Code Payment */}
-                        {transaction.payment_method === 'QR' && (
-                          <div className="space-y-3">
-                            <p className="text-sm text-gray-600">
-                              Scan QR Code berikut dengan aplikasi pembayaran Anda
-                            </p>
-                            <div className="flex justify-center">
-                              <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-                                <img
-                                  src={generateQRCode(transaction.payment_reference)}
-                                  alt="QR Code"
-                                  className="w-32 h-32"
-                                />
+                          {/* Virtual Account Payment */}
+                          {transaction.payment_method === 'VA' && (
+                            <div className="space-y-3">
+                              <p className="text-sm text-gray-600">
+                                {isExpired(transaction.expires_at)
+                                  ? 'Virtual Account telah expired'
+                                  : 'Gunakan nomor Virtual Account berikut untuk transfer'
+                                }
+                              </p>
+                              <div className={`rounded-lg p-3 flex items-center justify-between ${
+                                isExpired(transaction.expires_at) ? 'bg-red-50' : 'bg-gray-50'
+                              }`}>
+                                <span className={`font-mono text-lg font-semibold ${
+                                  isExpired(transaction.expires_at) ? 'text-red-900' : 'text-gray-900'
+                                }`}>
+                                  {transaction.payment_reference}
+                                </span>
+                                <button
+                                  onClick={() => handleCopyCode(transaction.payment_reference, transaction.id)}
+                                  disabled={isExpired(transaction.expires_at)}
+                                  className="p-2 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                  title={isExpired(transaction.expires_at) ? 'Expired' : 'Salin nomor VA'}
+                                >
+                                  {copiedId === transaction.id ? (
+                                    <span className="text-green-600 text-sm font-medium">Tersalin!</span>
+                                  ) : (
+                                    <Copy className="w-4 h-4 text-gray-600" />
+                                  )}
+                                </button>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+
+                          {/* QR Code Payment */}
+                          {transaction.payment_method === 'QR' && (
+                            <div className="space-y-3">
+                              <p className="text-sm text-gray-600">
+                                {isExpired(transaction.expires_at)
+                                  ? 'QR Code telah expired'
+                                  : 'Scan QR Code berikut dengan aplikasi pembayaran Anda'
+                                }
+                              </p>
+                              <div className="flex justify-center">
+                                <div className={`bg-white p-4 rounded-lg border-2 ${
+                                  isExpired(transaction.expires_at) ? 'border-red-200' : 'border-gray-200'
+                                }`}>
+                                  <img
+                                    src={generateQRCode(transaction.payment_reference)}
+                                    alt="QR Code"
+                                    className={`w-32 h-32 ${
+                                      isExpired(transaction.expires_at) ? 'opacity-50' : ''
+                                    }`}
+                                  />
+                                  {isExpired(transaction.expires_at) && (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <span className="bg-red-600 text-white px-2 py-1 rounded text-xs font-medium">
+                                        EXPIRED
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Expiry Warning */}
+                      {/* Expiry Warning or Status */}
                       <div className="mt-4 flex items-center gap-2 text-sm">
-                        <AlertCircle className="w-4 h-4 text-orange-500" />
+                        <AlertCircle className={`w-4 h-4 ${
+                          isExpired(transaction.expires_at) ? 'text-red-500' : 'text-orange-500'
+                        }`} />
                         <span className="text-gray-600">
-                          Berlaku hingga: <span className="font-medium text-orange-600">
-                            {formatExpiryTime(transaction.expires_at)}
-                          </span>
+                          {isExpired(transaction.expires_at) ? (
+                            <span className="font-medium text-red-600">
+                              Transaksi telah expired
+                            </span>
+                          ) : (
+                            <div className='flex gap-2'>
+                              <span>
+                                Berlaku hingga:
+                              </span>
+                              <span className="font-medium text-orange-600">
+                                <TimeLeft expiry={transaction.expires_at}/>
+                              </span>
+                            </div>
+                          )}
                         </span>
                       </div>
                     </div>

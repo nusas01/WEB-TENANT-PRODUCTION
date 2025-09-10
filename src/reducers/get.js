@@ -210,11 +210,18 @@ export const getRequiredPaymentSlice = createSlice({
     resetErrorRequiredPayment: (state) => {
       state.errorRequiredPayment = null
     },
+    removeRequiredPaymentById: (state, action) => {
+      const idToRemove = action.payload
+      state.dataRequiredPayment = state.dataRequiredPayment.filter(
+        (item) => item.id !== idToRemove
+      )
+    },
   },
 })
 
 const initialStatusChangePaymentGatewayState = {
-  isUpdate: null,
+  isUpdate: false,
+  isProcess: false,
   loadingStatusChangePaymentGateway: false,
   errorStatusChangePaymentGateway: null,
 }
@@ -223,7 +230,8 @@ export const GetStatusChangePaymentGatewaySlice = createSlice({
   initialState: initialStatusChangePaymentGatewayState,
   reducers: {
     setSuccessStatusChangePaymentGateway: (state, action) => {
-      state.isUpdate = action.payload || null
+      state.isUpdate = action.payload.isUpdate || false
+      state.isProcess = action.payload.isProcess || false
     },
     setLoadingStatusChangePaymentGateway: (state, action) => {
       state.loadingStatusChangePaymentGateway = action.payload

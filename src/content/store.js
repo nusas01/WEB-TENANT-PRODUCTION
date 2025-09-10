@@ -49,6 +49,7 @@ import {
   detailStoreSlice,
   storeSlice,
   getEmployeesSlice,
+  GetStatusChangePaymentGatewaySlice,
 } from '../reducers/get'
 import NoStoreSelectedContainer from '../helperComponent/noStoreSelected';
 import {
@@ -73,12 +74,15 @@ import {
 import { 
   DeleteEmployeeConfirmation,
   ServicePreparationNotice,
+  PaymentGatewayFormInfo,
+  PaymentGatewayReviewInfo,
 } from './model';
 import { 
   fetchAllEmployees,
   fetchAllStores,
   fetchDataAccount,
   fetchDetailStore,
+  fetchStatusChangePaymentGateway,
 } from '../actions/get';
 
 const StoreManagementDashboard = () => {
@@ -411,7 +415,26 @@ const StoreManagementDashboard = () => {
   // expired container
   const daysDiff = Math.floor((Date.now() - new Date(storeInfo.expiration_access).getTime()) / (1000*60*60*24));
 
-  console.log("DaysDiff status: ", daysDiff)
+  
+
+  // handle container info status change account payment gayeway
+  const {resetErrorStatusChangePaymentGateway} = GetStatusChangePaymentGatewaySlice.actions
+  const {isUpdate, isProcess, errorStatusChangePaymentGateway, loadingStatusChangePaymentGateway} = useSelector((state) => state.persisted.GetStatusChangePaymentGateway)
+  useEffect(() => {
+      if (!isUpdate || !isProcess) {
+          dispatch(fetchStatusChangePaymentGateway())
+      }
+  }, [])
+
+  useEffect(() => {
+      if (errorStatusChangePaymentGateway) {
+          setToast({
+              type: "error",
+              message: "Terjadi kesalahan saat memuat data, silahkan coba lagi nanti"
+          })
+      }
+  }, [errorStatusChangePaymentGateway])
+
   return (
     <div className='flex'>
       {((isMobileDeviceType && isOpen) || !isMobileDeviceType) && (
@@ -440,6 +463,7 @@ const StoreManagementDashboard = () => {
                         dispatch(resetCreateEmployee())
                         dispatch(resetChangePasswordEmployee())
                         dispatch(resetDeleteEmployee())
+                        dispatch(resetErrorStatusChangePaymentGateway())
                       }} 
                       duration={5000}
                       />
@@ -495,6 +519,14 @@ const StoreManagementDashboard = () => {
 
           <div className='mx-auto space-y-8' style={{marginTop: headerHeight}}>
             <StoreDropdown/>
+
+            { isUpdate && (
+              <PaymentGatewayFormInfo/>
+            )}
+
+            { isProcess && (
+              <PaymentGatewayReviewInfo/>
+            )}
 
             {!dataAccount?.api_key && !dataAccount?.secret_key_webhook && !dataAccount?.bussness_id && (
               <FinanceRequiredCard/> 
@@ -732,7 +764,7 @@ const StoreManagementDashboard = () => {
                               <div className="relative">
                                 {employee.image && employee.image !== "" ? (
                                   <img 
-                                    src={employee.image} 
+                                    src={`https://nusas-bucket.oss-ap-southeast-5.aliyuncs.com/${employee.image}`} 
                                     alt={employee.name}
                                     className="w-16 h-16 rounded-full object-cover shadow-md"
                                   />
@@ -974,6 +1006,7 @@ const StoreManagementDashboard = () => {
                           "store_id": storeInfo.id,
                           "id": storeInfo.service_id,
                           "current_service": storeInfo.service_name, 
+                          "store_name": storeInfo.name,
                           "verified_at": storeInfo.verified_at,
                           "full_domain": storeInfo.full_domain,
                         })}

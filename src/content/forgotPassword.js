@@ -22,8 +22,7 @@ const ForgotPasswordComponent = () => {
     return emailRegex.test(email);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     setError('');
 
     if (!email) {
@@ -49,6 +48,7 @@ const ForgotPasswordComponent = () => {
         message: 'Cek email kamu! Kami sudah kirimkan link untuk reset kata sandi.'
       })
       setIsSubmitted(true)
+      dispatch(resetForgotPassword())
     }
   }, [succesForgotPassword])
 
@@ -132,8 +132,8 @@ const ForgotPasswordComponent = () => {
           </p>
         </div>
 
-        <div className="bg-white py-12 px-8 shadow-lg sm:rounded-2xl border border-gray-100">
-          <div className="space-y-6">
+        <div className="bg-white py-6 px-8 shadow-lg sm:rounded-2xl border border-gray-100">
+          <div className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                 Email address
@@ -184,7 +184,7 @@ const ForgotPasswordComponent = () => {
             </button>
           </div>
 
-          <div className="mt-8 text-center">
+          <div className="mt-4 text-center">
             <button
               onClick={() => navigate('/login')}
               className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-green-600 transition-colors duration-200"

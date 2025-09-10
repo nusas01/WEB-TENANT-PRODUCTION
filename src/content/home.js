@@ -640,6 +640,7 @@ export default function QRestroLanding() {
                                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                 : 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-2xl hover:shadow-green-500/25 transform hover:scale-100'
                             }`}
+                            onClick={() => navigate('/signup')}
                             disabled={isInDevelopment}
                           >
                             {isInDevelopment 

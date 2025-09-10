@@ -276,31 +276,33 @@ export default function LoginForm() {
           </div>
         </div>
 
-        {/* Sign Up Link */}
-        <div className="text-center">
-          <p className="text-gray-600">
-            Don't have an account?{' '}
-            <button
-              onClick={handleSignup}
-              className="text-green-600 hover:text-green-500 font-medium transition-colors"
-            >
-              Create Account
-            </button>
-          </p>
-        </div>
+        <div>
+          {/* Sign Up Link */}
+          <div className="text-center mb-4">
+            <p className="text-gray-600">
+              Don't have an account?{' '}
+              <button
+                onClick={handleSignup}
+                className="text-green-600 hover:text-green-500 font-medium transition-colors"
+              >
+                Create Account
+              </button>
+            </p>
+          </div>
 
-        {/* Terms */}
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            By signing in, you agree to our{' '}
-            <a href="#" className="text-green-600 hover:text-green-500 font-medium">
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a href="#" className="text-green-600 hover:text-green-500 font-medium">
-              Privacy Policy
-            </a>
-          </p>
+          {/* Terms */}
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              By signing in, you agree to our{' '}
+              <a href="#" className="text-green-600 hover:text-green-500 font-medium">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="#" className="text-green-600 hover:text-green-500 font-medium">
+                Privacy Policy
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

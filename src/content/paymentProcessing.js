@@ -112,7 +112,8 @@ const PaymentProcessing = () => {
             ? dataExtendServiceStore.redirect_url_mobile 
             : dataExtendServiceStore.redirect_url_web;
 
-          window.location.href = redirectUrl;
+          window.open(redirectUrl, "_blank", "noopener,noreferrer");
+          navigate('/invoice/extend/service');
         } else {
           navigate("/invoice/extend/service");
         }
@@ -201,6 +202,8 @@ const PaymentProcessing = () => {
     };
 
 
+    console.log("store_Name", currentService.store_name)
+
     // handle extend service 
     const handleExtendService = () => {
       if (selectedPaymentMethod.type_payment_method === "EWALLET") {
@@ -214,10 +217,11 @@ const PaymentProcessing = () => {
 
       const data = {
             store_id: currentService.store_id,
+            store_name: currentService.store_name,
             subdomain: '',
             product_service_id: continueCurrent || selectedProduct.id,
             payment_method_id: selectedPaymentMethod.id,
-            phone_number_ewallet: '62' + phoneNumber,
+            phone_number_ewallet: '+62' + phoneNumber,
             amount: calculateTotal()
       }
 
@@ -253,6 +257,28 @@ const PaymentProcessing = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Product Selection */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Continue Current Service Option */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-gray-900">Lanjutkan Layanan Saat Ini</h3>
+                  <p className="text-sm text-gray-600">Perpanjang layanan yang sedang aktif</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={selectedProduct?.id === currentService.id}
+                    onChange={() => {
+                      const selected = products.find(product => product.id === currentService.id);
+                      setSelectedProduct(selected);
+                    }}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
+                </label>
+              </div>
+            </div>
+            
             {/* Product Services */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center gap-3 mb-6">
@@ -317,28 +343,6 @@ const PaymentProcessing = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Continue Current Service Option */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-gray-900">Lanjutkan Layanan Saat Ini</h3>
-                  <p className="text-sm text-gray-600">Perpanjang layanan yang sedang aktif</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={selectedProduct?.id === currentService.id}
-                    onChange={() => {
-                      const selected = products.find(product => product.id === currentService.id);
-                      setSelectedProduct(selected);
-                    }}
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
-                </label>
               </div>
             </div>
 

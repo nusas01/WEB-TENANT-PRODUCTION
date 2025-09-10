@@ -21,6 +21,7 @@ import {
 import Sidebar from './sidebar';
 import { navbarSlice } from '../reducers/reducers';
 import { useSelector, useDispatch } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { useElementHeight } from './helper';
 import {
     fetchDataAccount,
@@ -38,20 +39,31 @@ import {
     updateChangePaymentGatewaySlice,
 } from '../reducers/patch'
 import {
+    submissionChangePaymentGatewaySlice
+} from '../reducers/post'
+import {
     Toast,
     ToastPortal,
 } from './alert'
 import { useNavigate } from 'react-router-dom';
 import { XenditCredentialsGuide } from './model';
 
-
 const SettingsComponent = () => {
+    const location = useLocation()
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState('account');
     const [toast, setToast] = useState(null)
     const { setIsOpen } = navbarSlice.actions
     const { isOpen, isMobileDeviceType } = useSelector((state) => state.persisted.navbar)
+
+    const {status} = location?.state || {}
+
+    useEffect(() => {
+        if (status) {
+            setActiveTab(status)
+        }
+    }, [status])
     
     const { ref: headerRef, height: headerHeight } = useElementHeight();
 
@@ -70,9 +82,9 @@ const SettingsComponent = () => {
 
     // account status change payment method
     const {resetErrorStatusChangePaymentGateway, setSuccessStatusChangePaymentGateway} = GetStatusChangePaymentGatewaySlice.actions
-    const {isUpdate, errorStatusChangePaymentGateway, loadingStatusChangePaymentGateway} = useSelector((state) => state.persisted.GetStatusChangePaymentGateway)
+    const {isUpdate, isProcess, errorStatusChangePaymentGateway, loadingStatusChangePaymentGateway} = useSelector((state) => state.persisted.GetStatusChangePaymentGateway)
     useEffect(() => {
-        if (!isUpdate) {
+        if (!isUpdate || !isProcess) {
             dispatch(fetchStatusChangePaymentGateway())
         }
     }, [])
@@ -128,14 +140,13 @@ const SettingsComponent = () => {
     };
 
     const isDisabled = loadingPatchCredentialStore || xenditData.api_key === "" || xenditData.bussness_id === "" || xenditData.secret_key_webhook === "";
-    console.log("status disabled adalah: ", isDisabled)
 
     const handleInputXendit = () => {
         dispatch(resetPatchCredentialStore())
         dispatch(patchCredentialStore(xenditData))
     };
 
-    // handle response success submission change payment gateway
+    // handle update change payment gateway
     const {resetUpdateChangePaymentGateway} = updateChangePaymentGatewaySlice.actions
     const {
         successUpdateChangePaymentGateway,
@@ -147,9 +158,12 @@ const SettingsComponent = () => {
         if (successUpdateChangePaymentGateway) {
             setToast({
                 type: "success",
-                message: "Update Pergantian account payment gateway berhasil."
+                message: "Update akun payment gateway berhasil. Silakan tunggu beberapa jam hingga proses selesai. Data akun payment gateway Anda untuk sementara masih kosong karena sedang dalam tahap pemrosesan."
             })
-            dispatch(setSuccessStatusChangePaymentGateway(false))
+            dispatch(setSuccessStatusChangePaymentGateway({
+                isUpdate: false,
+                isProcess: false,
+            }))
         }
     }, [successUpdateChangePaymentGateway])
 
@@ -162,15 +176,32 @@ const SettingsComponent = () => {
         }
     }, [errorUpdateChangePaymentGateway])
 
-    const isDisabledChangePaymentGateway = loadingUpdateChangePaymentGateway || xenditData.api_key === "" || xenditData.bussness_id === "" || xenditData.secret_key_webhook === "" || !xenditData.maintenanceTime;
-
+    const isDisabledChangePaymentGateway = loadingUpdateChangePaymentGateway || xenditData.api_key === "" || xenditData.bussness_id === "" || xenditData.secret_key_webhook === "" || xenditData.maintenanceTime === "";
+   
     const handleUpdateChangePaymentGateway = () => {
         dispatch(updateChangePaymentGateway(xenditData))
         dispatch(resetUpdateChangePaymentGateway()) 
     }
 
+    
+    // response success create payment submission change payment gateway
+    const {resetSubmissionChangePaymentGateway} = submissionChangePaymentGatewaySlice.actions
+    const {
+        successSubmissionChangePaymentGateway,
+    } = useSelector((state) => state.submissionChangePaymentGatewayState)
+
+    useEffect(() => {
+        if (successSubmissionChangePaymentGateway) {
+            setToast({
+                type: "success",
+                message: "Pengajuan perubahan akun payment gateway berhasil diajukan. Kami akan mengirimkan email untuk menyelesaikan proses pembayaran. Silakan periksa email Anda."
+            })
+            dispatch(fetchStatusChangePaymentGateway())
+        }
+    }, [successSubmissionChangePaymentGateway])
+
     console.log("account data: ", accountData)
-    console.log("xendit data: ", xenditData)
+    console.log("is update: ", isUpdate, "is process: ", isProcess)
     return (
         <div className='flex'>
             {((isMobileDeviceType && isOpen) || !isMobileDeviceType) && (
@@ -194,8 +225,9 @@ const SettingsComponent = () => {
                             dispatch(resetErrorStatusChangePaymentGateway())
                             dispatch(resetPatchCredentialStore())
                             dispatch(resetUpdateChangePaymentGateway())
+                            dispatch(resetSubmissionChangePaymentGateway())
                         }} 
-                        duration={5000}
+                        duration={15000}
                         />
                         </div>
                     </ToastPortal>
@@ -438,133 +470,257 @@ const SettingsComponent = () => {
                                             </div>
 
                                             {/* Form Fields - Only show if not in update mode OR if in update mode */}
-                                            <div className="space-y-6">
-                                                {/* Business ID */}
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Business ID *
-                                                    </label>
-                                                    <div className="relative">
-                                                    <Building className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                                                    <input
-                                                        type="text"
-                                                        name='busness_id'
-                                                        value={isUpdate ? xenditData.bussness_id : accountData?.bussness_id}
-                                                        onChange={(e) => isUpdate 
-                                                        ? setXenditData(prev => ({ ...prev, bussness_id: e.target.value }))
-                                                        : handleXenditInputChange('bussness_id', e.target.value)
-                                                        }
-                                                        disabled={!isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)}
-                                                        className={`pl-10 w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
-                                                        !isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)
-                                                            ? 'border-gray-200 bg-gray-50 text-gray-500'
-                                                            : 'border-gray-300 bg-white'
-                                                        }`}
-                                                        placeholder="Enter your Xendit Business ID"
-                                                    />
-                                                    </div>
-                                                    <p className="mt-1 text-xs text-gray-500"> { 
-                                                        errorFieldsPatchCredentialStore?.BussnesId 
-                                                        ? errorFieldsPatchCredentialStore?.BussnesId 
-                                                        : errorFieldsUpdateChangePaymentGateway?.BussnesId
-                                                        ? errorFieldsUpdateChangePaymentGateway?.BussnesId
-                                                        : 'Your unique business identifier from Xendit dashboard'
-                                                    }</p>
-                                                </div>
-
-                                                {/* API Key */}
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    API Key *
-                                                    </label>
-                                                    <div className="relative">
-                                                    <Key className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                                                    <input
-                                                        type="password"
-                                                        value={isUpdate ? xenditData.api_key : !accountData.api_key ? xenditData.api_key : accountData.api_key}
-                                                        onChange={(e) => isUpdate 
-                                                        ? setXenditData(prev => ({ ...prev, api_key: e.target.value }))
-                                                        : handleXenditInputChange('api_key', e.target.value)
-                                                        }
-                                                        disabled={!isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)}
-                                                        className={`pl-10 w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
-                                                        !isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)
-                                                            ? 'border-gray-200 bg-gray-50 text-gray-500'
-                                                            : 'border-gray-300 bg-white'
-                                                        }`}
-                                                        placeholder="Enter your Xendit API Key"
-                                                    />
-                                                    </div>
-                                                    <p className="mt-1 text-xs text-gray-500">{ 
-                                                    errorFieldsUpdateChangePaymentGateway?.ApiKey
-                                                    ? errorFieldsUpdateChangePaymentGateway?.ApiKey
-                                                    : errorFieldsPatchCredentialStore?.ApiKey
-                                                    ? errorFieldsPatchCredentialStore?.ApiKey
-                                                    : 'Your secret API key for authenticating with Xendit services'
-                                                    }</p>
-                                                </div>
-
-                                                {/* Secret Key Webhook */}
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Webhook Secret Key *
-                                                    </label>
-                                                    <div className="relative">
-                                                    <Shield className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                                                    <input
-                                                        type="password"
-                                                        value={isUpdate ? xenditData.secret_key_webhook : !accountData.secret_key_webhook ? xenditData.secret_key_webhook : accountData.secret_key_webhook}
-                                                        onChange={(e) => isUpdate 
-                                                        ? setXenditData(prev => ({ ...prev, secret_key_webhook: e.target.value }))
-                                                        : handleXenditInputChange('secret_key_webhook', e.target.value)
-                                                        }
-                                                        disabled={!isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)}
-                                                        className={`pl-10 w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
-                                                        !isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)
-                                                            ? 'border-gray-200 bg-gray-50 text-gray-500'
-                                                            : 'border-gray-300 bg-white'
-                                                        }`}
-                                                        placeholder="Enter your Webhook Secret Key"
-                                                    />
-                                                    </div>
-                                                    <p className="mt-1 text-xs text-gray-500">{ 
-                                                        errorFieldsPatchCredentialStore?.SecretKeyWebhook 
-                                                        ? errorFieldsPatchCredentialStore?.SecretKeyWebhook
-                                                        : errorFieldsUpdateChangePaymentGateway?.SecretKeyWebhook
-                                                        ? errorFieldsUpdateChangePaymentGateway?.SecretKeyWebhook
-                                                        : "Secret key used to verify webhook authenticity from Xendit"
-                                                    }</p>
-                                                </div>
-
-                                                {/* Maintenance Time - hanya muncul saat isUpdate */}
-                                                {isUpdate && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                            Maintenance Time
-                                                        </label>
-                                                        <div className="relative">
-                                                            <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                                                           <input
-                                                                type="datetime-local"
-                                                                value={xenditData.maintenance_time || ""}
-                                                                onChange={(e) => {
-                                                                    const raw = e.target.value; 
-                                                                    const formatted = raw.replace("T", " ") + ":00";
-                                                                    setXenditData((prev) => ({
-                                                                    ...prev,
-                                                                    maintenance_time: formatted,       
-                                                                    }));
-                                                                }}
-                                                                className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors bg-white"
-                                                            />
-
+                                            {(isProcess && !isUpdate) ? (
+                                                <>
+                                                {/* Verification Info */}
+                                                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl shadow-sm p-6 mb-6">
+                                                    <div className="flex items-start gap-4">
+                                                        <div className="flex-shrink-0">
+                                                        <div className="w-8 h-8 bg-yellow-500 text-white rounded-full flex items-center justify-center font-semibold">
+                                                            !
                                                         </div>
-                                                        <p className="mt-1 text-xs text-gray-500">
-                                                            Set maintenance date and time for Xendit integration
+                                                        </div>
+                                                        <div className="flex-1">
+                                                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                                            Verifikasi Credentials Sedang Diproses
+                                                        </h3>
+                                                        <p className="text-sm text-gray-700 mb-4">
+                                                            Business ID, API Key, dan Webhook Secret Anda sedang dalam tahap verifikasi. 
+                                                            Proses ini biasanya memerlukan beberapa saat sebelum akun dapat digunakan.
                                                         </p>
+                                                        <div className="flex items-center gap-2 text-yellow-700">
+                                                            <svg className="animate-spin h-5 w-5 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                                            </svg>
+                                                            <span className="text-sm font-medium">Sedang diverifikasi...</span>
+                                                        </div>
+                                                        </div>
                                                     </div>
-                                                )}
-                                            </div>
+                                                    </div>
+                                                </>
+                                            ) : 
+                                            (
+                                                <div className="space-y-6">
+                                                    {/* Business ID */}
+                                                    <div>
+                                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                                                            <div className="p-6">
+                                                                <div className="flex items-start gap-4">
+                                                                    <div className="flex-shrink-0">
+                                                                    <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+                                                                        1
+                                                                    </div>
+                                                                    </div>
+                                                                    
+                                                                    <div className="flex-1">
+                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                        <h3 className="text-lg font-semibold text-gray-900">
+                                                                        Business ID
+                                                                        </h3>
+                                                                    </div>
+                                                                    
+                                                                    <p className="text-sm text-gray-600 mb-4">
+                                                                        ID unik yang mengidentifikasi bisnis Anda di sistem Xendit
+                                                                    </p>
+                                                                    
+                                                                    <div className="bg-gray-50 rounded-lg p-4">
+                                                                        <div className="flex items-center justify-between gap-2">
+                                                                        <p className="text-sm text-gray-700 font-mono flex-1">
+                                                                            Dashboard Xendit → Settings → Your Business and Profile → Your Business → Business ID
+                                                                        </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="relative mt-6">
+                                                                <Building className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                                <input
+                                                                    type="text"
+                                                                    name='busness_id'
+                                                                    value={isUpdate ? xenditData.bussness_id : accountData?.bussness_id}
+                                                                    onChange={(e) => isUpdate 
+                                                                    ? setXenditData(prev => ({ ...prev, bussness_id: e.target.value }))
+                                                                    : handleXenditInputChange('bussness_id', e.target.value)
+                                                                    }
+                                                                    disabled={!isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)}
+                                                                    className={`pl-10 w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
+                                                                    !isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)
+                                                                        ? 'border-gray-200 bg-gray-50 text-gray-500'
+                                                                        : 'border-gray-300 bg-white'
+                                                                    }`}
+                                                                    placeholder="Enter your Xendit Business ID"
+                                                                />
+                                                                </div>
+                                                                <p className="mt-1 text-xs text-gray-500"> { 
+                                                                    errorFieldsPatchCredentialStore?.BussnesId 
+                                                                    ? errorFieldsPatchCredentialStore?.BussnesId 
+                                                                    : errorFieldsUpdateChangePaymentGateway?.BussnesId
+                                                                    ? errorFieldsUpdateChangePaymentGateway?.BussnesId
+                                                                    : 'Your unique business identifier from Xendit dashboard'
+                                                                }</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* API Key */}
+                                                    <div>
+                                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                                                            <div className="p-6">
+                                                                <div className="flex items-start gap-4">
+                                                                    <div className="flex-shrink-0">
+                                                                    <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+                                                                        2
+                                                                    </div>
+                                                                    </div>
+                                                                    
+                                                                    <div className="flex-1">
+                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                        <h3 className="text-lg font-semibold text-gray-900">
+                                                                        API Key
+                                                                        </h3>
+                                                                        <div className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                                                                            Sensitif
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    <p className="text-sm text-gray-600 mb-4">
+                                                                        Kunci autentikasi untuk mengakses layanan Xendit API
+                                                                    </p>
+                                                                    
+                                                                    <div className="bg-gray-50 rounded-lg p-4">
+                                                                        <div className="flex items-center justify-between gap-2">
+                                                                        <p className="text-sm text-gray-700 font-mono flex-1">
+                                                                            Dashboard Xendit → Settings → Developers → API Keys → Isi Key name → Money-in products Write → Balance Write → Transaction Write → Generate/Copy Api Key
+                                                                        </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="relative mt-6">
+                                                                    <Key className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                                    <input
+                                                                        type="password"
+                                                                        value={isUpdate ? xenditData.api_key : !accountData.api_key ? xenditData.api_key : accountData.api_key}
+                                                                        onChange={(e) => isUpdate 
+                                                                        ? setXenditData(prev => ({ ...prev, api_key: e.target.value }))
+                                                                        : handleXenditInputChange('api_key', e.target.value)
+                                                                        }
+                                                                        disabled={!isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)}
+                                                                        className={`pl-10 w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
+                                                                        !isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)
+                                                                            ? 'border-gray-200 bg-gray-50 text-gray-500'
+                                                                            : 'border-gray-300 bg-white'
+                                                                        }`}
+                                                                        placeholder="Enter your Xendit API Key"
+                                                                    />
+                                                                </div>
+                                                                <p className="mt-1 text-xs text-gray-500">{ 
+                                                                errorFieldsUpdateChangePaymentGateway?.ApiKey
+                                                                ? errorFieldsUpdateChangePaymentGateway?.ApiKey
+                                                                : errorFieldsPatchCredentialStore?.ApiKey
+                                                                ? errorFieldsPatchCredentialStore?.ApiKey
+                                                                : 'Your secret API key for authenticating with Xendit services'
+                                                                }</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Secret Key Webhook */}
+                                                    <div>
+                                                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                                                            <div className="p-6">
+                                                            <div className="flex items-start gap-4">
+                                                                <div className="flex-shrink-0">
+                                                                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+                                                                    3
+                                                                </div>
+                                                                </div>
+                                                                
+                                                                <div className="flex-1">
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <h3 className="text-lg font-semibold text-gray-900">
+                                                                    Webhook Secret
+                                                                    </h3>
+                                                                    <div className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                                                                        Sensitif
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <p className="text-sm text-gray-600 mb-4">
+                                                                    Token untuk memverifikasi webhook dari Xendit
+                                                                </p>
+                                                                
+                                                                <div className="bg-gray-50 rounded-lg p-4">
+                                                                    <div className="flex items-center justify-between gap-2">
+                                                                    <p className="text-sm text-gray-700 font-mono flex-1">
+                                                                        Dashboard Xendit → Settings → Developers → Webhooks → View Webhook Verification Token → Copy the token
+                                                                    </p>
+                                                                    </div>
+                                                                </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="relative mt-6">
+                                                                <Shield className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                                <input
+                                                                    type="password"
+                                                                    value={isUpdate ? xenditData.secret_key_webhook : !accountData.secret_key_webhook ? xenditData.secret_key_webhook : accountData.secret_key_webhook}
+                                                                    onChange={(e) => isUpdate 
+                                                                    ? setXenditData(prev => ({ ...prev, secret_key_webhook: e.target.value }))
+                                                                    : handleXenditInputChange('secret_key_webhook', e.target.value)
+                                                                    }
+                                                                    disabled={!isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)}
+                                                                    className={`pl-10 w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
+                                                                    !isUpdate && (accountData.bussness_id && accountData.api_key && accountData.secret_key_webhook)
+                                                                        ? 'border-gray-200 bg-gray-50 text-gray-500'
+                                                                        : 'border-gray-300 bg-white'
+                                                                    }`}
+                                                                    placeholder="Enter your Webhook Secret Key"
+                                                                />
+                                                            </div>
+                                                            <p className="mt-1 text-xs text-gray-500">{ 
+                                                                errorFieldsPatchCredentialStore?.SecretKeyWebhook 
+                                                                ? errorFieldsPatchCredentialStore?.SecretKeyWebhook
+                                                                : errorFieldsUpdateChangePaymentGateway?.SecretKeyWebhook
+                                                                ? errorFieldsUpdateChangePaymentGateway?.SecretKeyWebhook
+                                                                : "Secret key used to verify webhook authenticity from Xendit"
+                                                            }</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Maintenance Time - hanya muncul saat isUpdate */}
+                                                    {isUpdate && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                                Maintenance Time
+                                                            </label>
+                                                            <div className="relative">
+                                                                <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                            <input
+                                                                    type="datetime-local"
+                                                                    value={xenditData.maintenance_time || ""}
+                                                                    onChange={(e) => {
+                                                                        const raw = e.target.value; 
+                                                                        const formatted = raw.replace("T", " ") + ":00";
+                                                                        setXenditData((prev) => ({
+                                                                        ...prev,
+                                                                        maintenance_time: formatted,       
+                                                                        }));
+                                                                    }}
+                                                                    className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors bg-white"
+                                                                />
+
+                                                            </div>
+                                                            <p className="mt-1 text-xs text-gray-500">
+                                                                Set maintenance date and time for Xendit integration
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )} 
 
                                             {/* Webhook Endpoint Configuration */}
                                             <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
@@ -677,7 +833,7 @@ const SettingsComponent = () => {
                                             </div>
 
                                             {/* Show Change Account button when all data is configured and not in update mode */}
-                                            {(accountData.bussness_id || accountData.api_key || accountData.secret_key_webhook) && !isUpdate && (
+                                            {(accountData.bussness_id || accountData.api_key || accountData.secret_key_webhook) && !isUpdate && !isProcess && (
                                                 <div className="flex justify-center">
                                                     <button
                                                     onClick={() => navigate('/setting/submission/change/payment/gateway')}

@@ -25,8 +25,6 @@ const ChangePaymentGateway = () => {
     const navigate = useNavigate()
     const [errors, setErrors] = useState({})
 
-
-
     // handle get data product change payment gateway
     const {resetProductChangePaymentGateway} =  GetProductChangePaymentGatewaySlice.actions
     const {

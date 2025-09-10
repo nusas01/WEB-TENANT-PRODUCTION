@@ -3,8 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { 
     fetchAllStores,
     fetchDetailStore,
+    fetchRequiredPayment,
 } from '../actions/get';
 import { GetStatusChangePaymentGatewaySlice } from "../reducers/get";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const UseSSEContainer = () => {
     const { loggedIn } = useSelector((state) => state.persisted.loginStatus)
@@ -52,22 +54,41 @@ const useSSE = (url, onMessage) => {
 
 
 const SSECreateStore = () => {
-    const dispatch = useDispatch();
+    const navigate = useNavigate()
+    const location = useLocation()
+    const dispatch = useDispatch()
+    const pathName = location?.pathname
+
     const url = `${process.env.REACT_APP_SSE_CREATE_STORE}`
 
     useSSE(url, (data) => {
-        dispatch(fetchAllStores());
+        if (data.refresh_stores) {
+            dispatch(fetchAllStores());
+            dispatch(fetchRequiredPayment())
+            if (pathName == '/invoice/create/store') {
+                navigate('/store')
+            }
+        }
     });
 
     return null;
 }
 
 const SSEExtendServiceStore = () => {
-    const dispatch = useDispatch();
+    const navigate = useNavigate()
+    const location = useLocation()
+    const dispatch = useDispatch()
+    const pathName = location?.pathname
+
     const url = `${process.env.REACT_APP_SSE_EXTEND_SERVICE_STORE}`
 
     useSSE(url, (data) => {
-        dispatch(fetchDetailStore(data));
+        console.log("data extend service: ", data.id)
+        dispatch(fetchDetailStore(data.id));
+        dispatch(fetchRequiredPayment())
+        if (pathName === '/invoice/extend/service') {
+            navigate('/store')
+        }
     });
 
     return null;
@@ -80,7 +101,13 @@ const SSEESubmissionChangePaymentGateway = () => {
     const url = `${process.env.REACT_APP_SSE_SUBMISSION_CHANGE_PAYMENT_GATEWAY}`
 
     useSSE(url, (data) => {
-        dispatch(setSuccessStatusChangePaymentGateway(true));
+        if (data.is_update) {
+            console.log("apakah ini dijalankan wowow")
+            dispatch(setSuccessStatusChangePaymentGateway({
+                isUpdate:true,
+                isProcess:false,
+            }));
+        }
     });
 
     return null;
