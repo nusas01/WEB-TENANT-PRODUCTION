@@ -49,7 +49,7 @@ const PendingTransactions = () => {
     if (errorRequiredPayment) {
       setToast({
           type: "error",
-          message: "terjadi kesalahan saat memuat required payment, silahkan coba lagi nanti."
+          message: errorRequiredPayment
       })
     }
   }, [errorRequiredPayment])

@@ -67,7 +67,7 @@ const PaymentProcessing = () => {
     if (errorPaymentMethods) {
       setToast({
         type: "error",
-        message: "terjadi kesalahan saat memuat metode pembayaran, silahkan coba lagi nanti."
+        message: errorPaymentMethods
       })
     }
   }, [errorPaymentMethods])
@@ -87,7 +87,7 @@ const PaymentProcessing = () => {
         if (errorProductService) {
             setToast({
             type: "error",
-            message: "Terjadi kesalahan saat memuat data package, silahkan coba lagi nanti"
+            message: errorProductService
             })
         }
     }, [errorProductService])
@@ -128,7 +128,7 @@ const PaymentProcessing = () => {
         if (errorExtendServiceStore) {
         setToast({
             type: "error",
-            message: "Terjadi kesalahan saat membuat transaksi perpanjangan layanan, silahkan coba lagi nanti"
+            message: errorExtendServiceStore
         })
         }
     }, [errorExtendServiceStore])
@@ -139,10 +139,6 @@ const PaymentProcessing = () => {
         dispatch(resetErrorExtendServiceStore())
       }
     }, [errorFieldsExtendServiceStore])
-
-    console.log("Data error apa ini kawan: ", errorFieldsExtendServiceStore)
-    console.log("Data error apa ini kawan: ", phoneNumberError)
-
 
     // Function untuk mendapatkan icon payment method
     const getPaymentIcon = (type) => {
@@ -200,9 +196,6 @@ const PaymentProcessing = () => {
             return type;
         }
     };
-
-
-    console.log("store_Name", currentService.store_name)
 
     // handle extend service 
     const handleExtendService = () => {

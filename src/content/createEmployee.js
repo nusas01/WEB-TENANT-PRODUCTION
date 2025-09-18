@@ -74,7 +74,7 @@ const CreateEmployee = () => {
       if (errorUpdateEmployee) {
         setToast({
           type: "error",
-          message: "Terjadi kesalahan saat memperbaruhi data karyawan, silahkan coba lagi nanti"
+          message: errorUpdateEmployee
         })
       }
     }, [errorUpdateEmployee])
@@ -100,13 +100,10 @@ const CreateEmployee = () => {
       if (errorCreateEmployee) {
           setToast({
             type: "error",
-            message: "Terjadi kesalahan saat menambahkan karyawan, silahkan coba lagi nanti"
+            message: errorCreateEmployee
           })
       }
     }, [errorCreateEmployee])
-
-    console.log("error field: ", ErrorFieldCreateEmployee?.Email)
-    console.log("error field: ", ErrorFieldCreateEmployee?.PhoneNumber)        
 
     useEffect(() => {
       if (ErrorFieldCreateEmployee?.Email) {
@@ -431,10 +428,6 @@ const CreateEmployee = () => {
       reader.readAsDataURL(file)
     }
 
-    console.log("employeUpdateState:", employeUpdateState)
-    console.log("formData:", formData)
-    console.log("foundErrors:", errors)
-
     const handleSubmit = (e) => {
       if (e) e.preventDefault()
       
@@ -481,9 +474,6 @@ const CreateEmployee = () => {
         fileInputRef.current.value = ''
       }
     }
-
-    console.log("data form data: ", formData)
-    console.log("data employee: ", employeUpdateState)
 
     return (
       <div className="min-h-screen bg-gray-50 py-8 px-4">

@@ -12,6 +12,10 @@ import {
     GetStatusChangePaymentGatewaySlice,
     GetProductChangePaymentGatewaySlice,
 } from '../reducers/get'
+import {
+  collectFingerprintAsync
+} from '../helperComponent/fp'
+
 import {statusExpiredUserTokenSlice} from '../reducers/expToken'
 
 const {setStatusExpiredUserToken} = statusExpiredUserTokenSlice.actions
@@ -56,8 +60,6 @@ export const fetchLogout = () => {
               withCredentials: true
           })
           dispatch(setSuccessLogout(response?.data.success))
-          dispatch((false))
-          // reset data customer ketika sudah di buat endpoint
       } catch(error) {
             if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
                 dispatch(setStatusExpiredUserToken(true));
@@ -74,10 +76,19 @@ export const fetchProductServices = () => {
     return async (dispatch) => {
         dispatch(setLoadingProductService(true))
         try {
-            const response = await axios.get(`${process.env.REACT_APP_PRODUCT_SERVICES}`, {
-                withCredentials: true,
-            })
-            dispatch(setSuccessProductService(response?.data))
+          const nonce_data = await collectFingerprintAsync()
+
+          const params = {
+            nonce: nonce_data.nonce, 
+            value: nonce_data.value, 
+            iv: nonce_data.iv, 
+          }
+
+          const response = await axios.get(`${process.env.REACT_APP_PRODUCT_SERVICES}`, {
+              withCredentials: true,
+              params: params,
+          })
+          dispatch(setSuccessProductService(response?.data))
         } catch (error) {
             dispatch(setErrorProductService(error?.response?.data?.error))
         } finally {
@@ -91,13 +102,22 @@ export const fetchPaymentMethods = () => {
     return async (dispatch) => {
         dispatch(setLoadingPaymentMethods(true))
         try {
-            const response = await axios.get(`${process.env.REACT_APP_PAYMENT_METHODS}`, {
-                withCredentials: true
-            })
-            dispatch(setSuccessPaymentMethods({ 
-                data: response?.data?.data,
-                tax: response?.data?.tax
-            }))
+          const nonce_data = await collectFingerprintAsync()
+
+          const params = {
+            nonce: nonce_data.nonce, 
+            value: nonce_data.value, 
+            iv: nonce_data.iv, 
+          }
+
+          const response = await axios.get(`${process.env.REACT_APP_PAYMENT_METHODS}`, {
+              withCredentials: true,
+              params: params,
+          })
+          dispatch(setSuccessPaymentMethods({ 
+              data: response?.data?.data,
+              tax: response?.data?.tax
+          }))
         } catch (error) {
             dispatch(setErrorPaymentMethods(error?.response?.data?.error))
         } finally {
@@ -244,3 +264,26 @@ export const fetchProductChangePaymentGateway = () => {
       }
     }
 }
+
+export const fetchNonce = async () => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_NONCE}`,
+      {
+        headers: {
+          "API_KEY_INTERNAL_NUSAS": process.env.REACT_APP_API_KEY_INTERNAL_NUSAS,
+        },
+        withCredentials: true,
+      }
+    );
+
+    return { data: response?.data, error: null };
+  } catch (error) {
+    // handle khusus kalau token expired
+    if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
+      return { data: null, error: "TOKEN_USER_EXPIRED" };
+    }
+
+    return { data: null, error: error.response?.data?.error || "Unexpected error" };
+  }
+};

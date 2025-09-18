@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialUpdateEmployeeState = {
-  successUpdateEmployee: false,
+  successUpdateEmployee: null,
   errorUpdateEmployee: null,
   loadingUpdateEmployee: false,
 }
@@ -26,7 +26,7 @@ export const updateEmployeeSlice = createSlice({
 })
 
 const initialUpdateStoreState = {
-  successUpdateStore: false,
+  successUpdateStore: null,
   errorUpdateStore: null,
   errorFieldUpdateStore: {},
   loadingUpdateStore: false,

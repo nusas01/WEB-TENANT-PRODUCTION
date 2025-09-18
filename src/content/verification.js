@@ -24,7 +24,7 @@ export default function VerificationForm() {
   const [code, setCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState('');
-  const [toast, setToast] = useState(null)
+  const [toast, setToast] = useState(null);
 
   const {resetRegisterVerification} = registerVerificationSlice.actions
   const {
@@ -46,17 +46,10 @@ export default function VerificationForm() {
 
   useEffect(() => {
     if (errorRegisterVerification) {
-      if (errorRegisterVerification === "auth failed") {
-        setToast({
-          type: 'error',
-          message: 'Authentication failed. Please register again.'
-        })
-      } else {   
-        setToast({
-          type: 'error',
-          message: 'Terjadi kesalahan saat verfikasi. Silahkan coba lagi nanti.'
-        })
-      }
+      setToast({
+        type: 'error',
+        message: errorRegisterVerification
+      })
     }
   }, [errorRegisterVerification])
 
@@ -116,7 +109,7 @@ export default function VerificationForm() {
             We've sent a 8-digit verification code to your email address
           </p>
           <p className="text-sm text-green-600 font-medium">
-            john.doe@example.com
+            nusas.id
           </p>
         </div>
 

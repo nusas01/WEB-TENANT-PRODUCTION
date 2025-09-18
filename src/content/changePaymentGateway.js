@@ -32,18 +32,18 @@ const ChangePaymentGateway = () => {
         errorProductChangePaymentGateway,
         loadingProductChangePaymentGateway,
     } = useSelector((state) => state.persisted.GetProductChangePaymentGateway)
+
     useEffect(() => {
         if(Object.keys(dataProductChangePaymentGateway).length === 0) {
             dispatch(fetchProductChangePaymentGateway())
         }
     }, [])
-    console.log("data product: ", dataProductChangePaymentGateway)
 
     useEffect(() => {
         if (errorProductChangePaymentGateway) {
             setToast({
                 type: "error",
-                message: "Terjadi kesalahan saat memuat data, silahkan coba lagi nanti"
+                message: errorProductChangePaymentGateway
             })
         }   
     }, [errorProductChangePaymentGateway])
@@ -65,7 +65,7 @@ const ChangePaymentGateway = () => {
         if (errorPaymentMethods) {
             setToast({
                 type: "error",
-                message: "terjadi kesalahan saat memuat metode pembayaran, silahkan coba lagi nanti."
+                message: errorPaymentMethods
             })
         }
     }, [errorPaymentMethods])
@@ -133,7 +133,7 @@ const ChangePaymentGateway = () => {
         if (errorSubmissionChangePaymentGateway) {
             setToast({
                 type: "error",
-                message: "Terjadi kesalahan saat Pengajuan Perubahan data, silahkan coba lagi nanti"
+                message: errorSubmissionChangePaymentGateway
             })
         }
     }, [errorSubmissionChangePaymentGateway])
@@ -206,7 +206,6 @@ const ChangePaymentGateway = () => {
         }))
     };
 
-    console.log("data summery: ", paymentMethods)
     const summary = calculateSummary();
 
     return (

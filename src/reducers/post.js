@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialLoginState = {
-    successLogin: false, 
+    successLogin: null, 
     errorLogin: null, 
     loadingLogin: false, 
     errorField: {},
@@ -29,8 +29,9 @@ export const loginSlice = createSlice({
 })
 
 const initialForgotPassword = {
-    succesForgotPassword: false,
+    succesForgotPassword: null,
     errorForgotPassword: null, 
+    errorFieldForgotPassword: null,
     loadingForgotPassword: false,
 }
 export const forgotPasswordSlice = createSlice({
@@ -44,17 +45,19 @@ export const forgotPasswordSlice = createSlice({
             state.succesForgotPassword = action.payload
         },
         setErrorForgotPassword: (state, action) => {
-            state.errorForgotPassword = action.payload
+            state.errorForgotPassword = action.payload.error
+            state.errorFieldForgotPassword = action.payload.errorField
         },
         resetForgotPassword: (state) => {
             state.errorForgotPassword = null
+            state.errorFieldForgotPassword = null
             state.succesForgotPassword = false
         }
     }
 })
 
 const initialRegisterAccount = {
-    successRegister: false,
+    successRegister: null,
     dataSuccessRegister: null,
     errorFieldsRegister: null,
     errorRegister: null,
@@ -86,7 +89,7 @@ export const registerAccountSlice = createSlice({
 })
 
 const initialPostEmployee = {
-    successPostEmployee: false,
+    successPostEmployee: null,
     errorFieldsPostEmployee: null,
     errorPostEmployee: null,
     loadingPostEmployee: false,
@@ -114,7 +117,7 @@ export const postEmployeeSlice = createSlice({
 })
 
 const initialCreateEmployeeState = {
-  successCreateEmployee: false,
+  successCreateEmployee: null,
   errorCreateEmployee: null,
   ErrorFieldCreateEmployee: null,
   loadingCreateEmployee: false,
@@ -143,7 +146,7 @@ export const createEmployeeSlice = createSlice({
 
 
 const initialAddStore = {
-    successAddStore: false,
+    successAddStore: null,
     dataSuccess: null,
     errorFieldsAddStore: {},
     errorAddStore: null,
@@ -173,7 +176,7 @@ export const addStoreSlice = createSlice({
 })
 
 const initialSubmissionChangePaymentGatewayState = {
-  successSubmissionChangePaymentGateway: false,
+  successSubmissionChangePaymentGateway: null,
   errorSubmissionChangePaymentGateway: null,
   errorFieldSubmissionChangePaymentGateway: null,
   loadingSubmissionChangePaymentGateway: false,

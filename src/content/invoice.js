@@ -30,8 +30,6 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
   const location = useLocation();
   const pathName = location?.pathname
 
-  console.log("paymeny_date", paymentData)
-
   const handleToPendingTransactionList = () => {
     if (pathName === '/invoice/extend/service') {
       navigate('/payment/required')
@@ -234,8 +232,6 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
       setDownloading(false);
     }
   };
-
-  console.log("color type apakah ini: ", colorType)
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">

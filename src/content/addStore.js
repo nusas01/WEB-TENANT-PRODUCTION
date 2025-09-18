@@ -76,7 +76,7 @@ const AddStoreForm = () => {
         if (errorProductService) {
             setToast({
             type: "error",
-            message: "Terjadi kesalahan saat memuat data package, silahkan coba lagi nanti"
+            message: errorProductService
             })
         }
     }, [errorProductService])
@@ -97,12 +97,10 @@ const AddStoreForm = () => {
         if (errorPaymentMethods) {
             setToast({
                 type: "error",
-                message: "terjadi kesalahan saat memuat metode pembayaran, silahkan coba lagi nanti."
+                message: errorPaymentMethods
             })
         }
     }, [errorPaymentMethods])
-
-    console.log("payment method: ", products)
 
     // validate form data
     const validateAllFields = () => {
@@ -266,14 +264,6 @@ const AddStoreForm = () => {
         }
     }, [errorFieldsAddStore])
 
-    console.log("errro field create store: ", errorFieldsAddStore)
-    console.log("error create store: ", errors)
-
-    useEffect(() => {
-        console.log("Updated errors: ", errors);
-    }, [errors]);
-
-
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
             window.scrollTo({
@@ -295,7 +285,7 @@ const AddStoreForm = () => {
         if (errorAddStore) {
         setToast({
             type: "error",
-            message: "terjadi kesalahan saat menambah store, silahkan coba lagi nanti."
+            message: errorAddStore
         })
         }
     }, [errorAddStore])

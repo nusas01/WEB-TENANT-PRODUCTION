@@ -101,26 +101,6 @@ const formatPrice = (price) => {
 };
 
 export const MappingPackage = (dataProductService) => {
-  const featuresMap = {
-    Starter: [
-      'Payment Gateway (QRIS, E-wallet, Bank)',
-      'Multi-device Access (HP, Tablet, Laptop)',
-      'QR Code untuk dine-in & take-away',
-      'Dashboard admin modern'
-    ],
-    Professional: [
-      'Semua fitur Starter Plan',
-      'Advanced Analytics dengan AI Insights',
-      'Laporan keuangan otomatis',
-      'Advanced Reporting + Export Data'
-    ],
-    Enterprise: [
-      'Semua fitur Professional Plan',
-      'HR Management terintegrasi',
-      'Payroll & absensi otomatis'
-    ]
-  };
-
   const packageMetadata = {
     Starter: {
       segment: 'Untuk Operasional Dasar & Bisnis Kecil',
@@ -142,23 +122,53 @@ export const MappingPackage = (dataProductService) => {
     }
   };
 
+  // Fungsi untuk mendapatkan features berdasarkan product dan limit_menu
+  const getFeaturesMap = (product, limitMenu) => {
+    const displayLimit = limitMenu ? `hingga ${limitMenu} menu` : 'unlimited menu';
+    
+    const featuresMap = {
+      Starter: [
+        'Payment Gateway (QRIS, E-wallet, Bank)',
+        'Multi-device Access (HP, Tablet, Laptop)',
+        'QR Code untuk dine-in & take-away',
+        'Dashboard admin modern',
+        `Display menu ${displayLimit}`
+      ],
+      Professional: [
+        'Semua fitur Starter Plan',
+        'Advanced Analytics dengan AI Insights',
+        'Laporan keuangan otomatis',
+        'Advanced Reporting + Export Data',
+        `Display menu ${displayLimit}`
+      ],
+      Enterprise: [
+        'Semua fitur Professional Plan',
+        'HR Management terintegrasi',
+        'Payroll & absensi otomatis',
+        `Display menu ${displayLimit}`
+      ]
+    };
+
+    return featuresMap[product] || [];
+  };
 
   const packages = dataProductService.map((item) => {
     const meta = packageMetadata[item.product] || {};
-    console.log("data meta data: ", item)
+    const features = getFeaturesMap(item.product, item.limit_menu);
+    
     return {
       id: item.id,
       name: item.product,
       price: item.price,
       originalPrice: item.original_price,
       status: item.status,
-      features: featuresMap[item.product] || [],
+      features: features,
+      limitMenu: item.limit_menu, // Optional: jika Anda ingin menyimpan nilai asli
       ...meta
     };
   });
 
-
-  return packages
+  return packages;
 }
 
 export const PaymentMethodImage = (key, widthimg, heightimg) => {

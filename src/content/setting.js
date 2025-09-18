@@ -93,7 +93,7 @@ const SettingsComponent = () => {
         if (errorStatusChangePaymentGateway) {
             setToast({
                 type: "error",
-                message: "Terjadi kesalahan saat memuat data, silahkan coba lagi nanti"
+                message: errorStatusChangePaymentGateway
             })
         }
     }, [errorStatusChangePaymentGateway])
@@ -117,7 +117,7 @@ const SettingsComponent = () => {
         if (successPatchCredentialStore) {
             setToast({
                 type: "success",
-                message: "Data intergration payment gateway xendit berhasil disimpan"
+                message: successPatchCredentialStore
             })
             dispatch(fetchDataAccount())
         }
@@ -127,7 +127,7 @@ const SettingsComponent = () => {
         if (errorPatchCredentialStore) {
             setToast({
                 type: "error",
-                message: "Terjadi kesalahan saat input data payment gateway, silahkan coba lagi nanti"
+                message: errorPatchCredentialStore
             })
         }
     }, [errorPatchCredentialStore])
@@ -158,7 +158,7 @@ const SettingsComponent = () => {
         if (successUpdateChangePaymentGateway) {
             setToast({
                 type: "success",
-                message: "Update akun payment gateway berhasil. Silakan tunggu beberapa jam hingga proses selesai. Data akun payment gateway Anda untuk sementara masih kosong karena sedang dalam tahap pemrosesan."
+                message: successUpdateChangePaymentGateway
             })
             dispatch(setSuccessStatusChangePaymentGateway({
                 isUpdate: false,
@@ -171,7 +171,7 @@ const SettingsComponent = () => {
         if (errorUpdateChangePaymentGateway) {
             setToast({
                 type: "error",
-                message: "Terjadi kesalahan saat update data payment gateway, silahkan coba lagi nanti"
+                message: errorUpdateChangePaymentGateway
             })
         }
     }, [errorUpdateChangePaymentGateway])
@@ -194,14 +194,12 @@ const SettingsComponent = () => {
         if (successSubmissionChangePaymentGateway) {
             setToast({
                 type: "success",
-                message: "Pengajuan perubahan akun payment gateway berhasil diajukan. Kami akan mengirimkan email untuk menyelesaikan proses pembayaran. Silakan periksa email Anda."
+                message: successSubmissionChangePaymentGateway
             })
             dispatch(fetchStatusChangePaymentGateway())
         }
     }, [successSubmissionChangePaymentGateway])
 
-    console.log("account data: ", accountData)
-    console.log("is update: ", isUpdate, "is process: ", isProcess)
     return (
         <div className='flex'>
             {((isMobileDeviceType && isOpen) || !isMobileDeviceType) && (

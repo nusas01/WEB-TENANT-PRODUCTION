@@ -83,8 +83,6 @@ const StoreDropdown = () => {
     store.address.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  console.log("le ya lee: ", selectedStore)
-
   const handleStoreSelect = (store) => {
     dispatch(fetchDetailStore(store.id))
     dispatch(fetchAllEmployees(store.id))

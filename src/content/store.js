@@ -108,7 +108,7 @@ const StoreManagementDashboard = () => {
     if (errorStore) {
       setToast({
         type: "error",
-        message: "Terjadi kesalahan saat memuat store, silahkan coba lagi nanti"
+        message: errorStore
       })
     }
   }, [errorStore])
@@ -128,7 +128,7 @@ const StoreManagementDashboard = () => {
     if(errorDetailStore) {
       setToast({
         type: "error",
-        message: "Terjadi kesalahan saat memuat detail store, silahkan coba lagi nanti"
+        message: errorDetailStore
       })
     }
   }, [errorDetailStore])
@@ -147,7 +147,7 @@ const StoreManagementDashboard = () => {
     if (errorGetEmployees) {
       setToast({
         type: "error",
-        message: "Terjadi kesalahan saat memuat karyawan store, silahkan coba lagi nanti"
+        message: errorGetEmployees
       })
     }
   }, [errorGetEmployees])
@@ -160,7 +160,7 @@ const StoreManagementDashboard = () => {
     if (successCreateEmployee) {
       setToast({
         type: "success",
-        message: "Berhasil menambahkan karyawan baru"
+        message: successCreateEmployee
       })
     } 
   }, [successCreateEmployee])
@@ -172,7 +172,7 @@ const StoreManagementDashboard = () => {
     if (successUpdateEmployee) {
       setToast({
         type: "success",
-        message: "Berhasil memperbaruhi data karyawan"
+        message: successUpdateEmployee
       })
     }
   }, [successUpdateEmployee])
@@ -189,7 +189,7 @@ const StoreManagementDashboard = () => {
     if (successChangePasswordEmployee) {
       setToast({
         type: "success",
-        message: "Berhasil memperbaruhi password karyawan id: " + expandedPassword
+        message: successChangePasswordEmployee
       })
       setPasswordData({});
       setExpandedPassword(null);
@@ -201,7 +201,7 @@ const StoreManagementDashboard = () => {
     if (errorChangePasswordEmployee) {
       setToast({
         type: "error",
-        message: "Terjadi kesalahan saat memperbaruhi password karyawan, silahkan coba lagi nanti"
+        message: errorChangePasswordEmployee
       })
     }
   }, [errorChangePasswordEmployee])
@@ -327,7 +327,7 @@ const StoreManagementDashboard = () => {
     if (successDeleteEmployee) {
       setToast({
         type: "success",
-        message: "Berhasil menghapus karyawan id: " + deleteEmployeeId
+        message: successDeleteEmployee
       })
       setDeleteEmployeeId(null)
       dispatch(fetchAllEmployees(detailStore.id))
@@ -338,7 +338,7 @@ const StoreManagementDashboard = () => {
     if (errorDeleteEmployee) {
       setToast({
         type: "error",
-        message: "Terjadi kesalahan saat menghapus karyawan, silahkan coba lagi nanti"
+        message: errorDeleteEmployee
       })
       setDeleteEmployeeId(null)
     }
@@ -363,10 +363,9 @@ const StoreManagementDashboard = () => {
 
   useEffect(() => {
       if (successUpdateStore) {
-        console.log("data update store id: ", storeId)
         setToast({
           type: "success",
-          message: "Berhasil memperbaruhi data store"
+          message: successUpdateStore
         })
         dispatch(resetUpdateStore())
         dispatch(fetchAllStores())
@@ -386,8 +385,6 @@ const StoreManagementDashboard = () => {
     }
     return age;
   };
-
-  console.log("data account tenant: ", storeInfo)
 
   // Filter employees based on search and filter criteria
   const filteredEmployees = employees
@@ -430,7 +427,7 @@ const StoreManagementDashboard = () => {
       if (errorStatusChangePaymentGateway) {
           setToast({
               type: "error",
-              message: "Terjadi kesalahan saat memuat data, silahkan coba lagi nanti"
+              message: errorStatusChangePaymentGateway
           })
       }
   }, [errorStatusChangePaymentGateway])

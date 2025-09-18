@@ -63,7 +63,7 @@ const Sidebar = ({activeMenu}) => {
     if (logoutError) {
       setToast({
         type: 'error',
-        message: 'Terjadi kesalahan saat mendaftarkan akun. Silahkan coba lagi nanti.'
+        message: logoutError
       })
 
       const timer = setTimeout(() => {

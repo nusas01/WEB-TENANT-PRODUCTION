@@ -7,6 +7,7 @@ import {
     updateChangePaymentGatewaySlice,
 } from "../reducers/patch" 
 import {statusExpiredUserTokenSlice} from '../reducers/expToken'
+import { collectFingerprintAsync } from '../helperComponent/fp'
 
 const {setStatusExpiredUserToken} = statusExpiredUserTokenSlice.actions
 
@@ -20,7 +21,16 @@ export const registerVerification = (data) => async (dispatch) => {
     }
     dispatch(setLoadingRegisterVerification(true))
     try {
-        const response = await axios.patch(`${process.env.REACT_APP_REGISTER_VERIFICATION}`, data, config)
+        const nonce_data = await collectFingerprintAsync();
+
+        const formData = {
+            ...data,
+            nonce: nonce_data.nonce,
+            value: nonce_data.value, 
+            iv: nonce_data.iv,
+        }
+
+        const response = await axios.patch(`${process.env.REACT_APP_REGISTER_VERIFICATION}`, formData, config)
         dispatch(setSuccessRegisterVerification(response?.data?.success))
         dispatch(setDataRegisterVerification(response?.data?.data))
     } catch (error) {

@@ -76,7 +76,7 @@ export default function QRestroLanding() {
     if (errorProductService) {
       setToast({
         type: 'error',
-        message: 'Terjadi kesalahan pada server kami saat load data, silahkan coba lagi nanti.'
+        message: errorProductService
       })
     }
   }, [errorProductService])
@@ -183,7 +183,7 @@ export default function QRestroLanding() {
     <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
       {toast && (
           <ToastPortal> 
-              <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-100'>
+              <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-[9999]'>
               <Toast 
               message={toast.message} 
               type={toast.type} 
@@ -663,7 +663,11 @@ export default function QRestroLanding() {
             <p className="text-gray-400 mb-6">
               Tidak yakin paket mana yang tepat? Konsultasi gratis dengan expert kami
             </p>
-            <button className="px-8 py-4 border border-green-500/30 text-green-600 rounded-full hover:bg-green-50 transition-all duration-300">
+            <button 
+            onClick={() => {
+              window.open("https://wa.me/6289524474969", "_blank"); 
+            }}
+            className="px-8 py-4 border border-green-500/30 text-green-600 rounded-full hover:bg-green-50 transition-all duration-300">
               Konsultasi Gratis
             </button>
           </div>
@@ -808,13 +812,13 @@ export default function QRestroLanding() {
                     {
                       icon: Phone,
                       title: "WhatsApp Business",
-                      info: "+62 812-3456-7890",
+                      info: "+62 895-2447-4969",
                       gradient: "from-green-500 to-green-600"
                     },
                     {
                       icon: Mail,
                       title: "Email Support",
-                      info: "hello@nusas.id",
+                      info: "nusasinternal@gmail.com",
                       gradient: "from-green-600 to-emerald-600"
                     },
                     // {
@@ -889,7 +893,9 @@ export default function QRestroLanding() {
               {/* Button ke WhatsApp */}
               <div className="space-y-4">
                 <a
-                  href={`https://wa.me/6281234567890?text=Halo%20saya%20ingin%20menjadwalkan%20konsultasi.%0A%0APertanyaan:%0A1.%20Apa%20saja%20yang%20akan%20dibahas%20dalam%20sesi%20konsultasi?%0A2.%20Berapa%20lama%20durasi%20sesi%20ini?%0A3.%20Apakah%20ada%20biaya%20tambahan%20untuk%20implementasi?`}
+                  onClick={() => {
+                    window.open("https://wa.me/6289524474969", "_blank"); 
+                  }}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block w-full py-4 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl font-semibold text-white text-center hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-100"
@@ -1011,7 +1017,9 @@ export default function QRestroLanding() {
       {/* Floating Action Button */}
       <div className="fixed bottom-8 right-8 z-50">
         <button 
-          onClick={() => scrollToSection('contact')}
+          onClick={() => {
+            window.open("https://wa.me/6289524474969", "_blank"); 
+          }}
           className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full shadow-2xl shadow-green-500/25 flex items-center justify-center hover:scale-110 transition-all duration-300 animate-pulse"
         >
           <Phone className="h-8 w-8 text-white" />

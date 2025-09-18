@@ -33,9 +33,7 @@ const useSSE = (url, onMessage) => {
             try {
                 const data = JSON.parse(event.data);
                 onMessage(data);
-                console.log("SSE data received:", data);
             } catch (err) {
-                console.error("SSE JSON parse error:", err);
             }
         };
 
@@ -83,7 +81,6 @@ const SSEExtendServiceStore = () => {
     const url = `${process.env.REACT_APP_SSE_EXTEND_SERVICE_STORE}`
 
     useSSE(url, (data) => {
-        console.log("data extend service: ", data.id)
         dispatch(fetchDetailStore(data.id));
         dispatch(fetchRequiredPayment())
         if (pathName === '/invoice/extend/service') {
@@ -102,7 +99,6 @@ const SSEESubmissionChangePaymentGateway = () => {
 
     useSSE(url, (data) => {
         if (data.is_update) {
-            console.log("apakah ini dijalankan wowow")
             dispatch(setSuccessStatusChangePaymentGateway({
                 isUpdate:true,
                 isProcess:false,

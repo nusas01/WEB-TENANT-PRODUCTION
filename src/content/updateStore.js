@@ -118,7 +118,7 @@ const UpdateStoreTenantForm = () => {
         if (errorUpdateStore) {
             setToast({
                 type: "error",
-                message: "Terjadi kesalahan saat memperbaruhi data store, silahkan coba lagi nanti"
+                message: errorUpdateStore
             });
         }
     }, [errorUpdateStore]);

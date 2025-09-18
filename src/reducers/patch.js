@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialRegisterVerification = {
-    successRegisterVerification: false,
+    successRegisterVerification: null,
     errorFieldsRegisterVerification: null,
     errorRegisterVerification: null,
     loadingRegisterVerification: false,
@@ -33,7 +33,7 @@ export const registerVerificationSlice = createSlice({
 })
 
 const initialPatchCredentialStore = {
-    successPatchCredentialStore: false,
+    successPatchCredentialStore: null,
     errorFieldsPatchCredentialStore: null,
     errorPatchCredentialStore: null,
     loadingPatchCredentialStore: false,
@@ -61,7 +61,7 @@ export const patchCredentialStoreSlice = createSlice({
 })
 
 const initialUpdateChangePaymentGateway = {
-    successUpdateChangePaymentGateway: false,
+    successUpdateChangePaymentGateway: null,
     errorFieldsUpdateChangePaymentGateway: null,
     errorUpdateChangePaymentGateway: null,
     loadingUpdateChangePaymentGateway: false,
@@ -90,7 +90,7 @@ export const updateChangePaymentGatewaySlice = createSlice({
 
 
 const initialExtendServiceStore = {
-    successExtendServiceStore: false,
+    successExtendServiceStore: null,
     errorFieldsExtendServiceStore: null,
     errorSubdomain: null,
     errorExtendServiceStore: null,
@@ -129,7 +129,7 @@ export const extendServiceStoreSlice = createSlice({
 
 
 const initialChangePasswordEmployeeStore = {
-    successChangePasswordEmployee: false,
+    successChangePasswordEmployee: null,
     errorFieldsChangePasswordEmployee: null,
     errorChangePasswordEmployee: null,
     loadingChangePasswordEmployee: false,

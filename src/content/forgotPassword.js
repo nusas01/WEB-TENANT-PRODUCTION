@@ -39,13 +39,13 @@ const ForgotPasswordComponent = () => {
   };
 
   const {resetForgotPassword} = forgotPasswordSlice.actions
-  const {succesForgotPassword, errorForgotPassword, loadingForgotPassword} = useSelector((state) => state.forgotPasswordState)
+  const {succesForgotPassword, errorForgotPassword, errorFieldForgotPassword, loadingForgotPassword} = useSelector((state) => state.forgotPasswordState)
 
   useEffect(() => {
     if (succesForgotPassword) {
       setToast({
         type: 'success',
-        message: 'Cek email kamu! Kami sudah kirimkan link untuk reset kata sandi.'
+        message: succesForgotPassword
       })
       setIsSubmitted(true)
       dispatch(resetForgotPassword())
@@ -56,15 +56,18 @@ const ForgotPasswordComponent = () => {
     if (errorForgotPassword) {
       setToast({
         type: 'error',
-        message: 'Terjadi kesalahan saat lupa password pada server kami. Silahkan coba lagi nanti.'
+        message: errorForgotPassword
       })
     }
   }, [errorForgotPassword])
 
+  useEffect(() => {
+    dispatch(resetForgotPassword())
+  }, [])
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 flex flex-col py-12 px-6 sm:px-6 lg:px-8">
 
         <div className="mt-20 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-12 px-8 shadow-lg sm:rounded-2xl border border-gray-100">
@@ -104,7 +107,7 @@ const ForgotPasswordComponent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col py-12 px-6 sm:px-6 lg:px-8">
 
       {toast && (
           <ToastPortal> 
@@ -149,7 +152,7 @@ const ForgotPasswordComponent = () => {
                   autoComplete="email"
                   required
                   className={`w-full pl-10 pr-4 py-3.5 border rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${
-                    error ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white hover:border-gray-400'
+                    ( error || errorFieldForgotPassword?.email) ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white hover:border-gray-400'
                   }`}
                   placeholder="Enter your email"
                   value={email}
@@ -159,10 +162,10 @@ const ForgotPasswordComponent = () => {
                   }}
                 />
               </div>
-              {error && (
+              {(error || errorFieldForgotPassword?.email) && (
                 <div className="mt-2 flex items-center text-sm text-red-600">
                   <AlertCircle className="w-4 h-4 mr-1.5 flex-shrink-0" />
-                  {error}
+                  {error || errorFieldForgotPassword?.email}
                 </div>
               )}
             </div>

@@ -13,6 +13,7 @@ import {
     loginStatusSlice
 } from "../reducers/get"
 import {statusExpiredUserTokenSlice} from '../reducers/expToken'
+import { collectFingerprintAsync } from "../helperComponent/fp";
 
 const {setStatusExpiredUserToken} = statusExpiredUserTokenSlice.actions
 
@@ -27,7 +28,16 @@ export const login = (data) => async (dispatch) => {
     }
     dispatch(setLoadingLogin(true))
     try {
-        const response = await axios.post(`${process.env.REACT_APP_LOGIN}`, data, config);
+        const nonce_data = await collectFingerprintAsync();
+
+        const formData = {
+            ...data,
+            nonce: nonce_data.nonce,
+            value: nonce_data.value, 
+            iv: nonce_data.iv,
+        }
+
+        const response = await axios.post(`${process.env.REACT_APP_LOGIN}`, formData, config);
         dispatch(loginSuccess(response?.data?.success));
         dispatch(setLoginStatus(true))
     } catch(error) {
@@ -54,10 +64,22 @@ export const forgotPassword = (data) => async (dispatch) => {
     }
     dispatch(setLoadingForgotPassword(true))
     try {
-        const response = await axios.post(`${process.env.REACT_APP_FORGOT_PASSWORD}`, data, config)
+        const nonce_data = await collectFingerprintAsync();
+
+        const formData = {
+            ...data,
+            nonce: nonce_data.nonce,
+            value: nonce_data.value, 
+            iv: nonce_data.iv,
+        }
+
+        const response = await axios.post(`${process.env.REACT_APP_FORGOT_PASSWORD}`, formData, config)
         dispatch(setSuccessForgotPassword(response?.data?.success))
     } catch (error) {
-        dispatch(setErrorForgotPassword(error?.response?.data?.error))
+        dispatch(setErrorForgotPassword({
+            error: error?.response?.data?.error,
+            errorField: error?.response?.data?.ErrorField,
+        }))
     } finally {
         dispatch(setLoadingForgotPassword(false))
     }
@@ -74,7 +96,14 @@ export const registerAccount = (data) => async (dispatch) => {
     }
     dispatch(setLoadingRegisterAccount(true))
     try {
-        const response = await axios.post(`${process.env.REACT_APP_REGISTER}`, data, config)
+        const nonce_data = await collectFingerprintAsync();
+
+        const formData = {
+            ...data,
+            nonce_data,
+        };
+
+        const response = await axios.post(`${process.env.REACT_APP_REGISTER}`, formData, config)
         dispatch(setSuccessRegisterAccount({
             success: response?.data?.success, 
             data: response?.data?.data,

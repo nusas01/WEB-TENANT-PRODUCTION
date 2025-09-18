@@ -65,13 +65,11 @@ export default function LoginForm() {
     }
   }, [successLogin])
 
-  console.log("apap ini error", errorLogin)
-
   useEffect(() => { 
     if (errorLogin) {
       setToast({
         type: 'error',
-        message: 'Terjadi kesalahan saat mendaftarkan akun. Silahkan coba lagi nanti.'
+        message: errorLogin
       })
 
       const timer = setTimeout(() => {

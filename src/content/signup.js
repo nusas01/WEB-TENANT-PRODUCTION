@@ -52,8 +52,6 @@ export default function TenantRegistrationForm() {
   const [paymentFee, setPaymentfee] = useState(0)
   const [taxTransaction, setTaxTransaction] = useState(0)
 
-  console.log(packagePrice + paymentFee)
-
   useOutsideClick({
     ref: dropdownRef,
     callback: () => setIsOpenPaymentMethod(false),
@@ -90,9 +88,6 @@ export default function TenantRegistrationForm() {
   const {dataProductService: packages, errorProductService, loadingProductService} = useSelector((state) => state.persisted.productServices)
 
   const segments = ['Starter', 'Professional', 'Enterprise'];
-
-  console.log("data aapa ja iniii: ", packages)
-
   useEffect(() => {
     if (packages.length === 0) {
       dispatch(fetchProductServices())
@@ -103,7 +98,7 @@ export default function TenantRegistrationForm() {
     if (errorProductService) {
       setToast({
         type: "error",
-        message: "Terjadi kesalahan saat memuat data package, silahkan coba lagi nanti"
+        message: errorProductService
       })
     }
   }, [errorProductService])
@@ -122,7 +117,7 @@ export default function TenantRegistrationForm() {
     if (errorPaymentMethods) {
       setToast({
         type: "error",
-        message: "terjadi kesalahan saat memuat metode pembayaran, silahkan coba lagi nanti."
+        message: errorPaymentMethods
       })
     }
   }, [errorPaymentMethods])
@@ -152,7 +147,7 @@ export default function TenantRegistrationForm() {
     }
 
     let calculatedFee = 0;
-    console.log("apakah data nya ditemukan kawan :", foundPaymentMethod)
+
     if (foundPaymentMethod) {
       if (foundPaymentMethod.type_payment_method !== 'VA') {
         calculatedFee = foundPaymentMethod.fee * (selectedPrice + selectedTax);
@@ -285,14 +280,10 @@ export default function TenantRegistrationForm() {
     return newErrors;
   };
 
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-
-  console.log("data payment method: ", formData)
-  console.log("paymet method errr: ", groupedPaymentMethods)
 
   const handlePaymentMethodClick = ({id, channelCode, paymentMethod, price}) => {
     if (packagePrice === 0) {
@@ -332,11 +323,11 @@ export default function TenantRegistrationForm() {
       }
     }
 
-    if (!foundPaymentMethod) return; // Jangan lanjut kalau tidak ditemukan
+    if (!foundPaymentMethod) return;
 
     const taxValue = packagePrice * tax;
     let calculatedFee = 0;
-    console.log("apakah di temukan kawan ku: ", foundPaymentMethod)
+
     // Hitung fee tergantung tipe
     if (foundPaymentMethod.type_payment_method !== 'VA') {
       calculatedFee = foundPaymentMethod.fee * (packagePrice + taxValue);
@@ -371,6 +362,9 @@ export default function TenantRegistrationForm() {
     } 
   }, [successRegister])
 
+  console.log("error signup field", errorFieldsRegister)
+  console.log("error: ", errors)
+
   useEffect(() => {
     if (Array.isArray(errorFieldsRegister)) {
       const mappedErrors = errorFieldsRegister.reduce((acc, curr) => {
@@ -400,7 +394,7 @@ export default function TenantRegistrationForm() {
     if (errorRegister) {
       setToast({
         type: 'error',
-        message: 'Terjadi kesalahan saat register account di server kami. silahkan coba lagi nanti.'
+        message: errorRegister
       })
     }
   }, [errorRegister])
@@ -454,9 +448,6 @@ export default function TenantRegistrationForm() {
       }));
     }
   };
-
-  console.log("error fields: ", errorFieldsRegister)
-  console.log("data personal information: ", errors)
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -743,14 +734,14 @@ export default function TenantRegistrationForm() {
                     placeholder="Enter your first name"
                     maxLength={50}
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                      errors.first_name ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                      (errors.first_name || errors.FirstName) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                     }`}
                   />
                 </div>
-                {errors.first_name && (
+                {(errors.first_name || errors.FirstName) && (
                   <div className="flex items-center space-x-1 text-red-600 text-sm">
                     <AlertCircle className="h-4 w-4" />
-                    <span>{errors.first_name}</span>
+                    <span>{errors.first_name || errors.FirstName}</span>
                   </div>
                 )}
               </div>
@@ -771,14 +762,14 @@ export default function TenantRegistrationForm() {
                     placeholder="Enter your last name"
                     maxLength={50}
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                      errors.last_name ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                      (errors.last_name || errors.LastName) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                     }`}
                   />
                 </div>
-                {errors.last_name && (
+                {(errors.last_name || errors.LastName) && (
                   <div className="flex items-center space-x-1 text-red-600 text-sm">
                     <AlertCircle className="h-4 w-4" />
-                    <span>{errors.last_name}</span>
+                    <span>{errors.last_name || errors.LastName}</span>
                   </div>
                 )}
               </div>
@@ -829,7 +820,7 @@ export default function TenantRegistrationForm() {
                   placeholder="Create a strong password"
                   maxLength={50}
                   className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors${
-                    errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    (errors.password || errors.Password) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
                 <button
@@ -840,10 +831,10 @@ export default function TenantRegistrationForm() {
                   {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
                 </button>
               </div>
-              {errors.password && (
+              {(errors.password || errors.Password) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.password}</span>
+                  <span>{errors.password || errors.Password}</span>
                 </div>
               )}
             </div>
@@ -902,14 +893,14 @@ export default function TenantRegistrationForm() {
                   placeholder="Enter your complete address"
                   maxLength={100}
                   className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.address ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    (errors.address || errors.Address) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
               </div>
-              {errors.address && (
+              {(errors.address || errors.Address) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.address}</span>
+                  <span>{errors.address || errors.Address}</span>
                 </div>
               )}
             </div>
@@ -931,14 +922,14 @@ export default function TenantRegistrationForm() {
                   placeholder="Enter your city"
                   maxLength={50}
                   className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.city ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    (errors.city || errors.City) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
               </div>
-              {errors.city && (
+              {(errors.city || errors.City) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.city}</span>
+                  <span>{errors.city || errors.City}</span>
                 </div>
               )}
             </div>
@@ -960,14 +951,14 @@ export default function TenantRegistrationForm() {
                   placeholder="Enter your state/province"
                   maxLength={50}
                   className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.state ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    (errors.state || errors.State) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
               </div>
-              {errors.state && (
+              {(errors.state || errors.State) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.state}</span>
+                  <span>{errors.state || errors.State}</span>
                 </div>
               )}
             </div>
@@ -989,14 +980,14 @@ export default function TenantRegistrationForm() {
                   placeholder="Enter your country"
                   maxLength={50}
                   className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.country ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    (errors.country || errors.Country) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
               </div>
-              {errors.country && (
+              {(errors.country || errors.Country) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.country}</span>
+                  <span>{errors.country || errors.Country}</span>
                 </div>
               )}
             </div>
@@ -1018,14 +1009,14 @@ export default function TenantRegistrationForm() {
                   placeholder="e.g., 12345"
                   maxLength={5}
                   className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.postal_code ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    (errors.postal_code || errors.PostalCode) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
               </div>
-              {errors.postal_code && (
+              {(errors.postal_code || errors.PostalCode) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.postal_code}</span>
+                  <span>{errors.postal_code || errors.PostalCode}</span>
                 </div>
               )}
             </div>
@@ -1055,14 +1046,14 @@ export default function TenantRegistrationForm() {
                   placeholder="Enter your store name"
                   maxLength={50}
                   className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.name_store ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    (errors.name_store || errors.NameStore) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                 />
               </div>
-              {errors.name_store && (
+              {(errors.name_store || errors.NameStore) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.name_store}</span>
+                  <span>{errors.name_store || errors.NameStore}</span>
                 </div>
               )}
             </div>
@@ -1115,23 +1106,23 @@ export default function TenantRegistrationForm() {
                     placeholder="example: mystorename"
                     maxLength={10}
                     className={`block w-full pl-10 pr-0 py-3 border border-r-0 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                      errors.subdomain ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                      (errors.subdomain || errors.SubDomain) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
                   />
                   <div className="inline-flex items-center px-3 py-3 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-r-lg">
-                    .malay.io
+                    .nusas.id
                   </div>
                 </div>
               </div>
-              {errors.subdomain && (
+              {(errors.subdomain || errors.SubDomain) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.subdomain}</span>
+                  <span>{errors.subdomain || errors.SubDomain}</span>
                 </div>
               )}
               <p className="text-xs text-gray-500">
-                Your store will be accessible at: <span className="font-medium">{formData.subdomain || 'mystorename'}.malay.io</span>
+                Your store will be accessible at: <span className="font-medium">{formData.subdomain || 'mystorename'}.nusas.id</span>
               </p>
             </div>
 
@@ -1154,7 +1145,7 @@ export default function TenantRegistrationForm() {
                   type="button"
                   onClick={() => setIsOpenPaymentMethod(!isOpenPaymentMethod)}
                   className={`relative w-full bg-white border rounded-lg px-4 py-3 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${
-                    errors.payment_method 
+                    (errors.payment_method || errors.PaymentMethod)
                       ? 'border-red-300 bg-red-50' 
                       : isOpenPaymentMethod 
                       ? 'border-green-500 shadow-lg' 
@@ -1232,10 +1223,10 @@ export default function TenantRegistrationForm() {
                 )}
               </div>
 
-              {errors.payment_method && (
+              {(errors.payment_method || errors.PaymentMethod) && (
                 <div className="flex items-center space-x-1 text-red-600 text-sm mt-1">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errors.payment_method}</span>
+                  <span>{errors.payment_method || errors.PaymentMethod}</span>
                 </div>
               )}
 

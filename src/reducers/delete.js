@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 const initialDeleteEmployeeState = {
-  successDeleteEmployee: false,
+  successDeleteEmployee: null,
   errorDeleteEmployee: null,
   loadingDeleteEmployee: false,
 }
