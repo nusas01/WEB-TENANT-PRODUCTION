@@ -34,7 +34,6 @@ const PendingTransactions = () => {
 
   const { ref: headerRef, height: headerHeight } = useElementHeight();
   
-  
   // Sample data berdasarkan struktur yang diberikan
   const {resetErrorRequiredPayment, removeRequiredPaymentById} = getRequiredPaymentSlice.actions
   const {dataRequiredPayment:transactions, loadingRequiredPayment, errorRequiredPayment} = useSelector((state) => state.persisted.getRequiredPayment)
@@ -324,27 +323,34 @@ const PendingTransactions = () => {
                           {/* E-Wallet Payment */}
                           {transaction.payment_method === 'EWALLET' && (
                             <div className="space-y-3">
+                              {/* Pesan jika expired */}
                               <p className="text-sm text-gray-600">
                                 {isExpired(transaction.expires_at) 
                                   ? 'Transaksi telah expired. Silahkan buat transaksi baru.'
-                                  : 'Klik tombol di bawah untuk membuka aplikasi pembayaran'
+                                  : transaction.channel_code === 'OVO'
+                                    ? 'Untuk pembayaran menggunakan OVO, notifikasi akan langsung muncul di aplikasi OVO Anda. Silakan cek aplikasi OVO secara langsung untuk menyelesaikan pembayaran.'
+                                    : 'Klik tombol di bawah untuk membuka aplikasi pembayaran'
                                 }
                               </p>
-                              <button
-                                onClick={() => handleEwalletRedirect(transaction.payment_reference)}
-                                disabled={isExpired(transaction.expires_at)}
-                                className={`w-full py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
-                                  isExpired(transaction.expires_at)
-                                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                                    : 'bg-gray-900 text-white hover:bg-gray-800'
-                                }`}
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                                {isExpired(transaction.expires_at) 
-                                  ? 'Expired'
-                                  : `Buka Aplikasi ${transaction.channel_code}`
-                                }
-                              </button>
+
+                              {/* Jika bukan OVO → tampilkan tombol */}
+                              {transaction.channel_code !== 'OVO' && (
+                                <button
+                                  onClick={() => handleEwalletRedirect(transaction.redirect_url_mobile)}
+                                  disabled={isExpired(transaction.expires_at)}
+                                  className={`w-full py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                                    isExpired(transaction.expires_at)
+                                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                                  }`}
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                  {isExpired(transaction.expires_at) 
+                                    ? 'Expired'
+                                    : `Buka Aplikasi ${transaction.channel_code}`
+                                  }
+                                </button>
+                              )}
                             </div>
                           )}
 
@@ -363,10 +369,10 @@ const PendingTransactions = () => {
                                 <span className={`font-mono text-lg font-semibold ${
                                   isExpired(transaction.expires_at) ? 'text-red-900' : 'text-gray-900'
                                 }`}>
-                                  {transaction.payment_reference}
+                                  {transaction.virtual_account_number}
                                 </span>
                                 <button
-                                  onClick={() => handleCopyCode(transaction.payment_reference, transaction.id)}
+                                  onClick={() => handleCopyCode(transaction.virtual_account_number, transaction.id)}
                                   disabled={isExpired(transaction.expires_at)}
                                   className="p-2 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                   title={isExpired(transaction.expires_at) ? 'Expired' : 'Salin nomor VA'}

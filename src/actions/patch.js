@@ -6,6 +6,9 @@ import {
     changePasswordEmployeeSlice,
     updateChangePaymentGatewaySlice,
 } from "../reducers/patch" 
+import {
+    getRequiredPaymentSlice
+} from "../reducers/get"
 import {statusExpiredUserTokenSlice} from '../reducers/expToken'
 import { collectFingerprintAsync } from '../helperComponent/fp'
 
@@ -68,7 +71,7 @@ export const patchCredentialStore = (data) => async (dispatch) => {
     }
 }
 
-
+const { appendRequiredPayment } = getRequiredPaymentSlice.actions
 const {setSuccessExtendServiceStore, setErrorExtendServiceStore, setLoadingExtendServiceStore, setDataExtendServiceStore} = extendServiceStoreSlice.actions
 export const extendServiceStore = (data) => async (dispatch) => {
     const config = {
@@ -82,6 +85,7 @@ export const extendServiceStore = (data) => async (dispatch) => {
         const response = await axios.patch(`${process.env.REACT_APP_EXTEND_SERVICE_STORE}`, data, config)
         dispatch(setSuccessExtendServiceStore(response?.data?.success))
         dispatch(setDataExtendServiceStore(response?.data?.data))
+        dispatch(appendRequiredPayment(response?.data?.data))
     } catch (error) {
         if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
             dispatch(setStatusExpiredUserToken(true));

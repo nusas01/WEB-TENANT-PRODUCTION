@@ -224,6 +224,9 @@ export const getRequiredPaymentSlice = createSlice({
         (item) => item.id !== idToRemove
       )
     },
+    appendRequiredPayment: (state, action) => {
+      state.dataRequiredPayment.push(action.payload)
+    },
   },
 })
 

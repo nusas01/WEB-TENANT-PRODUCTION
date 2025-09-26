@@ -93,7 +93,7 @@ const SSEExtendServiceStore = () => {
     const url = `${process.env.REACT_APP_SSE_EXTEND_SERVICE_STORE}`
 
     useSSE(url, (data) => {
-        dispatch(fetchDetailStore(data.id));
+        dispatch(fetchDetailStore(data?.id));
         dispatch(fetchRequiredPayment())
         if (pathName === '/invoice/extend/service') {
             navigate('/store')

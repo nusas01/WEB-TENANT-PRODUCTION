@@ -106,13 +106,13 @@ const PaymentProcessing = () => {
 
     useEffect(() => {
       if (successExtendServiceStore) {
-        if (dataExtendServiceStore.payment_method === "EWALLET") {
+        if (dataExtendServiceStore.payment_method === "EWALLET" && dataExtendServiceStore.channel_code !== "OVO") {
           const isMobile = /Mobi|Android/i.test(navigator.userAgent);
           const redirectUrl = isMobile 
             ? dataExtendServiceStore.redirect_url_mobile 
             : dataExtendServiceStore.redirect_url_web;
 
-          window.open(redirectUrl, "_blank", "noopener,noreferrer");
+          window.open(redirectUrl, "_blank");
           navigate('/invoice/extend/service');
         } else {
           navigate("/invoice/extend/service");
@@ -406,6 +406,7 @@ const PaymentProcessing = () => {
                   <input
                     type="tel"
                     placeholder="8xx-xxxx-xxxx"
+                    maxLength="12"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     className="w-full pl-20 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
@@ -468,7 +469,7 @@ const PaymentProcessing = () => {
                   <div className="relative">
                     <input
                       type="text"
-                      maxLength={10}
+                      maxLength={63}
                       placeholder="masukkan-nama-domain"
                       value={domainInput}
                       onChange={(e) => {
