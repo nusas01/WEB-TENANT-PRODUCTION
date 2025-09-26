@@ -362,9 +362,6 @@ export default function TenantRegistrationForm() {
     } 
   }, [successRegister])
 
-  console.log("error signup field", errorFieldsRegister)
-  console.log("error: ", errors)
-
   useEffect(() => {
     if (Array.isArray(errorFieldsRegister)) {
       const mappedErrors = errorFieldsRegister.reduce((acc, curr) => {

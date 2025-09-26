@@ -177,8 +177,6 @@ const SettingsComponent = () => {
         }
     }, [errorUpdateChangePaymentGateway])
 
-    console.log("maintanance_time", xenditData.maintenance_time);
-
     const isDisabledChangePaymentGateway = loadingUpdateChangePaymentGateway || xenditData.api_key === "" || xenditData.bussness_id === "" || xenditData.secret_key_webhook === "" || xenditData.maintenance_time === "";
    
     const handleUpdateChangePaymentGateway = () => {

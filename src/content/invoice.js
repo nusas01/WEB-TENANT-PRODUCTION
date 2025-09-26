@@ -145,7 +145,6 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
       setCopiedVA(true);
       setTimeout(() => setCopiedVA(false), 2000);
     } catch (err) {
-      console.error('Failed to copy: ', err);
     }
   };
 
@@ -229,7 +228,6 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
       document.body.removeChild(link);
       
     } catch (error) {
-      console.error('Error generating PNG:', error);
       alert(`Gagal mengunduh PNG: ${error.message}. Silakan coba lagi.`);
     } finally {
       setDownloading(false);
