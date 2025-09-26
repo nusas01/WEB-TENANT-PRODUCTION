@@ -185,8 +185,8 @@ const AddStoreForm = () => {
                 if (!value) {
                     newErrors.subdomain = 'Subdomain wajib diisi';
                     isValid = false;
-                } else if (value.length > 10) {
-                    newErrors.subdomain = 'Subdomain tidak boleh lebih dari 10 karakter';
+                } else if (value.length > 63) {
+                    newErrors.subdomain = 'Subdomain tidak boleh lebih dari 63 karakter';
                     isValid = false;
                 } else {
                     delete newErrors.subdomain;
@@ -426,6 +426,7 @@ const AddStoreForm = () => {
                             onChange={handleInputChange}
                             className="flex-1 outline-none border-none focus:ring-0"
                             placeholder="8123456789"
+                            maxLength="12"
                         />
                     </div>
                     {(errors.phone_number || errors.PhoneNumber) && (
@@ -769,6 +770,7 @@ const AddStoreForm = () => {
                                         onChange={handleInputChange}
                                         className="flex-1 outline-none border-none focus:ring-0"
                                         placeholder="8123456789"
+                                        length="12"
                                     />
                                 </div>
                                 {(errors.phone_number_ewallet || errors.PhoneNumberEwallet) && (

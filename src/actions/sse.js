@@ -5,7 +5,11 @@ import {
     fetchDetailStore,
     fetchRequiredPayment,
 } from '../actions/get';
-import { GetStatusChangePaymentGatewaySlice } from "../reducers/get";
+import { 
+  GetStatusChangePaymentGatewaySlice,
+  storeSlice,
+  detailStoreSlice,
+} from "../reducers/get";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export const UseSSEContainer = () => {
@@ -16,38 +20,46 @@ export const UseSSEContainer = () => {
             {loggedIn && <SSECreateStore />}
             {loggedIn && <SSEExtendServiceStore />}
             {loggedIn && <SSEESubmissionChangePaymentGateway />}
+            {loggedIn && <SSECreateStoreExpired/>}
         </>
     )
 }
 
-const useSSE = (url, onMessage) => {
-    const sourceRef = useRef(null);
+export const useSSE = (url, onMessage) => {
+  const sourceRef = useRef(null);
+  const handlerRef = useRef(onMessage);
 
-    useEffect(() => {
-        if (!url || sourceRef.current) return;
+  // selalu sync handler terbaru
+  useEffect(() => {
+    handlerRef.current = onMessage;
+  }, [onMessage]);
 
-        const evtSource = new EventSource(url, { withCredentials: true });
-        sourceRef.current = evtSource;
+  useEffect(() => {
+    if (!url || sourceRef.current) return;
 
-        evtSource.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                onMessage(data);
-            } catch (err) {
-            }
-        };
+    const evtSource = new EventSource(url, { withCredentials: true });
+    sourceRef.current = evtSource;
 
-        // evtSource.onerror = (err) => {
-        //     console.error("SSE connection error:", err);
-        // };
+    evtSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (handlerRef.current) {
+          handlerRef.current(data);
+        }
+      } catch (err) {
+      }
+    };
 
-        return () => {
-            if (sourceRef.current) {
-                sourceRef.current.close();
-                sourceRef.current = null;
-            }
-        };
-    }, [url, onMessage]);
+    evtSource.onerror = (err) => {
+    };
+
+    return () => {
+      if (sourceRef.current) {
+        sourceRef.current.close();
+        sourceRef.current = null;
+      }
+    };
+  }, [url]);
 };
 
 
@@ -107,4 +119,18 @@ const SSEESubmissionChangePaymentGateway = () => {
     });
 
     return null;
+}
+
+const {setSelectedStoreId, setSelectedStore, setDetailStore} = detailStoreSlice.actions
+const { removeStoreById } = storeSlice.actions
+const SSECreateStoreExpired = () => {
+  const dispatch = useDispatch()
+  const url = `${process.env.REACT_APP_SSE_CREATE_STORE_EXPIRED}`
+
+  useSSE(url, (data) => {
+    dispatch(removeStoreById(data?.id))
+    dispatch(setSelectedStoreId(null))
+    dispatch(setSelectedStore({}))
+    dispatch(setDetailStore(null))
+  })
 }

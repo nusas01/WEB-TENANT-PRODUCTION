@@ -19,7 +19,7 @@ export const updateEmployeeSlice = createSlice({
       state.loadingUpdateEmployee = action.payload
     },
     resetUpdateEmployee: (state) => {
-      state.successUpdateEmployee = false
+      state.successUpdateEmployee = null
       state.errorUpdateEmployee = null
     },
   },

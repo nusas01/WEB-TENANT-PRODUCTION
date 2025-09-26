@@ -17,7 +17,7 @@ export const deleteEmployee = (id) => {
         params: { id: id },
         withCredentials: true,
       })
-      dispatch(setSuccessDeleteEmployee(true))
+      dispatch(setSuccessDeleteEmployee(response?.data?.success))
       return response.data
     } catch (error) {
       if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {

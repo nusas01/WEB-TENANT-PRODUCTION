@@ -247,7 +247,7 @@ export default function TenantRegistrationForm() {
 
       case 'subdomain':
         if (!value) newErrors.subdomain = 'Subdomain wajib diisi';
-        else if (value.length > 10) newErrors.subdomain = 'Subdomain maksimal 10 karakter';
+        else if (value.length > 63) newErrors.subdomain = 'Subdomain maksimal 10 karakter';
         break;
 
       default:
@@ -446,6 +446,8 @@ export default function TenantRegistrationForm() {
         phone_number_store: "+62" + formData.phone_number_store,
         subdomain: formData.subdomain,
       }));
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -857,6 +859,7 @@ export default function TenantRegistrationForm() {
                     value={formData.phone_number}
                     onChange={handleInputChange}
                     placeholder="81234567890"
+                    maxLength="12"
                     className="flex-1 outline-none border-none focus:ring-0"
                   />
               </div>
@@ -1061,7 +1064,7 @@ export default function TenantRegistrationForm() {
             {/* Store Phone Number */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
-                Store Phone Number (Optional)
+                Store Phone Number
               </label>
               <div 
               className={`flex items-center w-full px-4 py-3 rounded-lg border 
@@ -1077,6 +1080,7 @@ export default function TenantRegistrationForm() {
                   onChange={handleInputChange}
                   placeholder="81234567890"
                   className="flex-1 outline-none border-none focus:ring-0"
+                  maxLength="12"
                 />
               </div>
               {(errors.phone_number_store || errors.PhoneNumberStore) && (
@@ -1104,7 +1108,7 @@ export default function TenantRegistrationForm() {
                     value={formData.subdomain}
                     onChange={handleInputChange}
                     placeholder="example: mystorename"
-                    maxLength={10}
+                    maxLength={63}
                     className={`block w-full pl-10 pr-0 py-3 border border-r-0 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
                       (errors.subdomain || errors.SubDomain) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                     }`}
@@ -1265,6 +1269,7 @@ export default function TenantRegistrationForm() {
                     onChange={handleInputChange}
                     placeholder="Phone number linked to your e-wallet"
                     className="flex-1 outline-none border-none focus:ring-0"
+                    maxLength="12"
                   />
                 </div>
                 {(errors.phone_number_ewallet || errors.PhoneNumberEwallet) && (

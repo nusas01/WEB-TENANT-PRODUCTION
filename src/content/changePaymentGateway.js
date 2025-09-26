@@ -324,6 +324,7 @@ const ChangePaymentGateway = () => {
                                             onChange={handleInputChange}
                                             className="flex-1 outline-none border-none focus:ring-0"
                                             placeholder="8123456789"
+                                            length="12"
                                         />
                                     </div>
                                     {(errors.phone_number_ewallet || errors.PhoneNumberEwallet ) && (

@@ -37,6 +37,9 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
     if (pathName === '/invoice/create/store') {
       navigate('/payment/required')
     }
+    if (pathName === '/invoice/signup') {
+      navigate('/')
+    }
   }
 
   useEffect(() => {
@@ -560,7 +563,6 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
             </div>
             <p className="text-gray-600 text-sm">
               Pembayaran akan diverifikasi otomatis setelah berhasil. 
-              Notifikasi akan dikirim ke email yang terdaftar.
             </p>
             <p className="text-gray-500 text-xs mt-2">
               © 2025 NUSAS - Digital Payment Solutions

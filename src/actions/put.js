@@ -22,8 +22,7 @@ export const updateEmployee = (formData) => {
         },
         withCredentials: true,
       })
-      dispatch(setSuccessUpdateEmployee(true))
-      return response.data
+      dispatch(setSuccessUpdateEmployee(response?.data?.success))
     } catch (error) {
       if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
         dispatch(setStatusExpiredUserToken(true));

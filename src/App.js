@@ -26,6 +26,7 @@ import {statusExpiredUserTokenSlice} from './reducers/expToken'
 import { loginStatusSlice } from './reducers/get';
 import { useNavigate } from 'react-router-dom';
 import { UseSSEContainer } from './actions/sse'
+import { resetApp } from './reducers/state';
 
 function AppContent() {
   const navigate = useNavigate();
@@ -55,6 +56,7 @@ function AppContent() {
   useEffect(() => {
     if (statusExpiredUserToken) {
       navigate('/login');
+      resetApp();
       dispatch(clearStatusExpiredUserToken());
       dispatch(setLoginStatus(false));
     }

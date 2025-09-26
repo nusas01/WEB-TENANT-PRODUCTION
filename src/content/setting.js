@@ -103,7 +103,8 @@ const SettingsComponent = () => {
     const [xenditData, setXenditData] = useState({
         bussness_id: '',
         api_key: '',
-        secret_key_webhook: ''
+        secret_key_webhook: '',
+        maintenance_time: '',
     });
 
     const {resetPatchCredentialStore} = patchCredentialStoreSlice.actions
@@ -176,7 +177,9 @@ const SettingsComponent = () => {
         }
     }, [errorUpdateChangePaymentGateway])
 
-    const isDisabledChangePaymentGateway = loadingUpdateChangePaymentGateway || xenditData.api_key === "" || xenditData.bussness_id === "" || xenditData.secret_key_webhook === "" || xenditData.maintenanceTime === "";
+    console.log("maintanance_time", xenditData.maintenance_time);
+
+    const isDisabledChangePaymentGateway = loadingUpdateChangePaymentGateway || xenditData.api_key === "" || xenditData.bussness_id === "" || xenditData.secret_key_webhook === "" || xenditData.maintenance_time === "";
    
     const handleUpdateChangePaymentGateway = () => {
         dispatch(updateChangePaymentGateway(xenditData))
@@ -231,7 +234,7 @@ const SettingsComponent = () => {
                     </ToastPortal>
                 )}
 
-                    <div className="max-w-7xl">
+                    <div>
                         {/* Header */}
                         <div
                         ref={headerRef}
@@ -269,35 +272,35 @@ const SettingsComponent = () => {
                             </div>
                         </div>  
 
-                        <div className='mx-auto space-y-4' style={{marginTop: headerHeight}}>
+                        <div className='space-y-4' style={{marginTop: headerHeight}}>
                                 {/* Tab Navigation */}
                                 <div className="bg-white rounded-lg shadow-sm mb-6">
-                                <div className="border-b border-gray-200">
-                                    <nav className="flex space-x-8 px-6">
-                                    <button
-                                        onClick={() => setActiveTab('account')}
-                                        className={`py-6 px-1 border-b-2 font-medium text-md ${
-                                        activeTab === 'account'
-                                            ? 'border-gray-900 text-gray-900'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                        }`}
-                                    >
-                                        <User className="w-4 h-4 inline mr-2" />
-                                        Account Settings
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab('xendit')}
-                                        className={`py-6 px-1 border-b-2 font-medium text-md ${
-                                        activeTab === 'xendit'
-                                            ? 'border-gray-900 text-gray-900'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                        }`}
-                                    >
-                                        <Building className="w-4 h-4 inline mr-2" />
-                                        Xendit Integration
-                                    </button>
-                                    </nav>
-                                </div>
+                                    <div className="border-b border-gray-200">
+                                        <nav className="flex space-x-8 px-6">
+                                        <button
+                                            onClick={() => setActiveTab('account')}
+                                            className={`py-6 px-1 border-b-2 font-medium text-md ${
+                                            activeTab === 'account'
+                                                ? 'border-gray-900 text-gray-900'
+                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                            }`}
+                                        >
+                                            <User className="w-4 h-4 inline mr-2" />
+                                            Account Settings
+                                        </button>
+                                        <button
+                                            onClick={() => setActiveTab('xendit')}
+                                            className={`py-6 px-1 border-b-2 font-medium text-md ${
+                                            activeTab === 'xendit'
+                                                ? 'border-gray-900 text-gray-900'
+                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                            }`}
+                                        >
+                                            <Building className="w-4 h-4 inline mr-2" />
+                                            Xendit Integration
+                                        </button>
+                                        </nav>
+                                    </div>
                                 </div>
 
                                 {/* Account Settings Tab */}
@@ -384,7 +387,7 @@ const SettingsComponent = () => {
                                 {/* Xendit Integration Tab */}
                                 {activeTab === 'xendit' && (
                                     <div className="bg-white rounded-lg shadow-sm">
-                                        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                        <div className="px-4 py-4 border-b border-gray-200 flex justify-between items-center">
                                         <div>
                                             <h2 className="text-xl font-semibold text-gray-900">Xendit Integration</h2>
                                             <p className="text-sm text-gray-600 mt-1">Configure your Xendit payment gateway settings</p>
@@ -848,7 +851,7 @@ const SettingsComponent = () => {
                                         )}
                                         </div>
                                     </div>
-                                    )}
+                                )}
                             </div>
                         </div>
                 </div>

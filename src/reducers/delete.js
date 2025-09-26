@@ -20,7 +20,7 @@ export const deleteEmployeeSlice = createSlice({
       state.loadingDeleteEmployee = action.payload
     },
     resetDeleteEmployee: (state) => {
-      state.successDeleteEmployee = false
+      state.successDeleteEmployee = null
       state.errorDeleteEmployee = null
     },
   },

@@ -137,7 +137,7 @@ export const createEmployeeSlice = createSlice({
       state.loadingCreateEmployee = action.payload
     },
     resetCreateEmployee: (state) => {
-      state.successCreateEmployee = false
+      state.successCreateEmployee = null
       state.errorCreateEmployee = null
       state.ErrorFieldCreateEmployee = null
     },

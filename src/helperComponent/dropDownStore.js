@@ -72,7 +72,7 @@ const StoreDropdown = () => {
   }, [stores])
 
   // get detail data store 
-  const {setSelectedStore} = detailStoreSlice.actions
+  const {setSelectedStoreId, setSelectedStore} = detailStoreSlice.actions
   const {
     selectedStore, 
     loadingDetailStore
@@ -85,8 +85,8 @@ const StoreDropdown = () => {
 
   const handleStoreSelect = (store) => {
     dispatch(fetchDetailStore(store.id))
-    dispatch(fetchAllEmployees(store.id))
-    dispatch(setSelectedStore(store));
+    dispatch(setSelectedStoreId(store.id))
+    dispatch(setSelectedStore(store))
     setIsOpen(false);
     setSearchTerm('');
   };

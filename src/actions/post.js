@@ -159,15 +159,15 @@ export const createEmployee = (formData) => {
         },
         withCredentials: true,
       })
-      dispatch(setSuccessCreateEmployee(true))
+      dispatch(setSuccessCreateEmployee(response?.data?.success))
       return response.data
     } catch (error) {
         if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
             dispatch(setStatusExpiredUserToken(true));
         }
         dispatch(setErrorCreateEmployee({
-            error: error?.response?.data?.error || 'Gagal membuat employee', 
-            errorField: error?.response?.data?.ErrorField[0],
+            error: error?.response?.data?.error, 
+            errorField: error?.response?.data?.ErrorField,
         }))
     } finally {
       dispatch(setLoadingCreateEmployee(false))

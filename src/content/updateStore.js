@@ -8,6 +8,7 @@ import {
     Toast,
     ToastPortal
 } from './alert';
+import { getPhoneWithoutPrefix } from './helper'
 
 const UpdateStoreTenantForm = () => {
     const dispatch = useDispatch();
@@ -15,16 +16,6 @@ const UpdateStoreTenantForm = () => {
     const navigate = useNavigate();
     const [toast, setToast] = useState(null);
     const dataStore = location.state?.dataStoreState;
-
-    // Function untuk mengambil nomor tanpa prefix +62
-    const getPhoneWithoutPrefix = (phoneNumber) => {
-        if (!phoneNumber) return '';
-        const phone = phoneNumber.toString();
-        if (phone.startsWith('+62')) {
-            return phone.substring(3);
-        }
-        return phone;
-    };
 
     const [formData, setFormData] = useState({
         id: dataStore?.id,
@@ -124,24 +115,24 @@ const UpdateStoreTenantForm = () => {
     }, [errorUpdateStore]);
 
     useEffect(() => {
-            if (Object.keys(errorFieldUpdateStore).length > 0) {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth' 
-                });
-    
-                if (Array.isArray(errorFieldUpdateStore) && errorFieldUpdateStore.length > 0) {
-                    const mergedErrors = errorFieldUpdateStore.reduce((acc, curr) => {
-                        return { ...acc, ...curr };
-                    }, {});
-    
-                    setErrors(prev => ({
-                        ...prev,
-                        ...mergedErrors
-                    }));
-                }
+        if (Object.keys(errorFieldUpdateStore).length > 0) {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' 
+            });
+
+            if (Array.isArray(errorFieldUpdateStore) && errorFieldUpdateStore.length > 0) {
+                const mergedErrors = errorFieldUpdateStore.reduce((acc, curr) => {
+                    return { ...acc, ...curr };
+                }, {});
+
+                setErrors(prev => ({
+                    ...prev,
+                    ...mergedErrors
+                }));
             }
-        }, [errorFieldUpdateStore])
+        }
+    }, [errorFieldUpdateStore])
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -158,7 +149,7 @@ const UpdateStoreTenantForm = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gray-50 sm:py-8 sm:px-4 sm:px-6 lg:px-8">
             {toast && (
                 <ToastPortal> 
                     <div className='fixed top-8 left-1/2 transform -translate-x-1/2 z-[9999]'>
@@ -176,7 +167,7 @@ const UpdateStoreTenantForm = () => {
             )}
 
             <div className="max-w-4xl mx-auto">
-                <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
+                <div className="bg-white shadow-xl sm:rounded-2xl overflow-hidden">
                     <div className="bg-gray-900 py-6 px-8">
                         <h1 className="text-2xl font-bold text-white">Update Store Information</h1>
                         <p className="text-gray-300 mt-1">Update your store details below</p>
@@ -227,7 +218,7 @@ const UpdateStoreTenantForm = () => {
                                         onChange={handleChange}
                                         className={`${inputClass('PhoneNumber')} rounded-l-none border-l-0 pl-3`}
                                         placeholder="8123456789"
-                                        maxLength="13"
+                                        maxLength="12"
                                     />
                                 </div>
                                 {errors.PhoneNumber && <p className="mt-1 text-sm text-red-600">• {errors.PhoneNumber}</p>}

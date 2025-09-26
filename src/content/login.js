@@ -53,6 +53,12 @@ export default function LoginForm() {
   }, [errorField])
 
   useEffect(() => {
+    if (successLogin || errorLogin || errorField) {
+      dispatch(resetLogin())
+    }
+  }, [])
+
+  useEffect(() => {
     if (successLogin) {
       setFormData({
         email: '',
@@ -132,6 +138,7 @@ export default function LoginForm() {
 
   const handleSignup = () => {
     navigate('/signup')
+    dispatch(resetLogin())
   };
 
   return (
@@ -246,7 +253,10 @@ export default function LoginForm() {
                 <span className="ml-2 text-sm text-gray-700">Remember me</span>
               </label>
               <button
-                onClick={() => navigate('/forgot/password')}
+                onClick={() => {
+                  navigate('/forgot/password')
+                  dispatch(resetLogin())
+                }}
                 className="text-sm text-green-600 hover:text-green-500 font-medium transition-colors"
               >
                 Forgot password?

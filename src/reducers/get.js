@@ -134,10 +134,15 @@ export const storeSlice = createSlice({
     resetStoreError: (state) => {
       state.errorStore = null
     },
+    removeStoreById: (state, action) => {
+      const idToRemove = action.payload
+      state.allStores = state.allStores.filter(store => store.id !== idToRemove)
+    },
   },
 })
 
 const initialDetailStoreState = {
+  storeId: null,
   detailStore: null,
   selectedStore: {},
   loadingDetailStore: false,
@@ -148,10 +153,13 @@ export const detailStoreSlice = createSlice({
   initialState: initialDetailStoreState,
   reducers: {
     setDetailStore: (state, action) => {
-      state.detailStore = action.payload || []
+      state.detailStore = action.payload || null
     },
     setSelectedStore: (state, action) => {
         state.selectedStore = action.payload || {}
+    },
+    setSelectedStoreId: (state, action) => {
+      state.storeId = action.payload
     },
     setLoadingDetailStore: (state, action) => {
       state.loadingDetailStore = action.payload
