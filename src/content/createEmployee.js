@@ -52,7 +52,7 @@ const CreateEmployee = () => {
   // handle update employee
   const employeUpdateState = location.state?.employeeState
   const {resetUpdateEmployee} = updateEmployeeSlice.actions
-  const {successUpdateEmployee, errorUpdateEmployee, loadingUpdateEmployee} = useSelector((state) => state.updateEmployeeState)
+  const {successUpdateEmployee, errorUpdateEmployee, errorFieldUpdateEmployee, loadingUpdateEmployee} = useSelector((state) => state.updateEmployeeState)
   const isUpdate = Boolean(employeUpdateState?.id);
 
   useEffect(() => {
@@ -65,22 +65,36 @@ const CreateEmployee = () => {
     }
   }, [employeUpdateState]);
 
-    useEffect(() => {
-      if (successUpdateEmployee) {
-        navigate('/store')
-        dispatch(fetchAllEmployees(employeUpdateState.store_id))
-      } 
-    }, [successUpdateEmployee])
+  useEffect(() => {
+    if (successUpdateEmployee) {
+      navigate('/store')
+      dispatch(fetchAllEmployees(employeUpdateState.store_id))
+    } 
+  }, [successUpdateEmployee])
 
-    useEffect(() => {
-      if (errorUpdateEmployee) {
-        setToast({
-          type: "error",
-          message: errorUpdateEmployee
-        })
-      }
-    }, [errorUpdateEmployee])
+  useEffect(() => {
+    if (errorUpdateEmployee) {
+      setToast({
+        type: "error",
+        message: errorUpdateEmployee
+      })
+    }
+  }, [errorUpdateEmployee])
 
+  useEffect(() => {
+    if (errorFieldUpdateEmployee) {
+      const mappedErrors = errorFieldUpdateEmployee.reduce((acc, curr) => {
+          const [field, message] = Object.entries(curr)[0]; 
+          acc[field] = message;
+          return acc;
+        }, {});
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+        setErrors(mappedErrors)
+    }
+  }, [errorFieldUpdateEmployee])
 
     // handle submit create employee
     const {resetCreateEmployee} = createEmployeeSlice.actions
@@ -114,22 +128,18 @@ const CreateEmployee = () => {
 
     useEffect(() => {
       if (ErrorFieldCreateEmployee && Object.keys(ErrorFieldCreateEmployee).length > 0) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        if (Array.isArray(ErrorFieldCreateEmployee) && ErrorFieldCreateEmployee.length > 0) {
-          const mergedErrors = ErrorFieldCreateEmployee.reduce((acc, curr) => {
-            return { ...acc, ...curr };
-          }, {});
-
-          setErrors(prev => ({
-            ...prev,
-            ...mergedErrors
-          }));
-        }
+        const mappedErrors = ErrorFieldCreateEmployee.reduce((acc, curr) => {
+          const [field, message] = Object.entries(curr)[0]; 
+          acc[field] = message;
+          return acc;
+        }, {});
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+        setErrors(mappedErrors)
       }
     }, [ErrorFieldCreateEmployee]);
-
-
 
     const [showPassword, setShowPassword] = useState(false)
     const [imagePreview, setImagePreview] = useState(null)
@@ -455,6 +465,9 @@ const CreateEmployee = () => {
       if (e) e.preventDefault()
       
       // Validate all fields
+      dispatch(resetCreateEmployee())
+      dispatch(resetUpdateEmployee())
+
       const foundErrors = validateAllFields()
       
       // Check if there are any errors

@@ -27,7 +27,11 @@ export const updateEmployee = (formData) => {
       if (error.response?.data?.code === "TOKEN_USER_EXPIRED") {
         dispatch(setStatusExpiredUserToken(true));
       }
-      dispatch(setErrorUpdateEmployee(error?.response?.data?.error || 'Gagal memperbarui employee'))
+      const payload = {
+        error: error?.response?.data?.error,
+        errorField: error?.response?.data?.ErrorField,
+      }
+      dispatch(setErrorUpdateEmployee(payload))
     } finally {
       dispatch(setLoadingUpdateEmployee(false))
     }

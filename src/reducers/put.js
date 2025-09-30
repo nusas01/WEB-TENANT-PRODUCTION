@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialUpdateEmployeeState = {
   successUpdateEmployee: null,
   errorUpdateEmployee: null,
+  errorFieldUpdateEmployee: null,
   loadingUpdateEmployee: false,
 }
 export const updateEmployeeSlice = createSlice({
@@ -13,12 +14,14 @@ export const updateEmployeeSlice = createSlice({
       state.successUpdateEmployee = action.payload
     },
     setErrorUpdateEmployee: (state, action) => {
-      state.errorUpdateEmployee = action.payload || null
+      state.errorUpdateEmployee = action.payload.error || null
+      state.errorFieldUpdateEmployee = action.payload.errorField
     },
     setLoadingUpdateEmployee: (state, action) => {
       state.loadingUpdateEmployee = action.payload
     },
     resetUpdateEmployee: (state) => {
+      state.errorFieldUpdateEmployee = null
       state.successUpdateEmployee = null
       state.errorUpdateEmployee = null
     },
