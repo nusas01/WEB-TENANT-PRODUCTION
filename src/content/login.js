@@ -49,6 +49,8 @@ export default function LoginForm() {
           ...prev,
           ...mergedErrors
       }));
+
+      dispatch(resetLogin())
     }
   }, [errorField])
 

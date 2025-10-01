@@ -32,7 +32,6 @@ const CreateEmployee = () => {
   const [errors, setErrors] = useState({})
   const location = useLocation()
 
-  
   // handle get store_id 
   const store_id = location.state?.store_id
 
@@ -93,6 +92,7 @@ const CreateEmployee = () => {
           behavior: "smooth"
         });
         setErrors(mappedErrors)
+        dispatch(resetUpdateEmployee())
     }
   }, [errorFieldUpdateEmployee])
 
@@ -138,6 +138,7 @@ const CreateEmployee = () => {
           behavior: "smooth"
         });
         setErrors(mappedErrors)
+        dispatch(resetCreateEmployee())
       }
     }, [ErrorFieldCreateEmployee]);
 

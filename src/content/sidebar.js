@@ -9,7 +9,7 @@ import {
   Settings,
   Hourglass,
 } from "lucide-react"
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDeviceDetection } from "./helper";
 import { useSelector, useDispatch } from "react-redux";
 import { navbarSlice } from "../reducers/reducers";
@@ -34,6 +34,7 @@ const Sidebar = ({activeMenu}) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [toast, setToast] = useState(null)
+  const location = useLocation()
 
   useDeviceDetection();
   const { setIsOpen } = navbarSlice.actions
