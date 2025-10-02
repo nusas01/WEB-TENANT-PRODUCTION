@@ -737,7 +737,7 @@ const SettingsComponent = () => {
                                                     <p className="mb-2">Setelah menyimpan pengaturan ini, Anda harus menambahkan webhook endpoint berikut ke dashboard Xendit Anda:</p>
                                                     <div className="bg-white border border-orange-300 rounded p-3 mb-3">
                                                         <div className="flex justify-between items-center">
-                                                        <code className="text-sm font-mono text-gray-800">{accountData.domain_webhook}</code>
+                                                        <code className="text-sm font-mono text-gray-800 break-all">{accountData.domain_webhook}</code>
                                                         <button
                                                             onClick={() => navigator.clipboard.writeText(`${accountData.domain_webhook}`)}
                                                             className="ml-2 px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs hover:bg-orange-200 transition-colors"

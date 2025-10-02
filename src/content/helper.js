@@ -104,7 +104,7 @@ export const MappingPackage = (dataProductService) => {
   const packageMetadata = {
     Starter: {
       segment: 'Untuk Operasional Dasar & Bisnis Kecil',
-      badge: 'Hemat 33%',
+      badge: 'Hemat 30%',
       gradient: 'from-green-500 to-green-600',
       popular: false
     },
@@ -123,7 +123,7 @@ export const MappingPackage = (dataProductService) => {
   };
 
   // Fungsi untuk mendapatkan features berdasarkan product dan limit_menu
-  const getFeaturesMap = (product, limitMenu) => {
+  const getFeaturesMap = (product, limitMenu, userLimit, tableLimit) => {
     const displayLimit = limitMenu ? `hingga ${limitMenu} menu` : 'unlimited menu';
     
     const featuresMap = {
@@ -132,20 +132,26 @@ export const MappingPackage = (dataProductService) => {
         'Multi-device Access (HP, Tablet, Laptop)',
         'QR Code untuk dine-in & take-away',
         'Dashboard admin modern',
-        `Display menu ${displayLimit}`
+        `Display menu ${displayLimit}`,
+        `Maksimal ${userLimit} akun staff/admin`,
+        `Maksimal ${tableLimit} QR Table`,
       ],
       Professional: [
         'Semua fitur Starter Plan',
         'Advanced Analytics dengan AI Insights',
         'Laporan keuangan otomatis',
         'Advanced Reporting + Export Data',
-        `Display menu ${displayLimit}`
+        `Display menu ${displayLimit}`,
+        `Maksimal ${userLimit} akun staff/admin`,
+        `Maksimal ${tableLimit} QR Table`,
       ],
       Enterprise: [
         'Semua fitur Professional Plan',
         'HR Management terintegrasi',
         'Payroll & absensi otomatis',
-        `Display menu ${displayLimit}`
+        `Display menu ${displayLimit}`,
+        `Maksimal ${userLimit} akun staff/admin`,
+        `Maksimal ${tableLimit} QR Table`,
       ]
     };
 
@@ -154,8 +160,8 @@ export const MappingPackage = (dataProductService) => {
 
   const packages = dataProductService.map((item) => {
     const meta = packageMetadata[item.product] || {};
-    const features = getFeaturesMap(item.product, item.limit_menu);
-    
+    const features = getFeaturesMap(item.product, item.limit_menu, item.limit_employee, item.limit_table);
+
     return {
       id: item.id,
       name: item.product,
@@ -164,6 +170,8 @@ export const MappingPackage = (dataProductService) => {
       status: item.status,
       features: features,
       limitMenu: item.limit_menu, // Optional: jika Anda ingin menyimpan nilai asli
+      limitEmployee: item.limit_employee,
+      limitTable: item.limit_table,
       ...meta
     };
   });

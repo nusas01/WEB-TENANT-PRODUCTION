@@ -288,7 +288,7 @@ export default function QRestroLanding() {
                     Login
                   </button>
                   <button 
-                    onClick={() => scrollToSection('packages')}
+                    onClick={() => navigate('/signup')}
                     className="w-full py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full hover:shadow-lg hover:shadow-green-500/25 transition-all duration-300"
                   >
                     Mulai Sekarang
@@ -327,7 +327,7 @@ export default function QRestroLanding() {
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
               <button
-                onClick={() => scrollToSection('packages')}
+                onClick={() => navigate('/signup')}
                 className="group px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full font-semibold hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 transform hover:scale-100 flex items-center space-x-3"
               >
                 <span>Mulai Sekarang</span>
@@ -465,7 +465,7 @@ export default function QRestroLanding() {
             ].map((service, index) => (
               <div
                 key={index}
-                className="group relative p-8 bg-white/80 rounded-3xl border border-gray-200 hover:border-green-500/30 transition-all duration-500 hover:transform hover:scale-100 backdrop-blur-sm shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-green-500/10"
+                className="group relative p-8 bg-white/80 rounded-3xl border border-gray-200 transition-all duration-500 backdrop-blur-sm shadow-lg shadow-black/5"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/3 to-green-600/3 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
@@ -872,22 +872,6 @@ export default function QRestroLanding() {
                 <p className="text-gray-400 mb-8">
                   Dapatkan sesi konsultasi strategis 1-on-1 dengan tim kami + studi kasus dari bisnis serupa untuk inspirasi solusi.
                 </p>
-              </div>
-
-              {/* List Benefit */}
-              <div className="space-y-6 mb-8">
-                {[
-                  { icon: Briefcase, text: "Studi kasus dari bisnis serupa" },
-                  { icon: BarChart3, text: "Review potensi efisiensi & revenue" },
-                  { icon: Lightbulb, text: "Rekomendasi implementasi sistem" },
-                  { icon: Target, text: "Roadmap digitalisasi bertahap" },
-                  { icon: Rocket, text: "Akses presentasi & materi eksklusif" }
-                ].map((benefit, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <benefit.icon className="h-5 w-5 text-green-500" />
-                    <span className="text-gray-300">{benefit.text}</span>
-                  </div>
-                ))}
               </div>
 
               {/* Button ke WhatsApp */}
