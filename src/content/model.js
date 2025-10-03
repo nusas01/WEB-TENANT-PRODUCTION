@@ -13,10 +13,9 @@ import {
   Lock,
   AlertTriangle,
   X,
+  RefreshCw,
   Trash2,
   Shield,
-  Copy,
-  Check,
 } from 'lucide-react';
 import { formatDateTime } from './helper';
 import { useState } from 'react';
@@ -587,3 +586,61 @@ export const PaymentGatewayReviewInfo = () => {
     </div>
   );
 };
+
+export function SubscriptionExpiredModal() {
+  return (
+    <div className="bg-white rounded-lg shadow-xl w-full overflow-hidden">
+      {/* Header */}
+      <div className="bg-red-50 border-b border-red-100 p-6 relative">
+        <div className="flex items-start gap-3">
+          <div className="bg-red-100 rounded-full p-2">
+            <AlertCircle className="text-red-600" size={24} />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Layanan Tidak Aktif
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Akses store Anda telah dinonaktifkan
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-6 space-y-4">
+        <div className="flex items-start gap-3">
+          <Clock className="text-gray-400 mt-0.5" size={20} />
+          <div>
+            <p className="text-gray-700 text-sm leading-relaxed">
+              Layanan web store Anda telah dinonaktifkan karena <strong>melewati batas waktu pembayaran</strong>.
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h3 className="text-sm font-medium text-gray-900 mb-2">
+            Yang Terjadi Saat Ini:
+          </h3>
+          <ul className="text-sm text-gray-600 space-y-1.5">
+            <li>• Website store tidak dapat diakses</li>
+            <li>• Sistem pemesanan tidak aktif</li>
+            <li>• Data Anda tetap aman tersimpan</li>
+          </ul>
+        </div>
+
+        <div className="flex items-start gap-3 bg-green-50 rounded-lg p-4 border border-green-200">
+          <RefreshCw className="text-green-600 mt-0.5" size={20} />
+          <div>
+            <h3 className="text-sm font-medium text-gray-900 mb-1">
+              Cara Mengaktifkan Kembali
+            </h3>
+            <p className="text-sm text-gray-600">
+              Perpanjang layanan Anda dan kami akan segera memproses pengaktifan kembali store Anda.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -75,6 +75,7 @@ import {
   ServicePreparationNotice,
   PaymentGatewayFormInfo,
   PaymentGatewayReviewInfo,
+  SubscriptionExpiredModal,
 } from './model';
 import { 
   fetchAllEmployees,
@@ -549,6 +550,10 @@ const StoreManagementDashboard = () => {
 
             {(storeInfo.full_domain && !storeInfo.verified_at && Object.entries(selectedStore).length !== 0) && (
               <ServicePreparationNotice/>
+            )}
+
+            {storeInfo.deleted_at && (
+              <SubscriptionExpiredModal/>
             )}
 
             {(Object.keys(storeInfo).length === 0 || Object.entries(selectedStore).length === 0) ? (

@@ -81,9 +81,7 @@ const Sidebar = ({activeMenu}) => {
       {/* Desktop Header */}
       <div className="flex items-center px-4 py-2 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-gray-800 to-gray-900 rounded-md flex items-center justify-center shadow-sm">
-            <Home className="w-6 h-6 text-white" />
-          </div>
+          <img src="/image/logo_nusas_2.png" className="w-12 h-12 rounded-md flex items-center justify-center shadow-sm"/>
           <div>
             <h1 className="text-xl font-bold text-gray-900">Nusas</h1>
             <p className="text-xs text-gray-500">Admin Panel</p>

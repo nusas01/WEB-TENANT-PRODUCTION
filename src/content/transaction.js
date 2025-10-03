@@ -294,7 +294,10 @@ const PendingTransactions = () => {
                             <span>Pajak: {formatCurrency(transaction.tax)}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span>Biaya: {formatCurrency(transaction.fee)}</span>
+                            <span>Biaya Pemrosesan: {formatCurrency(transaction.fee)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span>Biaya: {formatCurrency(transaction.amount - transaction.fee)}</span>
                           </div>
                         </div>
                       </div>
