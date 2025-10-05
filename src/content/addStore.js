@@ -8,6 +8,8 @@ import {
   Calculator,
   AlertCircle,
   CheckCircle,
+  ExternalLink,
+  CheckCircle2,
   Building,
   Check,
 } from 'lucide-react';
@@ -40,6 +42,7 @@ import { fromJSON } from 'postcss';
 const AddStoreForm = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const [isChecked, setIsChecked] = useState(false)
     const [toast, setToast] = useState(null)
     const [formData, setFormData] = useState({
         name: '',
@@ -261,6 +264,7 @@ const AddStoreForm = () => {
                     ...mergedErrors
                 }));
             }
+            dispatch(resetAddStore())
         }
     }, [errorFieldsAddStore])
 
@@ -822,10 +826,79 @@ const AddStoreForm = () => {
                 </div>
                 )}
 
+                <div className="space-y-4 mb-6">
+                    <div 
+                        className={`relative transition-all duration-300`}>
+                        <label className="flex items-start gap-4 cursor-pointer group">
+                        {/* Custom Checkbox */}
+                        <div className="relative flex-shrink-0">
+                            <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                                setIsChecked(e.target.checked);
+                            }}
+                            className="sr-only"
+                            />
+                            <div 
+                            className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
+                                isChecked 
+                                ? 'bg-green-500 border-green-500 scale-110' 
+                                : 'bg-white border-gray-300 group-hover:border-gray-400'
+                            }`}
+                            >
+                            {isChecked && (
+                                <CheckCircle2 className="w-5 h-5 text-white animate-in zoom-in duration-200" />
+                            )}
+                            </div>
+                        </div>
+
+                        {/* Terms Text */}
+                        <div className="flex-1 text-xs leading-relaxed">
+                            <span className="text-gray-700">
+                            I have read and agree to the{' '}
+                            <button
+                                onClick={() => navigate('/term/and/condition')}
+                                className="inline-flex items-center gap-1 text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-colors"
+                            >
+                                Terms of Service
+                                <ExternalLink className="w-3.5 h-3.5" />
+                            </button>
+                            {' '}and{' '}
+                            <button
+                                onClick={() => navigate('/privacy/policy')}
+                                className="inline-flex items-center gap-1 text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-colors"
+                            >
+                                Privacy Policy
+                                <ExternalLink className="w-3.5 h-3.5" />
+                            </button>
+                            </span>
+                        </div>
+                        </label>
+                    </div>
+
+                    {/* Additional Info */}
+                    {isChecked && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4 animate-in slide-in-from-top-2 duration-300">
+                        <div className="flex gap-3">
+                            <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                            <p className="text-sm font-medium text-green-900 mb-1">
+                                Terms Accepted
+                            </p>
+                            <p className="text-xs text-green-700">
+                                You can now proceed with creating your account. By continuing, you confirm that you understand and accept our service terms.
+                            </p>
+                            </div>
+                        </div>
+                        </div>
+                    )}
+                </div>
+
                 {/* Submit Button */}
                 <button
                 type="button"
-                disabled={!selectedProduct || !selectedPayment || loadingAddStore}
+                disabled={!selectedProduct || !selectedPayment || !isChecked || loadingAddStore}
                 onClick={() => handleCreateStore()}
                 className="w-full bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
                 >

@@ -3,7 +3,8 @@ import {
   User, 
   Mail, 
   Lock, 
-  Phone, 
+  CheckCircle2,
+  ExternalLink,
   MapPin, 
   Building, 
   CreditCard, 
@@ -51,6 +52,8 @@ export default function TenantRegistrationForm() {
   const [packagePrice, setPackagePrice] = useState(0)
   const [paymentFee, setPaymentfee] = useState(0)
   const [taxTransaction, setTaxTransaction] = useState(0)
+  const [isChecked, setIsChecked] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   useOutsideClick({
     ref: dropdownRef,
@@ -419,6 +422,12 @@ export default function TenantRegistrationForm() {
 
     // Set hasil error ke state
     setErrors(allErrors);
+
+    if (!isChecked) {
+      setShowError(true);
+      setTimeout(() => setShowError(false), 3000);
+      return;
+    }
 
     // Jika tidak ada error, kirim data
     if (Object.keys(allErrors).length === 0) {
@@ -1281,6 +1290,93 @@ export default function TenantRegistrationForm() {
 
           {/* Submit Button */}
           <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="space-y-4 mb-6">
+              <div 
+                className={`relative bg-white transition-all duration-300 ${
+                  isChecked 
+                    ? 'border-green-500 bg-green-50' 
+                    : showError 
+                      ? 'border-red-500 bg-red-50 animate-shake' 
+                      : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <label className="flex items-start gap-4 cursor-pointer group">
+                  {/* Custom Checkbox */}
+                  <div className="relative flex-shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={(e) => {
+                        setIsChecked(e.target.checked);
+                        setShowError(false);
+                      }}
+                      className="sr-only"
+                    />
+                    <div 
+                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
+                        isChecked 
+                          ? 'bg-green-500 border-green-500 scale-110' 
+                          : 'bg-white border-gray-300 group-hover:border-gray-400'
+                      }`}
+                    >
+                      {isChecked && (
+                        <CheckCircle2 className="w-5 h-5 text-white animate-in zoom-in duration-200" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Terms Text */}
+                  <div className="flex-1 text-xs leading-relaxed">
+                    <span className="text-gray-700">
+                      I have read and agree to the{' '}
+                      <button
+                        onClick={() => navigate('/term/and/condition')}
+                        className="inline-flex items-center gap-1 text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-colors"
+                      >
+                        Terms of Service
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </button>
+                      {' '}and{' '}
+                      <button
+                        onClick={() => navigate('/privacy/policy')}
+                        className="inline-flex items-center gap-1 text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-colors"
+                      >
+                        Privacy Policy
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  </div>
+                </label>
+
+                {/* Error indicator */}
+                {showError && (
+                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                    <div className="bg-red-500 text-white text-xs font-medium px-3 py-1 rounded-full shadow-lg flex items-center gap-1 animate-in slide-in-from-top-2 duration-200">
+                      <AlertCircle className="w-3 h-3" />
+                      Please accept the terms to continue
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Additional Info */}
+              {isChecked && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 animate-in slide-in-from-top-2 duration-300">
+                  <div className="flex gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-green-900 mb-1">
+                        Terms Accepted
+                      </p>
+                      <p className="text-xs text-green-700">
+                        You can now proceed with creating your account. By continuing, you confirm that you understand and accept our service terms.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
             <button
               type="button"
               onClick={() => handleSubmit()}
@@ -1299,20 +1395,6 @@ export default function TenantRegistrationForm() {
                 </>
               )}
             </button>
-          </div>
-
-          {/* Terms */}
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600">
-              By creating an account, you agree to our{' '}
-              <a href="#" className="text-green-600 hover:text-green-500 font-medium">
-                Terms of Service
-              </a>{' '}
-              and{' '}
-              <a href="#" className="text-green-600 hover:text-green-500 font-medium">
-                Privacy Policy
-              </a>
-            </p>
           </div>
         </form>
 

@@ -27,6 +27,8 @@ import { loginStatusSlice } from './reducers/get';
 import { useNavigate } from 'react-router-dom';
 import { UseSSEContainer } from './actions/sse'
 import { resetApp } from './reducers/state';
+import TermsAndConditions from './content/termAndCondition';
+import PrivacyPolicy from './content/privacyPolice';
 
 function AppContent() {
   const navigate = useNavigate();
@@ -78,6 +80,8 @@ function AppContent() {
         <Route path='/forgot/password' element={<ForgotPasswordComponent />} />
         <Route path='/invoice/signup' element={<PaymentInvoice paymentData={dataRegisterVerification} colorType={"external"} />} />
         <Route path='/payment/required' element={<PendingTransactions />} />
+        <Route path='/term/and/condition' element={<TermsAndConditions/>}/>
+        <Route path='/privacy/policy' element={<PrivacyPolicy/>}/>
 
         <Route element={<PrivateRoute />}>
           <Route path='/store' element={<StoreManagementDashboard />} />
