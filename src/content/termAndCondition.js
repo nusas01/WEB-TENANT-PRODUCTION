@@ -32,7 +32,8 @@ export default function TermsAndConditions() {
           nonEligibleItems: [
             "No refunds will be issued once the system status changes to \"Active\" or \"Operational\"",
             "Service extensions or renewals for currently active stores are non-refundable",
-            "Any subscription where operational usage has commenced"
+            "Any subscription where operational usage has commenced",
+            "When submitting a payment gateway account change request that requires a test transaction fee, most of the amount will be refunded to the same payment gateway account after verification. However, refund requests for this verification transaction will not be accepted. Please ensure your Xendit account (or equivalent payment gateway account) is already in Business or Production mode before making any changes."
           ]
         },
         procedure: {
@@ -110,7 +111,8 @@ export default function TermsAndConditions() {
           nonEligibleItems: [
             "Tidak ada pengembalian dana yang akan diterbitkan setelah status sistem berubah menjadi \"Aktif\" atau \"Operasional\"",
             "Perpanjangan atau pembaruan layanan untuk toko yang saat ini aktif tidak dapat dikembalikan",
-            "Setiap langganan dimana penggunaan operasional telah dimulai"
+            "Setiap langganan dimana penggunaan operasional telah dimulai",
+            "Ketika mengajukan permintaan perubahan akun payment gateway yang memerlukan biaya transaksi uji coba, sebagian besar dana akan dikembalikan ke akun payment gateway yang sama setelah verifikasi selesai. Namun, permintaan pengembalian dana untuk transaksi verifikasi ini tidak akan diterima. Pastikan akun Xendit Anda (atau akun payment gateway setara) sudah berada dalam mode Bisnis atau Produksi sebelum melakukan perubahan."
           ]
         },
         procedure: {

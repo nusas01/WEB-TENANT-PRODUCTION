@@ -165,6 +165,7 @@ const ChangePaymentGateway = () => {
                     ...mergedErrors
                 }));
             }
+            dispatch(resetSubmissionChangePaymentGateway())
         }
     }, [errorFieldSubmissionChangePaymentGateway])
 
@@ -267,12 +268,15 @@ const ChangePaymentGateway = () => {
                     <div className="text-sm text-blue-800">
                         <p className="font-medium mb-1">Informasi Penting:</p>
                         <ul className="space-y-1 text-blue-700">
-                        <li>• Dana yang Anda bayarkan digunakan untuk testing sistem</li>
-                        <li>• Sebagian besar dana akan dikembalikan ke akun Xendit Anda</li>
-                        <li>• Selisih dana digunakan untuk biaya testing dan administrasi</li>
-                        <li>• Jika menggunakan Ewallet untuk pembayaran testing maka pastikan phone number ewallet diisi dengan benar</li>
+                            <li>• Dana yang Anda bayarkan digunakan untuk testing sistem</li>
+                            <li>• Sebagian besar dana akan dikembalikan ke akun Xendit Anda setelah proses verifikasi selesai</li>
+                            <li>• Selisih dana digunakan untuk biaya testing dan administrasi</li>
+                            <li>• Jika menggunakan E-Wallet untuk pembayaran testing, pastikan nomor telepon E-Wallet diisi dengan benar</li>
+                            <li>• Transaksi uji coba (testing transaction) tidak dapat diajukan pengembalian dana</li>
+                            <li>• Pastikan akun Xendit Anda sudah berada dalam mode Bisnis atau Produksi sebelum melakukan perubahan akun payment gateway</li>
                         </ul>
                     </div>
+
                     </div>
                 </div>
             </div>
