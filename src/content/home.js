@@ -334,12 +334,12 @@ export default function QRestroLanding() {
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </button>
               
-              <button className="group flex items-center space-x-3 px-8 py-4 border border-gray-300 rounded-full hover:bg-gray-50 transition-all duration-300">
+              {/* <button className="group flex items-center space-x-3 px-8 py-4 border border-gray-300 rounded-full hover:bg-gray-50 transition-all duration-300">
                 <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                   <Play className="h-5 w-5 ml-1 text-gray-700" />
                 </div>
                 <span className="text-gray-700">Tonton Demo</span>
-              </button>
+              </button> */}
             </div>
 
             {/* Stats */}

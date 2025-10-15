@@ -99,7 +99,6 @@ const StoreManagementDashboard = () => {
   const { isOpen, isMobileDeviceType } = useSelector((state) => state.persisted.navbar)
 
   const { ref: headerRef, height: headerHeight } = useElementHeight();
-  
 
   // response err get all data store
   const {resetStoreError} = storeSlice.actions
@@ -112,8 +111,6 @@ const StoreManagementDashboard = () => {
       })
     }
   }, [errorStore])
-
-
 
   // response error get detail store data
   const {
@@ -387,8 +384,6 @@ const StoreManagementDashboard = () => {
         dispatch(fetchDetailStore(storeId))
       }
   }, [successUpdateStore])
-
-
 
   const calculateAge = (dateOfBirth) => {
     const today = new Date();
@@ -781,7 +776,7 @@ const StoreManagementDashboard = () => {
                                 <div className="relative">
                                   {employee.image && employee.image !== "" ? (
                                     <img 
-                                      src={`https://nusas-bucket.oss-ap-southeast-5.aliyuncs.com/${employee.image}`} 
+                                      src={`https://assets.nusas.id/${employee.image}`} 
                                       alt={employee.name}
                                       className="w-16 h-16 rounded-full object-cover shadow-md"
                                     />

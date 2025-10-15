@@ -304,11 +304,11 @@ export default function LoginForm() {
           <div className="text-center">
             <p className="text-sm text-gray-600">
               By signing in, you agree to our{' '}
-              <a href="#" className="text-green-600 hover:text-green-500 font-medium">
+              <a onClick={() => navigate('/term/and/condition')} className="text-green-600 hover:text-green-500 font-medium">
                 Terms of Service
               </a>{' '}
               and{' '}
-              <a href="#" className="text-green-600 hover:text-green-500 font-medium">
+              <a onClick={() => navigate('/privacy/policy')} className="text-green-600 hover:text-green-500 font-medium">
                 Privacy Policy
               </a>
             </p>

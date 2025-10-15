@@ -37,6 +37,7 @@ export default function VerificationForm() {
   useEffect(() => {
     if (successRegisterVerification) {
       navigate('/invoice/signup');
+      dispatch(resetRegisterVerification())
     }
   }, [successRegisterVerification])
  
@@ -50,8 +51,16 @@ export default function VerificationForm() {
         type: 'error',
         message: errorRegisterVerification
       })
+      dispatch(resetRegisterVerification())
     }
   }, [errorRegisterVerification])
+
+  useEffect(() => {
+    if (errorFieldsRegisterVerification) {
+      setError(errorFieldsRegisterVerification?.code)
+      dispatch(resetRegisterVerification())
+    }
+  }, [errorFieldsRegisterVerification])
 
   const handleCodeChange = (e) => {
     dispatch(resetRegisterVerification())
@@ -141,10 +150,10 @@ export default function VerificationForm() {
                 )}
               </div>
               
-              {errorFieldsRegisterVerification?.code && (
+              {error && (
                 <div className="mt-2 flex items-center space-x-1 text-red-600 text-sm">
                   <AlertCircle className="h-4 w-4" />
-                  <span>{errorFieldsRegisterVerification?.code}</span>
+                  <span>{error}</span>
                 </div>
               )}
             </div>

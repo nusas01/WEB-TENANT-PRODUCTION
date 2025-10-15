@@ -350,7 +350,6 @@ const AddStoreForm = () => {
         }
     };
 
-
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 overflow-y-auto">
             {toast && (
@@ -774,7 +773,7 @@ const AddStoreForm = () => {
                                         onChange={handleInputChange}
                                         className="flex-1 outline-none border-none focus:ring-0"
                                         placeholder="8123456789"
-                                        length="12"
+                                        maxLength="12"
                                     />
                                 </div>
                                 {(errors.phone_number_ewallet || errors.PhoneNumberEwallet) && (
