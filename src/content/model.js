@@ -4,7 +4,6 @@ import {
   AlertCircle, 
   CreditCard, 
   FileText, 
-  BarChart2, 
   Clock,
   Calendar,
   Settings,
@@ -16,84 +15,251 @@ import {
   RefreshCw,
   Trash2,
   Shield,
+  ArrowRight, 
+  CheckCircle2,
+  Zap, 
 } from 'lucide-react';
 import { formatDateTime } from './helper';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDataAccount } from '../actions/get';
 
-
-export const FinanceRequiredCard = () => {
+export function TrialAccountAlert() {
+  const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [isVisible, setIsVisible] = useState(true)
+
+  // handle data account
+  const {dataAccount, errorDataAccount, loadingDataAccount} = useSelector((state) => state.persisted.getDataAccount)
+  useEffect(() => {
+    if (Object.keys(dataAccount).length === 0) {
+      dispatch(fetchDataAccount())
+    }
+  }, [])
+
+  if (!isVisible || dataAccount?.established_account) return null
+
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-white rounded-2xl border border-amber-200 shadow-xl overflow-hidden transition-all hover:shadow-2xl">
-      <div className="p-6">
-        <div className="flex items-start gap-4">
-          <div className="bg-amber-100 p-3 rounded-full">
-            <CreditCard size={32} className="text-amber-600" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm font-medium">
-                <AlertCircle size={14} /> Tindakan Diperlukan
-              </span>
-              <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded">
-                Prioritas Tinggi
-              </span>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Layanan Belum Aktif</h2>
-            <p className="text-gray-600 mb-4">
-              Untuk mengaktifkan layanan, kami memerlukan data keuangan perusahaan Anda. 
-              Silakan isi data di bagian <strong>Xendit Integration</strong> pada dasbor setting Anda untuk menyelesaikan proses pendaftaran.
-            </p>
-
-            <div className="bg-amber-50 rounded-lg p-4 mb-4 border border-amber-100">
-              <h3 className="font-semibold text-amber-800 flex items-center gap-2 mb-2">
-                <FileText size={18} /> Data yang Diperlukan
-              </h3>
-              <ul className="space-y-2 text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-500">•</span>
-                  <span>Id Business Xendit Account Anda</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-500">•</span>
-                  <span>Api Key Xendit Account Anda</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-500">•</span>
-                  <span>Webhook Secret Key Xendit Account Anda</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-amber-500">•</span>
-                  <span>Konfigurasi endpoint Webhook Kami ke Xendit Account Anda</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-              onClick={() => navigate('/setting', {state: {status: 'xendit'}})} 
-              className="border border-gray-300 hover:border-amber-500 text-gray-700 hover:text-amber-700 px-5 py-3 rounded-lg flex items-center justify-center gap-2 transition-all"
-              >
-                <BarChart2 size={18} />
-                  Lengkapi Data Anda
-              </button>
+    <>
+      {/* Desktop Version - Alert Banner */}
+      <div className="hidden md:block fixed top-4 left-1/2 -translate-x-1/2 z-[99999] w-full max-w-3xl px-4">
+        <div className="bg-gradient-to-r from-red-500 to-red-500 shadow-lg rounded-lg">
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-semibold text-sm">Akun Trial</span>
+                  <span className="text-white/80 text-sm">·</span>
+                  <span className="text-white/90 text-sm">Data akan dihapus dalam 1 jam kedepan</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => navigate('/payment/required')}
+                  className="bg-white text-red-600 hover:bg-red-50 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-md hover:shadow-lg">
+                  <Zap className="w-4 h-4" />
+                  Bayar Sekarang
+                </button>
+                <button
+                  onClick={() => setIsVisible(false)}
+                  className="w-8 h-8 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg flex items-center justify-center transition-all">
+                  <X className="w-4 h-4 text-white" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-4 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Clock size={18} className="text-amber-100" />
-            <span>Status: Menunggu kelengkapan data</span>
+      {/* Mobile Version - Alert Banner */}
+      <div className="md:hidden fixed top-4 left-4 right-4 z-[99999]">
+        <div className="bg-gradient-to-r from-red-500 to-red-500 shadow-lg rounded-lg">
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 flex-1">
+                <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Clock className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-white font-semibold text-xs">Akun Trial</span>
+                  <span className="text-white/90 text-xs">Data akan dihapus dalam 1 jam kedepan</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-1.5">
+                <button  
+                  onClick={() => navigate('/payment/required')}
+                  className="bg-white text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-md flex-shrink-0">
+                  <Zap className="w-3.5 h-3.5" />
+                  Bayar
+                </button>
+                <button
+                  onClick={() => setIsVisible(false)}
+                  className="w-7 h-7 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg flex items-center justify-center transition-all flex-shrink-0">
+                  <X className="w-3.5 h-3.5 text-white" />
+                </button>
+              </div>
+            </div>
           </div>
-          <span className="bg-amber-700 px-3 py-1 rounded-full text-sm">Segera</span>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes slide-down {
+          from {
+            transform: translateY(-100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        
+        .animate-slide-down {
+          animation: slide-down 0.4s ease-out;
+        }
+      `}</style>
+    </>
+  );
+}
+
+export function FinanceRequiredCard() {
+  const handleNavigate = () => {
+    alert('Navigasi ke halaman Setting > Xendit Integration');
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 flex items-center justify-center p-4 sm:p-6">
+      <div className="w-full max-w-4xl">
+        <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden transition-all hover:shadow-3xl">
+          {/* Header Section */}
+          <div className="relative bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 px-6 sm:px-8 py-6">
+            <div className="absolute inset-0 bg-black/10"></div>
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg">
+                  <AlertCircle className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-white/90 text-sm font-medium">Status:</span>
+                    <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-semibold">
+                      Menunggu Kelengkapan Data
+                    </span>
+                  </div>
+                  <h1 className="text-xl sm:text-2xl font-bold text-white">
+                    Tindakan Diperlukan
+                  </h1>
+                </div>
+              </div>
+              <div className="hidden sm:block">
+                <span className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg animate-pulse">
+                  Prioritas Tinggi
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Section */}
+          <div className="p-6 sm:p-8">
+            {/* Main Notice */}
+            <div className="flex items-start gap-4 mb-6">
+              <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <CreditCard className="w-8 h-8 text-white" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-3">
+                  Layanan Belum Aktif
+                </h2>
+                <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
+                  Untuk mengaktifkan layanan, kami memerlukan data keuangan perusahaan Anda. 
+                  Silakan isi data di bagian <span className="font-semibold text-amber-600">Xendit Integration</span> pada 
+                  dasbor setting Anda untuk menyelesaikan proses pendaftaran.
+                </p>
+              </div>
+            </div>
+
+            {/* Required Data Section */}
+            <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 rounded-2xl p-6 mb-6 border border-amber-200/50 shadow-inner">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shadow-md">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-bold text-slate-800 text-lg">Data yang Diperlukan</h3>
+              </div>
+              
+              <div className="space-y-3">
+                {[
+                  'Id Business Xendit Account Anda',
+                  'Api Key Xendit Account Anda',
+                  'Webhook Secret Key Xendit Account Anda',
+                  'Konfigurasi endpoint Webhook Kami ke Xendit Account Anda'
+                ].map((item, idx) => (
+                  <div 
+                    key={idx}
+                    className="group flex items-start gap-3 p-4 bg-white rounded-xl border border-amber-200/50 hover:border-amber-400 transition-all duration-300 hover:shadow-md"
+                  >
+                    <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-amber-400 to-orange-400 rounded-lg flex items-center justify-center mt-0.5 group-hover:scale-110 transition-transform">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-slate-700 font-medium text-sm sm:text-base flex-1">
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleNavigate}
+                className="group flex-1 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:from-amber-600 hover:via-orange-600 hover:to-red-600 text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
+              >
+                <FileText className="w-5 h-5" />
+                <span>Lengkapi Data Sekarang</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+
+            {/* Helper Text */}
+            <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
+              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Clock className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-blue-800 text-sm font-medium mb-1">
+                  Butuh bantuan?
+                </p>
+                <p className="text-blue-600 text-sm">
+                  Tim support kami siap membantu Anda. Proses verifikasi biasanya memakan waktu 1-2 hari kerja setelah data lengkap diterima.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-6 sm:px-8 py-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p className="text-slate-300 text-sm text-center sm:text-left">
+                Data Anda akan dienkripsi dan dijaga keamanannya
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-slate-400 text-xs">Sistem Aman</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 
 export const ServiceStatusCards = ({expiration_access}) => {

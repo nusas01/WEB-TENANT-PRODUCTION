@@ -79,11 +79,11 @@ function AppContent() {
         <Route path='/signup/verification' element={<VerificationForm />} />
         <Route path='/forgot/password' element={<ForgotPasswordComponent />} />
         <Route path='/invoice/signup' element={<PaymentInvoice paymentData={dataRegisterVerification} colorType={"external"} />} />
-        <Route path='/payment/required' element={<PendingTransactions />} />
         <Route path='/term/and/condition' element={<TermsAndConditions/>}/>
         <Route path='/privacy/policy' element={<PrivacyPolicy/>}/>
 
         <Route element={<PrivateRoute />}>
+          <Route path='/payment/required' element={<PendingTransactions />} />
           <Route path='/store' element={<StoreManagementDashboard />} />
           <Route path='/store/employee' element={<CreateEmployee />} />
           <Route path='/store/update' element={<UpdateStoreTenantForm />} />

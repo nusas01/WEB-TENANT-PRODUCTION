@@ -30,7 +30,11 @@ import {
   ChevronDown,
   Filter,
 } from 'lucide-react';
-import { FinanceRequiredCard, ServiceStatusCards } from './model';
+import { 
+  FinanceRequiredCard, 
+  ServiceStatusCards,
+  TrialAccountAlert, 
+} from './model';
 import Sidebar from './sidebar';
 import { useElementHeight } from './helper';
 import { useDispatch, useSelector } from 'react-redux';
@@ -357,7 +361,6 @@ const StoreManagementDashboard = () => {
   }, [errorDeleteEmployee])
 
 
-
   // handle data account
   const {dataAccount, errorDataAccount, loadingDataAccount} = useSelector((state) => state.persisted.getDataAccount)
   useEffect(() => {
@@ -444,6 +447,8 @@ const StoreManagementDashboard = () => {
 
   return (
     <div className='flex'>
+      <TrialAccountAlert/>
+
       {((isMobileDeviceType && isOpen) || !isMobileDeviceType) && (
         <div className='w-1/10 z-50 min-w-[290px]'>
           <Sidebar

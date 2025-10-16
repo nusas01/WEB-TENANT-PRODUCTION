@@ -46,7 +46,10 @@ import {
     ToastPortal,
 } from './alert'
 import { useNavigate } from 'react-router-dom';
-import { XenditCredentialsGuide } from './model';
+import { 
+    XenditCredentialsGuide,
+    TrialAccountAlert,
+} from './model';
 
 const SettingsComponent = () => {
     const location = useLocation()
@@ -203,6 +206,8 @@ const SettingsComponent = () => {
 
     return (
         <div className='flex'>
+            <TrialAccountAlert/>
+
             {((isMobileDeviceType && isOpen) || !isMobileDeviceType) && (
                 <div className='w-1/10 z-50 min-w-[290px]'>
                 <Sidebar
