@@ -20,7 +20,7 @@ import {
   Zap, 
 } from 'lucide-react';
 import { formatDateTime } from './helper';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDataAccount } from '../actions/get';
 

@@ -12,7 +12,7 @@ import {
   CreditCard,
   Building2,
   Wallet,
-  ArrowLeft
+  ArrowLeft,
 } from 'lucide-react';
 import {
     formatCurrency,
@@ -311,62 +311,58 @@ const PaymentInvoice = ({ paymentData, colorType }) => {
         {/* Main Invoice Card */}
         <div ref={invoiceRef} className={`bg-white rounded-lg shadow-lg border ${colorType === 'external' ? 'border-emerald-100' : 'border-gray-200'} overflow-hidden ${isExpired ? 'opacity-75' : ''}`}>
           {/* Header Section */}
-          <div className={`${theme.headerBg} text-white p-6 relative overflow-hidden`}>
+          <div className={`${theme.headerBg} text-white p-4 sm:p-6 relative overflow-hidden`}>
             <div className="absolute inset-0 bg-black bg-opacity-10"></div>
             <div className="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full -mr-16 -mt-16"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white bg-opacity-5 rounded-full -ml-12 -mb-12"></div>
-            
+           
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                    <span className="text-white font-bold text-xl">N</span>
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold">NUSAS</h1>
-                    <p className={`${colorType === 'external' ? 'text-emerald-100' : 'text-gray-300'} text-sm`}>
-                      Digital Payment Solutions
-                    </p>
+              {/* Top Row: Company Info & Invoice ID */}
+              <div className="flex items-start justify-between mb-4 gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center backdrop-blur-sm flex-shrink-0">
+                    <span className="text-white font-bold text-lg sm:text-xl">NS</span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className={`${colorType === 'external' ? 'text-emerald-100' : 'text-gray-300'} text-sm`}>
+                <div className="text-right flex-shrink-0">
+                  <p className={`${colorType === 'external' ? 'text-emerald-100' : 'text-gray-300'} text-xs sm:text-sm whitespace-nowrap`}>
                     Invoice ID
                   </p>
-                  <p className="text-white font-mono font-semibold">NUSAS-{paymentData?.id}</p>
+                  <p className="text-white font-mono text-xs sm:text-sm font-semibold break-all">NUSAS-{paymentData?.id}</p>
                 </div>
               </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    {getChannelIcon(paymentData.payment_method)}
-                    <span className="text-xl font-semibold">{paymentData.channel_code}</span>
-                  </div>
-                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-white bg-opacity-20 text-white border border-white border-opacity-30">
-                    {(paymentData.product?.charAt(0).toUpperCase() + paymentData.product?.slice(1)) || (paymentData.products?.charAt(0).toUpperCase() + paymentData.products?.slice(1))} Plan
-                  </span>
+             
+              {/* Payment Method & Plan */}
+              <div className="flex items-center gap-2 sm:gap-3 mb-3 flex-wrap">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  {getChannelIcon(paymentData.payment_method)}
+                  <span className="text-base sm:text-lg font-semibold">{paymentData.channel_code}</span>
                 </div>
-                <div className="text-right">
-                  <p className={`${colorType === 'external' ? 'text-emerald-100' : 'text-gray-300'} text-sm`}>
-                    Total Amount
-                  </p>
-                  <p className="text-3xl font-bold text-white">{formatCurrency(paymentData.amount)}</p>
-                </div>
+                <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-white bg-opacity-20 text-white border border-white border-opacity-30">
+                  {(paymentData.product?.charAt(0).toUpperCase() + paymentData.product?.slice(1)) || (paymentData.products?.charAt(0).toUpperCase() + paymentData.products?.slice(1))} Plan
+                </span>
               </div>
 
-              {/* Header Expiration Info */}
+              {/* Total Amount */}
+              <div className="mb-4">
+                <p className={`${colorType === 'external' ? 'text-emerald-100' : 'text-gray-300'} text-xs sm:text-sm mb-1`}>
+                  Total Amount
+                </p>
+                <p className="text-2xl sm:text-3xl font-bold text-white">{formatCurrency(paymentData.amount)}</p>
+              </div>
+
+              {/* Expiration Info */}
               {paymentData?.expires_at && (
-                <div className="mt-4 pt-4 border-t border-white border-opacity-20">
-                  <div className="flex items-center justify-between text-white text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      <span>Valid until: {formatDateTime(paymentData.expires_at)}</span>
+                <div className="pt-3 sm:pt-4 border-t border-white border-opacity-20">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-white text-xs sm:text-sm">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                      <span className="break-all">Valid until: {formatDateTime(paymentData.expires_at)}</span>
                     </div>
                     {!isExpired && (
-                      <div className="flex items-center gap-2 bg-white bg-opacity-20 rounded-full px-3 py-1">
-                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                        <span className="font-medium">{timeRemaining}</span>
+                      <div className="flex items-center gap-1.5 sm:gap-2 bg-white bg-opacity-20 rounded-full px-2.5 py-1 sm:px-3 w-fit">
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse"></div>
+                        <span className="font-medium whitespace-nowrap">{timeRemaining}</span>
                       </div>
                     )}
                   </div>
