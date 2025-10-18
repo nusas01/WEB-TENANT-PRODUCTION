@@ -370,7 +370,6 @@ const StoreManagementDashboard = () => {
   }, [])
 
 
-
   // handle action update store
   const {resetUpdateStore} = updateStoreSlice.actions
   const {successUpdateStore} = useSelector((state) => state.updateStoreState)
@@ -540,7 +539,7 @@ const StoreManagementDashboard = () => {
               <PaymentGatewayReviewInfo/>
             )}
 
-            {!dataAccount?.api_key && !dataAccount?.secret_key_webhook && !dataAccount?.bussness_id && (
+            {!dataAccount?.api_key && !dataAccount?.secret_key_webhook && !dataAccount?.bussness_id && dataAccount?.established_account && (
               <FinanceRequiredCard/> 
             )}
             

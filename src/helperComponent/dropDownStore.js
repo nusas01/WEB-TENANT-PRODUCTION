@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   Plus,  
   Store,
@@ -15,9 +15,10 @@ import {
 import {
   fetchAllStores, 
   fetchDetailStore,
-  fetchAllEmployees,
+  fetchDataAccount,
 } from '../actions/get'
 import { useNavigate } from 'react-router-dom';
+import { useOutsideClick } from '../content/helper';
 
 
 const LoadingSpinner = ({ size = 'md', className = '' }) => {
@@ -60,8 +61,14 @@ const StoreDropdown = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
-  // const [selectedStore, setSelectedStore] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = useRef()
+
+  useOutsideClick({
+    ref: dropdownRef,
+    callback: () => setIsOpen(false),
+    isActive: isOpen,    
+  })
 
   // get all data store
   const {allStores:stores, loadingStore} = useSelector((state) => state.persisted.store) 
@@ -70,6 +77,14 @@ const StoreDropdown = () => {
       dispatch(fetchAllStores())
     }
   }, [stores])
+
+  // handle data account
+  const {dataAccount, errorDataAccount, loadingDataAccount} = useSelector((state) => state.persisted.getDataAccount)
+  useEffect(() => {
+    if (Object.keys(dataAccount).length === 0) {
+      dispatch(fetchDataAccount())
+    }
+  }, [])
 
   // get detail data store 
   const {setSelectedStoreId, setSelectedStore} = detailStoreSlice.actions
@@ -92,7 +107,7 @@ const StoreDropdown = () => {
   };
 
    return (
-    <div className="w-full">
+    <div className="w-full" ref={dropdownRef}>
       <div className="relative">
         {/* Dropdown Trigger */}
         <button
@@ -156,14 +171,16 @@ const StoreDropdown = () => {
             {/* Header with Add Store Button */}
             <div className="p-3 flex items-center justify-between">
               <h2>Pilih Store</h2>
-              <button
-                onClick={() => navigate("/store/add")}
-                disabled={loadingStore}
-                className="flex items-center space-x-1 px-6 py-1.5 bg-gray-900 text-white text-md rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Plus className="w-6 h-6" />
-                <span>Add Store</span>
-              </button>
+              {dataAccount?.api_key && dataAccount?.secret_key_webhook && dataAccount?.bussness_id && dataAccount.established_account && (
+                <button
+                  onClick={() => navigate("/store/add")}
+                  disabled={loadingStore}
+                  className="flex items-center space-x-1 px-6 py-1.5 bg-gray-900 text-white text-md rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Plus className="w-6 h-6" />
+                  <span>Add Store</span>
+                </button>
+              )}
             </div>
 
             {/* Search Bar */}

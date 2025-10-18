@@ -9,6 +9,7 @@ import {
   Settings,
   Info,
   CheckCircle,
+  MessageCircle,
   Lock,
   AlertTriangle,
   X,
@@ -129,138 +130,188 @@ export function TrialAccountAlert() {
 }
 
 export function FinanceRequiredCard() {
-  const handleNavigate = () => {
-    alert('Navigasi ke halaman Setting > Xendit Integration');
-  };
-
+  const navigate = useNavigate()
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 flex items-center justify-center p-4 sm:p-6">
-      <div className="w-full max-w-4xl">
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden transition-all hover:shadow-3xl">
-          {/* Header Section */}
-          <div className="relative bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 px-6 sm:px-8 py-6">
-            <div className="absolute inset-0 bg-black/10"></div>
-            <div className="relative flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg">
-                  <AlertCircle className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-white/90 text-sm font-medium">Status:</span>
-                    <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-semibold">
-                      Menunggu Kelengkapan Data
-                    </span>
-                  </div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-white">
-                    Tindakan Diperlukan
-                  </h1>
-                </div>
-              </div>
-              <div className="hidden sm:block">
-                <span className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg animate-pulse">
-                  Prioritas Tinggi
+    <div className="bg-white/90 backdrop-blur-xl rounded-xl shadow-2xl border border-white/20 overflow-hidden transition-all hover:shadow-3xl">
+      <div className="relative bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 px-4 py-6 sm:px-8 sm:py-8">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative sm:hidden">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+              <AlertCircle className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-white/90 text-xs font-medium whitespace-nowrap">Status:</span>
+              <span className="bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full text-white text-xs font-semibold truncate">
+                Menunggu Kelengkapan Data
+              </span>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="text-lg font-bold text-white flex-1 min-w-0">
+              Tindakan Diperlukan
+            </h1>
+            <span className="bg-red-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg animate-pulse whitespace-nowrap flex-shrink-0">
+              Prioritas Tinggi
+            </span>
+          </div>
+        </div>
+
+        {/* Desktop Layout: Keep original horizontal layout */}
+        <div className="relative hidden sm:flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg">
+              <AlertCircle className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-white/90 text-sm font-medium">Status:</span>
+                <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-semibold">
+                  Menunggu Kelengkapan Data
                 </span>
               </div>
+              <h1 className="text-2xl font-bold text-white">
+                Tindakan Diperlukan
+              </h1>
             </div>
           </div>
-
-          {/* Content Section */}
-          <div className="p-6 sm:p-8">
-            {/* Main Notice */}
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <CreditCard className="w-8 h-8 text-white" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-3">
-                  Layanan Belum Aktif
-                </h2>
-                <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
-                  Untuk mengaktifkan layanan, kami memerlukan data keuangan perusahaan Anda. 
-                  Silakan isi data di bagian <span className="font-semibold text-amber-600">Xendit Integration</span> pada 
-                  dasbor setting Anda untuk menyelesaikan proses pendaftaran.
-                </p>
-              </div>
-            </div>
-
-            {/* Required Data Section */}
-            <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 rounded-2xl p-6 mb-6 border border-amber-200/50 shadow-inner">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shadow-md">
-                  <FileText className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="font-bold text-slate-800 text-lg">Data yang Diperlukan</h3>
-              </div>
-              
-              <div className="space-y-3">
-                {[
-                  'Id Business Xendit Account Anda',
-                  'Api Key Xendit Account Anda',
-                  'Webhook Secret Key Xendit Account Anda',
-                  'Konfigurasi endpoint Webhook Kami ke Xendit Account Anda'
-                ].map((item, idx) => (
-                  <div 
-                    key={idx}
-                    className="group flex items-start gap-3 p-4 bg-white rounded-xl border border-amber-200/50 hover:border-amber-400 transition-all duration-300 hover:shadow-md"
-                  >
-                    <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-amber-400 to-orange-400 rounded-lg flex items-center justify-center mt-0.5 group-hover:scale-110 transition-transform">
-                      <CheckCircle2 className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-slate-700 font-medium text-sm sm:text-base flex-1">
-                      {item}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* CTA Button */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={handleNavigate}
-                className="group flex-1 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:from-amber-600 hover:via-orange-600 hover:to-red-600 text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
-              >
-                <FileText className="w-5 h-5" />
-                <span>Lengkapi Data Sekarang</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
-
-            {/* Helper Text */}
-            <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
-              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Clock className="w-4 h-4 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-blue-800 text-sm font-medium mb-1">
-                  Butuh bantuan?
-                </p>
-                <p className="text-blue-600 text-sm">
-                  Tim support kami siap membantu Anda. Proses verifikasi biasanya memakan waktu 1-2 hari kerja setelah data lengkap diterima.
-                </p>
-              </div>
-            </div>
+          <div>
+            <span className="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg animate-pulse">
+              Prioritas Tinggi
+            </span>
           </div>
+        </div>
+      </div>
 
-          {/* Footer */}
-          <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-6 sm:px-8 py-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-slate-300 text-sm text-center sm:text-left">
-                Data Anda akan dienkripsi dan dijaga keamanannya
+      {/* Content Section */}
+      <div className="p-4 sm:p-8">
+        {/* Main Notice */}
+        <div className="flex items-start gap-3 sm:gap-4 mb-6">
+          <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+            <CreditCard className="w-5 h-5 sm:w-8 sm:h-8 text-white" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-3xl font-bold text-slate-800 mb-3">
+              Layanan Belum Aktif
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-lg leading-relaxed">
+              Untuk mengaktifkan layanan, kami memerlukan data keuangan perusahaan Anda. 
+              Silakan isi data di bagian <span className="font-semibold text-amber-600">Xendit Integration</span> pada 
+              dasbor setting Anda untuk menyelesaikan proses pendaftaran.
+            </p>
+          </div>
+        </div>
+
+        {/* Bisnis Mode Notice */}
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 mb-6 border border-blue-200/50 shadow-inner">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-slate-800 text-base sm:text-lg mb-2">
+                Pastikan Xendit Account dalam Mode Bisnis
+              </h3>
+              <p className="text-slate-600 text-sm sm:text-base mb-3">
+                Sebelum menginput credentials, pastikan akun Xendit Anda sudah berada di mode bisnis. 
+                Untuk mengaktifkannya:
               </p>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-slate-400 text-xs">Sistem Aman</span>
-              </div>
+              <ol className="list-decimal list-inside text-slate-600 text-sm sm:text-base space-y-2">
+                <li>Login ke dashboard Xendit Anda</li>
+                <li>Lakukan verifikasi akun lengkap (KYC)</li>
+                <li>Pastikan status akun sudah "Bisnis Ready"</li>
+                <li>Hubungi support Xendit jika membutuhkan bantuan verifikasi</li>
+              </ol>
             </div>
+          </div>
+        </div>
+
+        {/* Required Data Section */}
+        <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 rounded-2xl p-4 sm:p-6 mb-6 border border-amber-200/50 shadow-inner">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-amber-500 rounded-xl flex items-center justify-center shadow-md">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            </div>
+            <h3 className="font-bold text-slate-800 text-base sm:text-lg">Data yang Diperlukan</h3>
+          </div>
+          
+          <div className="space-y-3">
+            {[
+              'Id Business Xendit Account Anda',
+              'Api Key Xendit Account Anda',
+              'Webhook Secret Key Xendit Account Anda',
+              'Konfigurasi endpoint Webhook Kami ke Xendit Account Anda'
+            ].map((item, idx) => (
+              <div 
+                key={idx}
+                className="group flex items-start gap-3 p-3 sm:p-4 bg-white rounded-xl border border-amber-200/50 hover:border-amber-400 transition-all duration-300 hover:shadow-md"
+              >
+                <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-amber-400 to-orange-400 rounded-lg flex items-center justify-center mt-0.5 group-hover:scale-110 transition-transform">
+                  <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                </div>
+                <span className="text-slate-700 font-medium text-xs sm:text-base flex-1">
+                  {item}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA Button */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={() => navigate('/setting')}
+            className="group flex-1 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:from-amber-600 hover:via-orange-600 hover:to-red-600 text-white font-bold px-4 py-3 sm:px-6 sm:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
+          >
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-sm sm:text-base">Lengkapi Data Sekarang</span>
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
+
+        {/* Helper Text with WhatsApp */}
+        <div className="mt-6 flex flex-col sm:flex-row items-start gap-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <div className="flex items-start gap-3 flex-1">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-blue-800 text-sm font-medium mb-1">
+                Butuh bantuan?
+              </p>
+              <p className="text-blue-600 text-xs sm:text-sm">
+                Tim support kami siap membantu Anda. Proses verifikasi biasanya memakan waktu 1-2 hari kerja setelah data lengkap diterima.
+              </p>
+            </div>
+          </div>
+          <a 
+            href="https://wa.me/6289524474969" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg w-full sm:w-auto"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span className="text-sm font-medium">Hubungi WhatsApp</span>
+          </a>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-4 sm:px-8 py-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-slate-300 text-xs sm:text-sm text-center sm:text-left">
+            Data Anda akan dienkripsi dan dijaga keamanannya
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span className="text-slate-400 text-xs">Sistem Aman</span>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
 
 export const ServiceStatusCards = ({expiration_access}) => {
   return (
@@ -572,12 +623,6 @@ export function XenditCredentialsGuide() {
               <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
               <p className="text-sm text-gray-700">
                 Periksa URL dashboard untuk memastikan keaslian
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-              <p className="text-sm text-gray-700">
-                Segera ubah API key jika dicurigai telah bocor
               </p>
             </div>
             <div className="flex items-start gap-3">

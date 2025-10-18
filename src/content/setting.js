@@ -292,7 +292,7 @@ const SettingsComponent = () => {
                                             Account Settings
                                         </button>
                                         <button
-                                            onClick={() => setActiveTab('xendit')}
+                                            onClick={() => accountData.established_account ? setActiveTab('xendit') : setActiveTab('account')}
                                             className={`py-6 px-1 border-b-2 font-medium text-md ${
                                             activeTab === 'xendit'
                                                 ? 'border-gray-900 text-gray-900'
@@ -425,6 +425,70 @@ const SettingsComponent = () => {
                                             </div>
                                         ) : (
                                             <>
+                                            {/* Business Mode Requirement Alert */}
+                                            {(!accountData.bussness_id && !accountData.api_key && !accountData.secret_key_webhook) && (
+                                                <div className="relative bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 shadow-lg overflow-hidden">
+                                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-16 -mt-16"></div>
+                                                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-5 rounded-full -ml-12 -mb-12"></div>
+                                                    <div className="relative flex items-start">
+                                                    { !isMobileDeviceType && (
+                                                        <div className="flex-shrink-0">
+                                                            <div className="flex items-center justify-center w-12 h-12 bg-white rounded-lg shadow-md">
+                                                            <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                            </svg>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    <div className="ml-4 flex-1">
+                                                        <div className="flex items-center">
+                                                        <h3 className="text-lg font-bold text-white">
+                                                            Verifikasi Akun Xendit Diperlukan
+                                                        </h3>
+                                                        <span className="ml-3 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full animate-pulse">
+                                                            WAJIB
+                                                        </span>
+                                                        </div>
+                                                        <div className="mt-3 text-blue-50 space-y-2">
+                                                        <p className="font-medium text-white">
+                                                            Akun Xendit Anda <span className="underline decoration-2 decoration-yellow-400">HARUS</span> dalam mode bisnis untuk menggunakan fitur integrasi pembayaran.
+                                                        </p>
+                                                        <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4 mt-3 border border-white border-opacity-20">
+                                                            <p className="text-sm font-semibold text-white mb-2 flex items-center">
+                                                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                                            </svg>
+                                                            Cara Mengaktifkan Mode Bisnis:
+                                                            </p>
+                                                            <ol className="text-sm space-y-2 ml-6">
+                                                            <li className="flex items-start">
+                                                                <span className="font-bold text-yellow-400 mr-2">1.</span>
+                                                                <span>Login ke dashboard Xendit Anda</span>
+                                                            </li>
+                                                            <li className="flex items-start">
+                                                                <span className="font-bold text-yellow-400 mr-2">2.</span>
+                                                                <span>Lengkapi proses verifikasi akun (KYC)</span>
+                                                            </li>
+                                                            <li className="flex items-start">
+                                                                <span className="font-bold text-yellow-400 mr-2">3.</span>
+                                                                <span>Akun akan <span className="font-semibold text-white">otomatis berubah</span> menjadi mode bisnis setelah verifikasi selesai</span>
+                                                            </li>
+                                                            </ol>
+                                                        </div>
+                                                        <div className="flex items-center mt-3 text-sm bg-red-500 bg-opacity-20 border border-red-400 border-opacity-30 rounded-lg px-3 py-2">
+                                                            <svg className="w-5 h-5 text-red-300 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                                            </svg>
+                                                            <span className="font-medium text-red-100">
+                                                            Tanpa verifikasi, integrasi pembayaran tidak akan berfungsi dan transaksi akan gagal!
+                                                            </span>
+                                                        </div>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
                                             {/* Warning Alert */}
                                             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                                                 <div className="flex">
