@@ -76,7 +76,7 @@ const StoreDropdown = () => {
     if (stores.length === 0) {
       dispatch(fetchAllStores())
     }
-  }, [stores])
+  }, [])
 
   // handle data account
   const {dataAccount, errorDataAccount, loadingDataAccount} = useSelector((state) => state.persisted.getDataAccount)

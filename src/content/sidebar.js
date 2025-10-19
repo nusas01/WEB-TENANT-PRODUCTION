@@ -176,25 +176,25 @@ const Sidebar = ({activeMenu}) => {
   // Render Mobile/Tablet Sidebar
   const renderMobileSidebar = () => (
     <>
-      {/* Fixed Overlay Container - FIXED: Added proper z-index and overflow control */}
+      {/* Fixed Overlay Container */}
       <div
         className={`fixed inset-0 z-50 transition-opacity duration-300 ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        {/* Backdrop - FIXED: Proper backdrop with click handler */}
+        {/* Backdrop - Updated untuk tablet: backdrop lebih gelap */}
         <div 
-          className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/40 md:bg-black/50 backdrop-blur-sm"
           onClick={() => dispatch(setIsOpen(false))}
         />
         
-        {/* Sidebar Content - FIXED: Changed to max-w-sm (320px) with proper constraints */}
+        {/* Sidebar Content - Updated: Tablet menggunakan max-w-md (448px) untuk lebih lebar */}
         <div 
-          className={`absolute top-0 left-0 h-full w-full max-w-sm bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out ${
+          className={`absolute top-0 left-0 h-full w-full max-w-sm md:max-w-md bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out ${
             isOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
-          {/* Mobile Header - FIXED: Added flex-shrink-0 to prevent squishing */}
+          {/* Mobile Header */}
           <div className="flex-shrink-0 flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-50">
             <div className="flex items-center space-x-3 min-w-0">
               <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl flex items-center justify-center shadow-sm">
@@ -213,7 +213,7 @@ const Sidebar = ({activeMenu}) => {
             </button>
           </div>
 
-          {/* Mobile Navigation - FIXED: Proper flex-1 with overflow control */}
+          {/* Mobile Navigation */}
           <nav className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-6">
             <div className="space-y-3">
               {menuItems.map((item) => (
@@ -239,7 +239,7 @@ const Sidebar = ({activeMenu}) => {
             </div>
           </nav>
 
-          {/* Mobile Footer - FIXED: Added flex-shrink-0 to prevent squishing */}
+          {/* Mobile Footer */}
           <div className="flex-shrink-0 p-6 border-t border-gray-200 bg-gray-50">
             <button
               onClick={() => dispatch(fetchLogout())}
@@ -294,7 +294,6 @@ const Sidebar = ({activeMenu}) => {
     </>
   );
 };
-
 
 const NavItem = ({ Icon, title }) => (
   <div className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition">
