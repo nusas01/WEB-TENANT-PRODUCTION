@@ -4,6 +4,7 @@ import {
     fetchAllStores,
     fetchDetailStore,
     fetchRequiredPayment,
+    fetchDataAccount,
 } from '../actions/get';
 import { 
   GetStatusChangePaymentGatewaySlice,
@@ -21,6 +22,7 @@ export const UseSSEContainer = () => {
             {loggedIn && <SSEExtendServiceStore />}
             {loggedIn && <SSEESubmissionChangePaymentGateway />}
             {loggedIn && <SSECreateStoreExpired/>}
+            {loggedIn && <SSEFailedCredentialsPaymentGateway/>}
         </>
     )
 }
@@ -75,6 +77,7 @@ const SSECreateStore = () => {
         if (data.refresh_stores) {
             dispatch(fetchAllStores());
             dispatch(fetchRequiredPayment())
+            dispatch(fetchDataAccount())
             if (pathName == '/invoice/create/store') {
                 navigate('/store')
             }
@@ -133,4 +136,19 @@ const SSECreateStoreExpired = () => {
     dispatch(setSelectedStore({}))
     dispatch(setDetailStore(null))
   })
+
+  return null;
+}
+
+const SSEFailedCredentialsPaymentGateway = () => {
+  const dispatch = useDispatch()
+  const url = `${process.env.REACT_APP_FAILED_CHANGE_PAYMENT_GATEWAY}`
+
+  useSSE(url, (data) => {
+    if (data.is_update) {
+      dispatch(fetchDataAccount())
+    }
+  })
+
+  return null;
 }
