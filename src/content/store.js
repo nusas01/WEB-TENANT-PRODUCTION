@@ -4,6 +4,8 @@ import {
   Hash,
   Key,
   ChevronUp,
+  Percent,
+  Monitor,
   Lock,
   EyeOff,
   Eye,
@@ -573,7 +575,7 @@ const StoreManagementDashboard = () => {
                       </div>
                     </div>
                     <button
-                      onClick={() => navigate('/store/update', {state: {dataStoreState: detailStore}})}
+                      onClick={() => navigate('/store/update', { state: { dataStoreState: detailStore } })}
                       className="bg-white px-6 py-1.5 text-gray-900 rounded-lg flex items-center gap-2 transition-colors"
                     >
                       <Edit3 size={18} />
@@ -584,12 +586,16 @@ const StoreManagementDashboard = () => {
 
                 <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Column 1 */}
                     <div className="space-y-4">
                       <div>
-                        <label className="text-sm text-gray-500 mb-2 block">Store Name</label>
+                        <label className="text-sm text-gray-500 mb-2 block flex items-center gap-2">
+                          <Building2 size={16} />
+                          Store Name
+                        </label>
                         <p className="text-gray-900 font-medium">{storeInfo.name}</p>
                       </div>
-                      
+
                       <div>
                         <label className="text-sm text-gray-500 mb-2 block flex items-center gap-2">
                           <Phone size={16} />
@@ -603,56 +609,95 @@ const StoreManagementDashboard = () => {
                           <Globe size={16} />
                           Website
                         </label>
-                          <a href={storeInfo.ref} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700">
-                            {storeInfo.full_domain}
-                          </a>
+                        <a
+                          href={storeInfo.ref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          {storeInfo.full_domain}
+                        </a>
                       </div>
                     </div>
 
+                    {/* Column 2 */}
                     <div className="space-y-4">
                       <div>
                         <label className="text-sm text-gray-500 mb-2 block flex items-center gap-2">
                           <MapPin size={16} />
                           Address
                         </label>
-                          <p className="text-gray-900">{storeInfo.address}</p>
+                        <p className="text-gray-900">{storeInfo.address}</p>
                       </div>
 
                       <div>
-                        <label className="text-sm text-gray-500 mb-2 block">City</label>
+                        <label className="text-sm text-gray-500 mb-2 block flex items-center gap-2">
+                          <MapPin size={16} />
+                          City
+                        </label>
                         <p className="text-gray-900">{storeInfo.city}</p>
                       </div>
-                      
+
                       <div>
-                        <label className="text-sm text-gray-500 mb-2 block">Postal Code</label>
-                          <p className="text-gray-900">{storeInfo.postal_code}</p>
+                        <label className="text-sm text-gray-500 mb-2 block flex items-center gap-2">
+                          <MapPin size={16} />
+                          Postal Code
+                        </label>
+                        <p className="text-gray-900">{storeInfo.postal_code}</p>
                       </div>
                     </div>
 
+                    {/* Column 3 */}
                     <div className="space-y-4">
                       <div>
-                        <label className="text-sm text-gray-500 mb-2 block">State</label>
-                          <p className="text-gray-900">{storeInfo.state}</p>
+                        <label className="text-sm text-gray-500 mb-2 block flex items-center gap-2">
+                          <MapPin size={16} />
+                          State
+                        </label>
+                        <p className="text-gray-900">{storeInfo.state}</p>
                       </div>
 
                       <div>
-                        <label className="text-sm text-gray-500 mb-2 block">Country</label>
-                          <p className="text-gray-900">{storeInfo.country}</p>
+                        <label className="text-sm text-gray-500 mb-2 block flex items-center gap-2">
+                          <Globe size={16} />
+                          Country
+                        </label>
+                        <p className="text-gray-900">{storeInfo.country}</p>
                       </div>
 
                       <div>
-                        <label className="text-sm text-gray-500 mb-2 block">PPN (%)</label>
-                          <p className="text-gray-900">{storeInfo.ppn/1000}%</p>
+                        <label className="text-sm text-gray-500 mb-2 block flex items-center gap-2">
+                          <Percent size={16} />
+                          PPN (%)
+                        </label>
+                        <p className="text-gray-900">{(storeInfo.ppn / 1000).toFixed(1)}%</p>
                       </div>
-
                     </div>
 
-                    <div>
-                      <label className="text-sm text-gray-500 mb-2 block flex items-center gap-2">
-                        <Calendar size={16} />
-                        Created Date
-                      </label>
-                      <p className="text-gray-900">{formatDateTime(storeInfo.created_at)}</p>
+                    {/* Column 4 */}
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm text-gray-500 mb-2 block flex items-center gap-2">
+                          <Calendar size={16} />
+                          Created Date
+                        </label>
+                        <p className="text-gray-900">{formatDateTime(storeInfo.created_at)}</p>
+                      </div>
+
+                      <div>
+                        <label className="text-sm text-gray-500 mb-2 block flex items-center gap-2">
+                          <Monitor size={16} />
+                          Dashboard
+                        </label>
+                        <a
+                          href={storeInfo.dashboard}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          Go to Dashboard
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>
