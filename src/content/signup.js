@@ -204,7 +204,7 @@ export default function TenantRegistrationForm() {
       case 'first_name':
       case 'last_name':
         if (!value) newErrors[name] = `${name.replace('_', ' ')} wajib diisi`;
-        else if (value.length < 4) newErrors[name] = `${name.replace('_', ' ')} minimal 4 karakter`;
+        else if (value.length < 3) newErrors[name] = `${name.replace('_', ' ')} minimal 3 karakter`;
         else if (value.length > 50) newErrors[name] = `${name.replace('_', ' ')} maksimal 50 karakter`;
         break;
 
@@ -697,18 +697,24 @@ export default function TenantRegistrationForm() {
         )}
 
         {/* Registration Form - Only show if package is selected or navigation data exists */}
-        {/* {(selectedPackage || !showPackageSelection) && ( */}
-        <div className="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="mb-8 bg-blue-100 border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
           <div className="flex items-start space-x-3">
-            <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+            <Info className="h-6 w-6 text-blue-600 mt-0.5 flex-shrink-0" />
             <div>
-              <h3 className="text-sm font-medium text-blue-800 mb-1">Important: Xendit Account Required</h3>
-              <p className="text-sm text-blue-700">
-                Before proceeding with registration, please ensure you have an active Xendit account. 
-                Xendit is our payment gateway partner that handles all payment processing. 
-                <a href="https://xendit.co" target="_blank" rel="noopener noreferrer" className="font-medium underline hover:no-underline ml-1">
-                  Create your Xendit account here
-                </a> if you don't have one yet.
+              <h3 className="text-sm font-semibold text-blue-900 mb-1 uppercase tracking-wide">
+                Penting: Diperlukan Akun Xendit
+              </h3>
+              <p className="text-sm text-blue-800 leading-relaxed">
+                Sebelum melanjutkan pendaftaran, pastikan Anda telah memiliki akun Xendit yang aktif. 
+                Xendit adalah mitra gateway pembayaran kami yang menangani seluruh proses transaksi pembayaran. 
+                <a
+                  href="https://xendit.co"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold underline underline-offset-2 hover:text-blue-900 ml-1"
+                >
+                  Buat akun Xendit Anda di sini
+                </a> jika Anda belum memilikinya.
               </p>
             </div>
           </div>

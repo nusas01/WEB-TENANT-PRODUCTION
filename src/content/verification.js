@@ -186,7 +186,7 @@ export default function VerificationForm() {
             <div className="text-sm">
               <p className="text-blue-800 font-medium mb-1">Having trouble?</p>
               <p className="text-blue-700">
-                Check your spam folder or contact our support team if you don't receive the verification code within 5 minutes.
+                Kami telah mengirimkan kode verifikasi ke email Anda; jika tidak menerima dalam 5 menit, harap periksa folder Spam atau Promosi, atau hubungi tim dukungan kami.
               </p>
             </div>
           </div>

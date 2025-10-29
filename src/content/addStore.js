@@ -117,8 +117,8 @@ const AddStoreForm = () => {
                 if (!value) {
                     newErrors.name = 'Nama wajib diisi';
                     isValid = false;
-                } else if (value.length < 6) {
-                    newErrors.name = 'Nama harus terdiri dari minimal 6 karakter';
+                } else if (value.length < 3) {
+                    newErrors.name = 'Nama harus terdiri dari minimal 3 karakter';
                     isValid = false;
                 } else if (value.length > 50) {
                     newErrors.name = 'Nama tidak boleh lebih dari 50 karakter';
