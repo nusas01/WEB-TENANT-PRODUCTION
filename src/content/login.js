@@ -8,6 +8,9 @@ import {
   ArrowRight,
   Store
 } from 'lucide-react';
+import {
+  fetchAuthStatusLogin
+} from '../actions/get'
 import { useNavigate } from 'react-router-dom';
 import { logoutSlice } from '../reducers/get';
 import { loginSlice } from '../reducers/post';
@@ -28,6 +31,19 @@ export default function LoginForm() {
     email: '',
     password: ''
   });
+
+  const { loggedIn } = useSelector((state) => state.persisted.loginStatus); 
+  useEffect(() => {
+    if (!loggedIn) {
+      dispatch(fetchAuthStatusLogin());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (loggedIn) {
+      navigate('/store')
+    }
+  }, [loggedIn])
 
   // handle sumbit login
   const { resetLogout } = logoutSlice.actions
