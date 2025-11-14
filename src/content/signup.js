@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { 
   User, 
   Mail, 
@@ -43,6 +44,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useOutsideClick, formatCurrency } from './helper';
 
 export default function TenantRegistrationForm() {
+  const location = useLocation()
   const navigate = useNavigate()
   const [showPackageSelection, setShowPackageSelection] = useState(true);
   const [toast, setToast] = useState(null)
@@ -174,6 +176,12 @@ export default function TenantRegistrationForm() {
       product_service_id: packageId,
     }));
   };
+
+  useEffect(() => {
+    if (location?.state?.packageId) {
+      handlePackageSelect(location?.state?.packageId)
+    }
+  }, [location?.state?.packageId])
 
   const getTypeIcon = (type) => {
     switch (type) {
