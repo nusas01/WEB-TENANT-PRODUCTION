@@ -171,7 +171,7 @@ const StoreDropdown = () => {
             {/* Header with Add Store Button */}
             <div className="p-3 flex items-center justify-between">
               <h2>Pilih Store</h2>
-              {dataAccount?.api_key && dataAccount?.secret_key_webhook && dataAccount?.bussness_id && dataAccount.established_account && (
+              {/* {dataAccount?.api_key && dataAccount?.secret_key_webhook && dataAccount?.bussness_id && dataAccount.established_account && (
                 <button
                   onClick={() => navigate("/store/add")}
                   disabled={loadingStore}
@@ -180,7 +180,7 @@ const StoreDropdown = () => {
                   <Plus className="w-6 h-6" />
                   <span>Add Store</span>
                 </button>
-              )}
+              )} */}
             </div>
 
             {/* Search Bar */}

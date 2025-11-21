@@ -1062,7 +1062,7 @@ const StoreManagementDashboard = () => {
                     </div>
 
                     <div className="flex gap-3">
-                      <button
+                      {/* <button
                         disabled={storeInfo.full_domain && !storeInfo.verified_at}
                         onClick={() => handleNavigatePaymentProcessing({
                           "store_id": storeInfo.id,
@@ -1079,7 +1079,7 @@ const StoreManagementDashboard = () => {
                           }`}
                       >
                         Perpanjang Layanan
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </div>

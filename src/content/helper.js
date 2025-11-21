@@ -104,7 +104,7 @@ export const MappingPackage = (dataProductService) => {
   const packageMetadata = {
     Starter: {
       segment: 'Untuk Operasional Dasar & Bisnis Kecil',
-      badge: 'Hemat 30%',
+      badge: 'Hemat 50%',
       gradient: 'from-green-500 to-green-600',
       popular: false
     },

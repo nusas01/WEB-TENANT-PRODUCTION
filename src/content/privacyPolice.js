@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Lock, Cloud, Database, Eye, Clock, Phone, FileText, AlertTriangle, CheckCircle, Server, Key, Globe } from 'lucide-react';
+import { Shield, Lock, Cloud, Database, Eye, UserCheck, Clock, Phone, FileText, AlertTriangle, CheckCircle, Server, Key, Globe } from 'lucide-react';
 
 export default function PrivacyPolicy() {
   const [language, setLanguage] = useState('en');
@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
       title: "Privacy Policy",
       subtitle: "How We Protect Your Data",
       lastUpdated: "Last Updated",
-      intro1: "At Nusas.id (\"we,\" \"us,\" or \"our\"), we are committed to protecting your privacy and ensuring the security of your personal and business information. This Privacy Policy explains how we collect, use, store, and protect your data when you use our Point of Sale (POS) software services.",
+      intro1: "At nusas.id (\"we,\" \"us,\" or \"our\"), we are committed to protecting your privacy and ensuring the security of your personal and business information. This Privacy Policy explains how we collect, use, store, and protect your data when you use our Point of Sale (POS) software services.",
       intro2: "By using our services, you consent to the data practices described in this policy.",
       
       sections: {
@@ -198,7 +198,7 @@ export default function PrivacyPolicy() {
       title: "Kebijakan Privasi",
       subtitle: "Bagaimana Kami Melindungi Data Anda",
       lastUpdated: "Terakhir Diperbarui",
-      intro1: "Di Nusas.id (\"kami\" atau \"milik kami\"), kami berkomitmen untuk melindungi privasi Anda dan memastikan keamanan informasi pribadi dan bisnis Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, menyimpan, dan melindungi data Anda saat menggunakan layanan perangkat lunak Point of Sale (POS) kami.",
+      intro1: "Di nusas.id (\"kami\" atau \"milik kami\"), kami berkomitmen untuk melindungi privasi Anda dan memastikan keamanan informasi pribadi dan bisnis Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, menyimpan, dan melindungi data Anda saat menggunakan layanan perangkat lunak Point of Sale (POS) kami.",
       intro2: "Dengan menggunakan layanan kami, Anda menyetujui praktik data yang dijelaskan dalam kebijakan ini.",
       
       sections: {
@@ -778,8 +778,291 @@ export default function PrivacyPolicy() {
         {/* Copyright */}
         <div className="mt-8 pt-6 border-t border-gray-200">
           <p className="text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} Nusas.id - All Rights Reserved
+            © {new Date().getFullYear()} nusas.id - All Rights Reserved
           </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function CustomerPrivacyPolicy() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white py-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
+              <Shield className="h-10 w-10" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold">Privacy Policy</h1>
+              <p className="text-blue-100 text-lg mt-2">How We Protect Your Data</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2 text-blue-200">
+            <Clock className="h-5 w-5" />
+            <span>Last Updated: November 21, 2025</span>
+          </div>
+          <div className="h-1 w-24 bg-blue-400 mt-6 rounded-full"></div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        {/* Introduction */}
+        <div className="bg-white rounded-xl shadow-sm p-8 mb-8">
+          <p className="text-gray-700 text-lg leading-relaxed mb-4">
+            Sebagai pelanggan restoran atau kafe yang menggunakan layanan Point of Sale (POS) dari <strong>nusas.id</strong>, 
+            kami berkomitmen untuk melindungi privasi dan keamanan data pribadi Anda. Kebijakan Privasi ini menjelaskan 
+            bagaimana kami mengumpulkan, menggunakan, menyimpan, dan melindungi informasi Anda saat Anda melakukan pemesanan 
+            atau transaksi di merchant yang menggunakan sistem kami.
+          </p>
+          <p className="text-gray-700 text-lg leading-relaxed">
+            Dengan melakukan transaksi melalui sistem kami, Anda menyetujui praktik pengumpulan dan penggunaan data 
+            sebagaimana dijelaskan dalam kebijakan ini.
+          </p>
+        </div>
+
+        {/* Section 1 */}
+        <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
+          <div className="flex items-start space-x-4 mb-6">
+            <div className="bg-blue-600 p-3 rounded-lg flex-shrink-0">
+              <Database className="h-6 w-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">1. Informasi yang Kami Kumpulkan</h2>
+            </div>
+          </div>
+          
+          <p className="text-gray-700 mb-4">Kami mengumpulkan informasi berikut untuk memproses pesanan dan meningkatkan layanan:</p>
+          
+          <div className="space-y-4 ml-4">
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">1.1 Informasi Pesanan</h3>
+              <ul className="space-y-2 ml-6">
+                <li className="flex items-start space-x-2 text-gray-700">
+                  <span className="text-blue-500 mt-1">✓</span>
+                  <span>Username / email pelanggan</span>
+                </li>
+                <li className="flex items-start space-x-2 text-gray-700">
+                  <span className="text-blue-500 mt-1">✓</span>
+                  <span>Nomor meja atau nomor pesanan</span>
+                </li>
+                <li className="flex items-start space-x-2 text-gray-700">
+                  <span className="text-blue-500 mt-1">✓</span>
+                  <span>Detail menu yang dipesan</span>
+                </li>
+                <li className="flex items-start space-x-2 text-gray-700">
+                  <span className="text-blue-500 mt-1">✓</span>
+                  <span>Total pembayaran dan metode pembayaran</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">1.2 Informasi Kontak (Opsional)</h3>
+              <ul className="space-y-2 ml-6">
+                <li className="flex items-start space-x-2 text-gray-700">
+                  <span className="text-blue-500 mt-1">✓</span>
+                  <span>Nomor telepon untuk notifikasi pesanan</span>
+                </li>
+                <li className="flex items-start space-x-2 text-gray-700">
+                  <span className="text-blue-500 mt-1">✓</span>
+                  <span>Alamat email untuk struk digital (jika diminta)</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">1.3 Informasi Teknis</h3>
+              <ul className="space-y-2 ml-6">
+                <li className="flex items-start space-x-2 text-gray-700">
+                  <span className="text-blue-500 mt-1">✓</span>
+                  <span>Alamat IP perangkat</span>
+                </li>
+                <li className="flex items-start space-x-2 text-gray-700">
+                  <span className="text-blue-500 mt-1">✓</span>
+                  <span>Jenis perangkat dan browser yang digunakan</span>
+                </li>
+                <li className="flex items-start space-x-2 text-gray-700">
+                  <span className="text-blue-500 mt-1">✓</span>
+                  <span>Waktu dan tanggal transaksi</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 2 */}
+        <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
+          <div className="flex items-start space-x-4 mb-6">
+            <div className="bg-blue-600 p-3 rounded-lg flex-shrink-0">
+              <Eye className="h-6 w-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">2. Bagaimana Kami Menggunakan Informasi Anda</h2>
+            </div>
+          </div>
+          
+          <p className="text-gray-700 mb-4">Informasi yang kami kumpulkan digunakan untuk:</p>
+          
+          <ul className="space-y-3 ml-4">
+            <li className="flex items-start space-x-3 text-gray-700">
+              <span className="text-blue-600 font-bold text-xl">•</span>
+              <span><strong>Memproses pesanan:</strong> Menyampaikan pesanan Anda ke dapur dan menyelesaikan transaksi pembayaran</span>
+            </li>
+            <li className="flex items-start space-x-3 text-gray-700">
+              <span className="text-blue-600 font-bold text-xl">•</span>
+              <span><strong>Komunikasi pesanan:</strong> Mengirim notifikasi status pesanan (siap, sedang diproses, dll)</span>
+            </li>
+            <li className="flex items-start space-x-3 text-gray-700">
+              <span className="text-blue-600 font-bold text-xl">•</span>
+              <span><strong>Struk digital:</strong> Mengirimkan bukti pembayaran melalui email atau account pelanggan</span>
+            </li>
+            <li className="flex items-start space-x-3 text-gray-700">
+              <span className="text-blue-600 font-bold text-xl">•</span>
+              <span><strong>Meningkatkan layanan:</strong> Menganalisis preferensi menu untuk rekomendasi yang lebih baik</span>
+            </li>
+            <li className="flex items-start space-x-3 text-gray-700">
+              <span className="text-blue-600 font-bold text-xl">•</span>
+              <span><strong>Keamanan:</strong> Mencegah penipuan dan aktivitas yang mencurigakan</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Section 3 */}
+        <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
+          <div className="flex items-start space-x-4 mb-6">
+            <div className="bg-blue-600 p-3 rounded-lg flex-shrink-0">
+              <Lock className="h-6 w-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">3. Keamanan Data Anda</h2>
+            </div>
+          </div>
+          
+          <p className="text-gray-700 mb-4">Kami menerapkan langkah-langkah keamanan untuk melindungi informasi Anda:</p>
+          
+          <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-r-lg space-y-3">
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+              <span className="text-gray-800">Enkripsi SSL/TLS untuk semua transaksi</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+              <span className="text-gray-800">Akses terbatas hanya untuk pihak yang berwenang</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+              <span className="text-gray-800">Sistem backup dan pemulihan data secara berkala</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+              <span className="text-gray-800">Monitoring keamanan 24/7</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 4 */}
+        <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
+          <div className="flex items-start space-x-4 mb-6">
+            <div className="bg-blue-600 p-3 rounded-lg flex-shrink-0">
+              <UserCheck className="h-6 w-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">4. Berbagi Informasi</h2>
+            </div>
+          </div>
+          
+          <p className="text-gray-700 mb-4">Kami TIDAK menjual atau menyewakan data pribadi Anda kepada pihak ketiga. Informasi Anda hanya dibagikan kepada:</p>
+          
+          <ul className="space-y-3 ml-4">
+            <li className="flex items-start space-x-3 text-gray-700">
+              <span className="text-green-600 font-bold">✓</span>
+              <span><strong>Merchant/Restoran:</strong> Untuk memproses pesanan Anda</span>
+            </li>
+            <li className="flex items-start space-x-3 text-gray-700">
+              <span className="text-green-600 font-bold">✓</span>
+              <span><strong>Penyedia pembayaran:</strong> Untuk menyelesaikan transaksi (data pembayaran dienkripsi)</span>
+            </li>
+            <li className="flex items-start space-x-3 text-gray-700">
+              <span className="text-green-600 font-bold">✓</span>
+              <span><strong>Pihak berwajib:</strong> Jika diwajibkan oleh hukum</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Section 5 */}
+        <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
+          <div className="flex items-start space-x-4 mb-6">
+            <div className="bg-blue-600 p-3 rounded-lg flex-shrink-0">
+              <FileText className="h-6 w-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">5. Hak Anda</h2>
+            </div>
+          </div>
+          
+          <p className="text-gray-700 mb-4">Sebagai pelanggan, Anda memiliki hak untuk:</p>
+          
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="border-l-4 border-blue-500 pl-4 py-2">
+              <p className="font-semibold text-gray-900">Akses Data</p>
+              <p className="text-gray-600 text-sm">Meminta salinan data pribadi yang kami simpan</p>
+            </div>
+            <div className="border-l-4 border-blue-500 pl-4 py-2">
+              <p className="font-semibold text-gray-900">Koreksi Data</p>
+              <p className="text-gray-600 text-sm">Memperbarui informasi yang tidak akurat</p>
+            </div>
+            <div className="border-l-4 border-blue-500 pl-4 py-2">
+              <p className="font-semibold text-gray-900">Penghapusan Data</p>
+              <p className="text-gray-600 text-sm">Meminta penghapusan data pribadi Anda</p>
+            </div>
+            <div className="border-l-4 border-blue-500 pl-4 py-2">
+              <p className="font-semibold text-gray-900">Penarikan Persetujuan</p>
+              <p className="text-gray-600 text-sm">Mencabut persetujuan penggunaan data</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 6 */}
+        <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
+          <div className="flex items-start space-x-4 mb-6">
+            <div className="bg-blue-600 p-3 rounded-lg flex-shrink-0">
+              <Clock className="h-6 w-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">6. Penyimpanan Data</h2>
+            </div>
+          </div>
+          
+          <p className="text-gray-700">
+            Data transaksi Anda akan disimpan selama <strong>2 tahun</strong> untuk keperluan laporan keuangan dan pajak. 
+            Setelah periode tersebut, data akan dihapus secara permanen dari sistem kami, kecuali diwajibkan oleh hukum untuk 
+            menyimpannya lebih lama.
+          </p>
+        </div>
+
+        {/* Contact Section */}
+        <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg p-8 text-white">
+          <h2 className="text-2xl font-bold mb-4">Hubungi Kami</h2>
+          <p className="text-blue-100 mb-4">
+            Jika Anda memiliki pertanyaan tentang Kebijakan Privasi ini atau ingin menggunakan hak Anda, 
+            silakan hubungi:
+          </p>
+          <div className="space-y-2 bg-white/10 backdrop-blur-sm rounded-lg p-6">
+            <p className="font-semibold">nusas.id - Customer Support</p>
+            <p>Email: nusasinternal@gmail.com</p>
+            <p>Telepon: +62 812-3456-7890</p>
+          </div>
+        </div>
+
+        {/* Footer Note */}
+        <div className="mt-8 text-center text-gray-600 text-sm">
+          <p>Kebijakan ini berlaku efektif mulai 21 November 2025</p>
+          <p className="mt-2">Kami dapat memperbarui kebijakan ini dari waktu ke waktu. Perubahan akan diberitahukan melalui sistem atau email.</p>
         </div>
       </div>
     </div>

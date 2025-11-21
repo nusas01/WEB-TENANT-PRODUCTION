@@ -352,8 +352,14 @@ export default function QRestroLanding() {
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </button>
               
-              {/* <button className="group flex items-center space-x-3 px-8 py-4 border border-gray-300 rounded-full hover:bg-gray-50 transition-all duration-300">
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+              {/* <button onClick={() => window.open(
+                "https://resto.nusas.id",
+                "_blank",
+                "width=390,height=800"
+                )} 
+                className="group flex items-center space-x-3 px-8 py-4 border border-gray-300 rounded-full hover:bg-gray-50 transition-all duration-300"
+              >
+                <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
                   <Play className="h-5 w-5 ml-1 text-gray-700" />
                 </div>
                 <span className="text-gray-700">Tonton Demo</span>
@@ -939,34 +945,76 @@ export default function QRestroLanding() {
       </section>
 
       {/* Footer */}
-      <footer className="relative bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 py-16 relative z-10">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            {/* Brand */}
+      <footer className="relative bg-gradient-to-b from-slate-900 to-slate-950 text-gray-300">
+        <div className="container mx-auto px-4 sm:px-6 py-16">
+          {/* Main Footer Content */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            {/* Brand & Company Info */}
             <div className="lg:col-span-2">
-              <div className="flex items-center space-x-1 mb-6">
-                <img src='/image/logo_nusas_1.png' alt="logo" className="w-12 h-12" />
-                <div className="text-2xl font-bold bg-gradient-to-r from-green-400 to-green-500 bg-clip-text text-transparent">
+              <div className="flex items-center space-x-2 mb-6">
+                <img src='/image/logo_nusas_1.png' alt="Nusas Logo" className="w-12 h-12" />
+                <div className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
                   nusas
                 </div>
               </div>
-              <p className="text-gray-400 mb-6 leading-relaxed max-w-md">
+              
+              <p className="text-gray-400 mb-8 leading-relaxed max-w-md">
                 Platform digitalisasi F&B terdepan di Indonesia. Kami membantu ribuan restoran dan cafe 
                 bertransformasi digital dengan teknologi AI dan automation terkini.
               </p>
-              <div className="flex space-x-4">
-                {['Facebook', 'Instagram', 'LinkedIn', 'Twitter'].map((social, index) => (
-                  <button key={index} className="w-10 h-10 bg-slate-400 rounded-lg flex items-center justify-center hover:bg-green-500/20 hover:text-green-400 transition-all duration-300">
-                    <span className="text-xs">{social.charAt(0)}</span>
+
+              {/* Company Legal Info */}
+              <div className="space-y-4 mb-8">
+                <h5 className="text-white font-semibold text-sm mb-4">PT NUSAS DIGITAL SOLUSI</h5>
+                
+                <div className="flex items-start space-x-3 text-sm">
+                  <MapPin className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-gray-400">
+                      KP Tunggul Jaya RT/RW 007/001, Lebakwana,<br />
+                      Kramatwatu, Serang, Banten, Indonesia
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 text-sm">
+                  <Mail className="w-5 h-5 text-green-400 flex-shrink-0" />
+                  <a href="mailto:nusasinternal@gmail.com" className="text-gray-400 hover:text-green-400 transition-colors">
+                    nusasinternal@gmail.com
+                  </a>
+                </div>
+
+                <div className="flex items-center space-x-3 text-sm">
+                  <Phone className="w-5 h-5 text-green-400 flex-shrink-0" />
+                  <a href="https://wa.me/6289524474969" className="text-gray-400 hover:text-green-400 transition-colors">
+                    +62 895-2447-4969
+                  </a>
+                </div>
+              </div>
+
+              {/* Social Media */}
+              {/* <div className="flex space-x-3">
+                {[
+                  { icon: Facebook, label: 'Facebook' },
+                  { icon: Instagram, label: 'Instagram' },
+                  { icon: Linkedin, label: 'LinkedIn' },
+                  { icon: Twitter, label: 'Twitter' }
+                ].map((social, index) => (
+                  <button 
+                    key={index}
+                    aria-label={social.label}
+                    className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-green-500 hover:scale-110 transition-all duration-300 group"
+                  >
+                    <social.icon className="w-5 h-5 text-gray-400 group-hover:text-white" />
                   </button>
                 ))}
-              </div>
+              </div> */}
             </div>
 
             {/* Solutions */}
             <div>
               <h4 className="text-lg font-semibold mb-6 text-white">Solusi</h4>
-              <ul className="space-y-3 text-gray-400">
+              <ul className="space-y-3">
                 {[
                   'QR Code Ordering',
                   'Payment Integration',
@@ -975,7 +1023,7 @@ export default function QRestroLanding() {
                   'Multi-location',
                   'API Integration'
                 ].map((item, index) => (
-                  <li key={index} className="hover:text-green-400 transition-colors cursor-pointer">
+                  <li key={index} className="text-gray-400">
                     {item}
                   </li>
                 ))}
@@ -985,7 +1033,7 @@ export default function QRestroLanding() {
             {/* Support */}
             <div>
               <h4 className="text-lg font-semibold mb-6 text-white">Support</h4>
-              <ul className="space-y-3 text-gray-400">
+              <ul className="space-y-3">
                 {[
                   'Documentation',
                   'Help Center',
@@ -994,7 +1042,7 @@ export default function QRestroLanding() {
                   'System Status',
                   'Contact Support'
                 ].map((item, index) => (
-                  <li key={index} className="hover:text-green-400 transition-colors cursor-pointer">
+                  <li key={index} className="text-gray-400">
                     {item}
                   </li>
                 ))}
@@ -1003,14 +1051,15 @@ export default function QRestroLanding() {
           </div>
 
           {/* Bottom Bar */}
-          <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row justify-between items-center">
-            <div className="text-gray-500 text-sm mb-4 sm:mb-0">
-              © 2025 nusas. All rights reserved. Made with ❤️ in Indonesia
-            </div>
-            <div className="flex space-x-6 text-sm text-gray-500">
-              <button className="hover:text-green-400 transition-colors">Privacy Policy</button>
-              <button className="hover:text-green-400 transition-colors">Terms of Service</button>
-              <button className="hover:text-green-400 transition-colors">Cookie Policy</button>
+          <div className="border-t border-slate-800 pt-8">
+            <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
+              <div className="text-gray-500 text-sm text-center lg:text-left">
+                © 2025 PT NUSAS DIGITAL SOLUSI. All rights reserved. Made with ❤️ in Indonesia
+              </div>
+              <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
+                <button onClick={() => navigate('/privacy/policy')} className="hover:text-green-400 transition-colors">Privacy Policy</button>
+                <button onClick={() => navigate('/term/and/condition')} className="hover:text-green-400 transition-colors">Terms of Service</button>
+              </div>
             </div>
           </div>
         </div>

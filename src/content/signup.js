@@ -679,7 +679,7 @@ export default function TenantRegistrationForm() {
 
         {/* Selected Package Summary - Show if package is selected */}
         {formData.product_service_id && !showPackageSelection && (
-          <div className="mb-8 bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="mb-2 bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-green-500 rounded-lg">
@@ -701,6 +701,222 @@ export default function TenantRegistrationForm() {
                 Change Package
               </button>
             </div>
+          </div>
+        )}
+
+        {formData.product_service_id && !showPackageSelection && (
+          <div className="bg-white px-6 py-4 rounded-2xl overflow-visible receipt-shadow shadow-md mb-2">
+            <div className="md:col-span-2 space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Payment Method <span className="text-red-500">*</span>
+              </label>
+              
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsOpenPaymentMethod(!isOpenPaymentMethod)}
+                  className={`relative w-full bg-white border rounded-lg px-4 py-3 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${
+                    (errors.payment_method || errors.PaymentMethod)
+                      ? 'border-red-300 bg-red-50' 
+                      : isOpenPaymentMethod 
+                      ? 'border-green-500 shadow-lg' 
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      {formData.payment_method ? (
+                        <>
+                          <div>
+                            <span className="block text-sm font-medium text-gray-900">
+                              {formData.channel_code}
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="h-5 w-5 text-gray-400" />
+                          <span className="text-gray-500">Select Payment Method</span>
+                        </>
+                      )}
+                    </div>
+                    <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpenPaymentMethod ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+
+                {/* Dropdown dengan positioning yang lebih baik */}
+                <div 
+                  className={`absolute left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden transition-all duration-300 ${
+                    isOpenPaymentMethod 
+                      ? 'max-h-80 opacity-100 visible' 
+                      : 'max-h-0 opacity-0 invisible'
+                  }`}
+                >
+                  <div className="px-4 py-3 bg-blue-500 text-white rounded-t-lg">
+                    <span className="text-sm font-medium">Select Payment Method</span>
+                  </div>
+                  
+                  <div className="py-2 max-h-64 overflow-y-auto">
+                    {Object.entries(groupedPaymentMethods).map(([type, methods]) => (
+                      <div key={type}>
+                        <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50 border-t border-gray-100">
+                          <div className="flex items-center space-x-2">
+                            {getTypeIcon(type)}
+                            <span>{getTypeLabel(type)}</span>
+                          </div>
+                        </div>
+                        
+                        {methods.map((method) => (
+                          <button
+                            key={method.id}
+                            type="button"
+                            name="payment_method"
+                            onClick={() => handlePaymentMethodClick({ 
+                              id: method.id,
+                              channelCode: method.channel_code,
+                              paymentMethod: method.type_payment_method,
+                              price: method.fee
+                            })}
+                            className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors duration-150"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div>
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {method.channel_code}
+                                  </div>
+                                </div>
+                              </div>
+                              {formData.payment_method === method.type_payment_method && formData.channel_code === method.channel_code && (
+                                <Check className="h-4 w-4 text-green-500" />
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {(errors.payment_method || errors.PaymentMethod) && (
+                <div className="flex items-center space-x-1 text-red-600 text-sm mt-1">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{errors.payment_method || errors.PaymentMethod}</span>
+                </div>
+              )}
+
+              {formData.payment_method && (
+                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <div className="flex items-center space-x-2 text-green-800">
+                      <Check className="w-4 h-4" />
+                      <span className="font-medium">Selected:</span>
+                    </div>
+                    <span className="text-green-700">
+                      {formData.channel_code} ({getTypeLabel(formData.type_payment_method)})
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* E-Wallet Phone Number (conditional) */}
+            {formData.payment_method === 'EWALLET' && (
+              <div className="md:col-span-2 space-y-2 mt-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  E-Wallet Phone Number <span className="text-red-500">*</span>
+                </label>
+                <div 
+                  className={`flex items-center w-full px-4 py-3 rounded-lg border 
+                    ${(errors.phone_number_ewallet || errors.PhoneNumberEwallet) ? 'border-red-300' : 'border-gray-300'} 
+                    focus-within:ring-2 focus-within:ring-gray-900`}
+                >
+                  <span className="mr-2">+62</span>
+                  <span className="mr-2 items-center">|</span>
+                  <input
+                    type="text"
+                    name="phone_number_ewallet"
+                    value={formData.phone_number_ewallet}
+                    onChange={handleInputChange}
+                    placeholder="Phone number linked to your e-wallet"
+                    className="flex-1 outline-none border-none focus:ring-0"
+                    maxLength="12"
+                  />
+                </div>
+                {(errors.phone_number_ewallet || errors.PhoneNumberEwallet) && (
+                  <div className="flex items-center space-x-1 text-red-600 text-sm">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{errors.phone_number_ewallet || errors.PhoneNumberEwallet}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* card price Information */}
+        {formData.product_service_id && !showPackageSelection && (
+          <div class="bg-white rounded-2xl overflow-hidden receipt-shadow shadow-md mb-8">
+              <div class="px-6 py-4">
+                  <div class="space-y-2">
+                      <div class="flex justify-between items-star divider">
+                          <div class="flex items-start">
+                              <div>
+                                  <h3 class="font-medium text-gray-800">Subtotal</h3>
+                                  <p class="text-gray-500 text-sm">Harga layanan package Service</p>
+                              </div>
+                          </div>
+                          <div class="text-right">
+                              <p class="font-medium text-gray-800">{formatCurrency(packagePrice)}</p>
+                          </div>
+                      </div>
+
+                      <div class="flex justify-between items-start divider">
+                          <div class="flex items-start">
+                              <div>
+                                  <h3 class="font-medium text-gray-800">Pajak</h3>
+                                  <p class="text-gray-500 text-sm">Pajak pemerintah</p>
+                              </div>
+                          </div>
+                          <div class="text-right">
+                              <p class="font-medium text-gray-800">{formatCurrency(taxTransaction)}</p>
+                          </div>
+                      </div>
+
+                      <div class="flex justify-between items-start">
+                          <div class="flex items-start">
+                              <div>
+                                  <div class="flex items-center space-x-2">
+                                      <h3 class="font-medium text-gray-800">Biaya Pembayaran</h3>
+                                  </div>
+                                  <p class="text-gray-500 text-sm">Biaya pemrosesan transaksi</p>
+                              </div>
+                          </div>
+                          <div class="text-right">
+                              <p class="font-medium text-gray-800">{formatCurrency(paymentFee)}</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 py-4 px-6 border-t border-gray-100">
+                  <div class="flex justify-between items-center">
+                      <div class="flex items-center space-x-4">
+                          <div>
+                              <h3 class="text-lg font-bold text-dark">Total Pembayaran</h3>
+                              <p class="text-gray-600 text-sm">Termasuk semua biaya</p>
+                          </div>
+                      </div>
+                      <div class="text-right">
+                          <p class="text-2xl font-bold text-primary">{formatCurrency((tax * packagePrice) + paymentFee + packagePrice)}</p>
+                          <div class="flex items-center justify-end space-x-1 mt-1">
+                              <i class="fas fa-check-circle text-green-500"></i>
+                              <span class="text-xs text-green-600 font-medium">Jumlah akhir</span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
           </div>
         )}
 
@@ -1157,149 +1373,6 @@ export default function TenantRegistrationForm() {
                 Payment Information
               </h2>
             </div>
-
-            {/* Payment Method Dropdown */}
-            <div className="md:col-span-2 space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Payment Method <span className="text-red-500">*</span>
-              </label>
-              
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => setIsOpenPaymentMethod(!isOpenPaymentMethod)}
-                  className={`relative w-full bg-white border rounded-lg px-4 py-3 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${
-                    (errors.payment_method || errors.PaymentMethod)
-                      ? 'border-red-300 bg-red-50' 
-                      : isOpenPaymentMethod 
-                      ? 'border-green-500 shadow-lg' 
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      {formData.payment_method ? (
-                        <>
-                          <div>
-                            <span className="block text-sm font-medium text-gray-900">
-                              {formData.channel_code}
-                            </span>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <CreditCard className="h-5 w-5 text-gray-400" />
-                          <span className="text-gray-500">Select Payment Method</span>
-                        </>
-                      )}
-                    </div>
-                    <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isOpenPaymentMethod ? 'rotate-180' : ''}`} />
-                  </div>
-                </button>
-
-                {isOpenPaymentMethod && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-80 overflow-y-auto">
-                    <div className="px-4 py-3 bg-blue-500 text-white rounded-t-lg">
-                      <span className="text-sm font-medium">Select Payment Method</span>
-                    </div>
-                    
-                    <div className="py-2">
-                      {Object.entries(groupedPaymentMethods).map(([type, methods]) => (
-                        <div key={type}>
-                          <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50 border-t border-gray-100">
-                            <div className="flex items-center space-x-2">
-                              {getTypeIcon(type)}
-                              <span>{getTypeLabel(type)}</span>
-                            </div>
-                          </div>
-                          
-                          {methods.map((method) => (
-                            <button
-                              key={method.id}
-                              type="button"
-                              name="payment_method"
-                              onClick={() => handlePaymentMethodClick({ 
-                                id: method.id,
-                                channelCode: method.channel_code,
-                                paymentMethod: method.type_payment_method,
-                                price: method.fee
-                              })}
-                              className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors duration-150"
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                  <div>
-                                    <div className="text-sm font-medium text-gray-900">
-                                      {method.channel_code}
-                                    </div>
-                                  </div>
-                                </div>
-                                {formData.payment_method === method.type_payment_method && formData.channel_code === method.channel_code && (
-                                  <Check className="h-4 w-4 text-green-500" />
-                                )}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {(errors.payment_method || errors.PaymentMethod) && (
-                <div className="flex items-center space-x-1 text-red-600 text-sm mt-1">
-                  <AlertCircle className="h-4 w-4" />
-                  <span>{errors.payment_method || errors.PaymentMethod}</span>
-                </div>
-              )}
-
-              {formData.payment_method && (
-                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center space-x-2 text-sm">
-                    <div className="flex items-center space-x-2 text-green-800">
-                      <Check className="w-4 h-4" />
-                      <span className="font-medium">Selected:</span>
-                    </div>
-                    <span className="text-green-700">
-                      {formData.channel_code} ({getTypeLabel(formData.type_payment_method)})
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* E-Wallet Phone Number (conditional) */}
-            {formData.payment_method === 'EWALLET' && (
-              <div className="md:col-span-2 space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  E-Wallet Phone Number <span className="text-red-500">*</span>
-                </label>
-                <div 
-                className={`flex items-center w-full px-4 py-3 rounded-lg border 
-                    ${(errors.phone_number_ewallet || errors.PhoneNumberEwallet) ? 'border-red-300' : 'border-gray-300'} 
-                    focus-within:ring-2 focus-within:ring-gray-900`}
-                >
-                    <span className="mr-2">+62</span>
-                    <span className="mr-2 items-center">|</span>
-                  <input
-                    type="text"
-                    name="phone_number_ewallet"
-                    value={formData.phone_number_ewallet}
-                    onChange={handleInputChange}
-                    placeholder="Phone number linked to your e-wallet"
-                    className="flex-1 outline-none border-none focus:ring-0"
-                    maxLength="12"
-                  />
-                </div>
-                {(errors.phone_number_ewallet || errors.PhoneNumberEwallet) && (
-                  <div className="flex items-center space-x-1 text-red-600 text-sm">
-                    <AlertCircle className="h-4 w-4" />
-                    <span>{errors.phone_number_ewallet || errors.PhoneNumberEwallet}</span>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           {/* Submit Button */}
@@ -1400,80 +1473,17 @@ export default function TenantRegistrationForm() {
               {loadingRegister ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Creating Account...
+                  Buying...
                 </>
               ) : (
                 <>
                   <CheckCircle className="h-5 w-5 mr-2" />
-                  Create Tenant Account
+                  Buy
                 </>
               )}
             </button>
           </div>
         </form>
-
-        {/* card price Information */}
-        <div class="bg-white rounded-2xl overflow-hidden receipt-shadow shadow-xl mt-6">
-            <div class="px-6 py-4">
-                <div class="space-y-2">
-                    <div class="flex justify-between items-star divider">
-                        <div class="flex items-start">
-                            <div>
-                                <h3 class="font-medium text-gray-800">Subtotal</h3>
-                                <p class="text-gray-500 text-sm">Harga layanan package Service</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-medium text-gray-800">{formatCurrency(packagePrice)}</p>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-start divider">
-                        <div class="flex items-start">
-                            <div>
-                                <h3 class="font-medium text-gray-800">Pajak</h3>
-                                <p class="text-gray-500 text-sm">Pajak pemerintah</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-medium text-gray-800">{formatCurrency(taxTransaction)}</p>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-start">
-                        <div class="flex items-start">
-                            <div>
-                                <div class="flex items-center space-x-2">
-                                    <h3 class="font-medium text-gray-800">Biaya Pembayaran</h3>
-                                </div>
-                                <p class="text-gray-500 text-sm">Biaya pemrosesan transaksi</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-medium text-gray-800">{formatCurrency(paymentFee)}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 py-4 px-6 border-t border-gray-100">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-4">
-                        <div>
-                            <h3 class="text-lg font-bold text-dark">Total Pembayaran</h3>
-                            <p class="text-gray-600 text-sm">Termasuk semua biaya</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-2xl font-bold text-primary">{formatCurrency((tax * packagePrice) + paymentFee + packagePrice)}</p>
-                        <div class="flex items-center justify-end space-x-1 mt-1">
-                            <i class="fas fa-check-circle text-green-500"></i>
-                            <span class="text-xs text-green-600 font-medium">Jumlah akhir</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
       </div>
     </div>
   );
